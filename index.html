@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1 class="main-heading">Market Simulator And Pricing Analysis Application</h1>
+    </header>
+    <section class="mode-toggle">
+        <h2>Mode:</h2>
+        <button>Demand-Side (Pricing)</button>
+        <button>Supply-Side (Distortion)</button>
+    </section>
+    <main>
+        <section class="main-section">
+            <h2 class="section-heading">Main Market Graph</h2>
+            <div class="main-grid">
+                <div class="container">
+                    <div class="row flex-md-row-reverse">
+                        <div class="col-12 col-md-8">
+                            <section class="graph-panel">
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, voluptate. Doloribus,
+                                quisquam. Voluptas, voluptate. Doloribus, quisquam. Voluptas, voluptate. Doloribus,
+                                quisquam. Voluptas, voluptate. Doloribus, quisquam.
+                            </section>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <section class="controls-panel">
+                                <div class="demand"></div>
+                                <div class="demand-type">
+                                    <label for="demandType">Demand Type:</label>
+                                    <select id="demandType">
+                                        <option value="linear">Linear</option>
+                                        <option value="income">Income-based</option>
+                                        <option value="nonlinear">Non-linear</option>
+                                    </select>
+                                </div>
+                                <div class="demand-linear">
+                                    <div class="slider-group">
+                                        <label for="a">a:</label>
+                                        <input type="range" id="a" min="0" max="100" value="50">
+                                        <input type="number" id="aValue" value="50">
+                                    </div>
+                                    <div class="slider-group">
+                                        <label for="b">b: </label>
+                                        <input type="range" id="b" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" id="bValue" value="5">
+                                    </div>
+                                </div>
+                                <div class="demand-income">
+                                    <div class="slider-group">
+                                        <label for="income">Income (I):</label>
+                                        <input type="range" id="income" min="0" max="1000" step="10" value="500">
+                                        <input type="number" id="incomeValue" class="value-input" min="0" max="1000"
+                                            step="10" value="500">
+                                    </div>
+                                    <div class="slider-group">
+                                        <label for="k">Preference Share (k):</label>
+                                        <input type="range" id="k" min="0" max="1" step="0.05" value="0.5">
+                                        <input type="number" id="kValue" class="value-input" min="0" max="1" step="0.05"
+                                            value="0.5">
+                                    </div>
+                                </div>
+                                <div class="demand-nonlinear">
+                                    <div class="slider-group">
+                                        <label for="aNonlinear">Scale (a):</label>
+                                        <input type="range" id="aNonlinear" min="0" max="100" step="1" value="50">
+                                        <input type="number" id="aNonlinearValue" class="value-input" min="0" max="100"
+                                            step="1" value="50">
+                                    </div>
+                                    <div class="slider-group">
+                                        <label for="bNonlinear">Price Sensitivity (b):</label>
+                                        <input type="range" id="bNonlinear" min="0" max="1" step="0.05" value="0.2">
+                                        <input type="number" id="bNonlinearValue" class="value-input" min="0" max="1"
+                                            step="0.05" value="0.2">
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="metrics-panel">
+            <h2 class="section-heading">Key Metrics</h2>
+            <div class="general-metrics">
+                <p>Equilibrium Price: <span id="equilibriumPrice">8.33</span></p>
+                <p>Equilibrium Quantity: <span id="equilibriumQuantity">41.67</span></p>
+                <p>Revenue-Maximizing Price: <span id="revenueMaximizingPrice">5.00</span></p>
+                <p>Revenue-Maximizing Quantity: <span id="revenueMaximizingQuantity">25.00</span></p>
+            </div>
+            <div class="demand-side-metrics">
+
+            </div>
+            <div class="supply-side-metrics">
+
+            </div>
+        </section>
+        <section class="insights-panel">
+            <h2 class="section-heading">Economic Insights</h2>
+            <div class="demand-side-insights">
+
+            </div>
+            <div class="supply-side-insights">
+
+            </div>
+        </section>
+        <section class="revenue-analysis">
+            <h2 class="section-heading">Total Revenue Analysis</h2>
+            <div class="total-revenue-function">
+
+            </div>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
