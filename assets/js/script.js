@@ -40,6 +40,43 @@ const demandType = document.getElementById("demandType");
 const supplyType = document.getElementById("supplyType");
 const sliders = document.querySelectorAll(".slider-group input[type='range']");
 const manualInputs = document.querySelectorAll(".slider-group input[type='number']");
+const demandModeButton = document.getElementById("demand-mode");
+const supplyModeButton = document.getElementById("supply-mode");
+const modeButtons = document.querySelectorAll(".mode-button");
+const supplyOnlyElements = document.querySelectorAll(".supply-only");
+const demandOnlyElements = document.querySelectorAll(".demand-only");
+
+//e.target.innerText.split("-")[0].toLowerCase()
+for(let button of modeButtons) {
+    button.addEventListener("click", (e) => {
+        const newMode = e.target.dataset.mode;
+        if(state.mode === newMode) {
+            return;
+        }
+        else {
+            state.mode = newMode;
+        }
+        if(state.mode === "demand") {
+            state.wedge = 0;
+            displayEquilibriumValues();
+            for(let element of supplyOnlyElements) {
+                element.classList.remove("active");
+            }
+            for(let element of demandOnlyElements) {
+                element.classList.add("active");
+            }
+        }
+        else {
+            for(let element of demandOnlyElements) {
+                element.classList.remove("active");
+            }
+            for(let element of supplyOnlyElements) {
+                element.classList.add("active");
+            }
+        }
+
+    });
+}
 
 for (let input of manualInputs) {
     input.addEventListener("input", (e) => {
@@ -97,6 +134,8 @@ demandType.addEventListener("change", (e) => {
         state.bNonlinear = demandDefaults.nonlinear.bNonlinear;
     }
     state.demandType = e.target.value;
+    document.querySelector('.demand-' + previousDemandType).classList.remove('active');
+    document.querySelector('.demand-' + state.demandType).classList.add('active');
     previousDemandType = state.demandType;
     displayEquilibriumValues();
 });

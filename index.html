@@ -16,8 +16,8 @@
     </header>
     <section class="mode-toggle">
         <h2>Mode:</h2>
-        <button>Demand-Side (Pricing)</button>
-        <button>Supply-Side (Distortion)</button>
+        <button class="mode-button" data-mode="demand">Demand-Side (Pricing)</button>
+        <button class="mode-button" data-mode="supply">Supply-Side (Distortion)</button>
     </section>
     <main>
         <section class="main-section">
@@ -34,58 +34,87 @@
                         </div>
                         <div class="col-12 col-md-4">
                             <section class="controls-panel">
-                                <div class="demand"></div>
-                                <div class="demand-type">
-                                    <label for="demandType">Demand Type:</label>
-                                    <select id="demandType">
-                                        <option value="linear">Linear</option>
-                                        <option value="income">Income-based</option>
-                                        <option value="nonlinear">Non-linear</option>
-                                    </select>
+                                <div class="demand-controls">
+                                    <div class="demand-type">
+                                        <label for="demandType">Demand Type:</label>
+                                        <select id="demandType">
+                                            <option value="linear">Linear</option>
+                                            <option value="income">Income-based</option>
+                                            <option value="nonlinear">Non-linear</option>
+                                        </select>
+                                    </div>
+                                    <div class="demand-parameters">
+                                        <h3>Demand Parameters</h3>
+                                        <div class="demand-linear active">
+                                            <div class="slider-group">
+                                                <label for="a">a:</label>
+                                                <input type="range" id="a" min="0" max="100" value="50">
+                                                <input type="number" id="aValue" value="50">
+                                            </div>
+                                            <div class="slider-group">
+                                                <label for="b">b: </label>
+                                                <input type="range" id="b" min="0" max="10" step="0.1" value="5">
+                                                <input type="number" id="bValue" value="5">
+                                            </div>
+                                        </div>
+                                        <div class="demand-income">
+                                            <div class="slider-group">
+                                                <label for="income">Income (I):</label>
+                                                <input type="range" id="income" min="0" max="1000" step="10"
+                                                    value="500">
+                                                <input type="number" id="incomeValue" class="value-input" min="0"
+                                                    max="1000" step="10" value="500">
+                                            </div>
+                                            <div class="slider-group">
+                                                <label for="k">Preference Share (k):</label>
+                                                <input type="range" id="k" min="0" max="1" step="0.05" value="0.5">
+                                                <input type="number" id="kValue" class="value-input" min="0" max="1"
+                                                    step="0.05" value="0.5">
+                                            </div>
+                                        </div>
+                                        <div class="demand-nonlinear">
+                                            <div class="slider-group">
+                                                <label for="aNonlinear">Scale (a):</label>
+                                                <input type="range" id="aNonlinear" min="0" max="100" step="1"
+                                                    value="50">
+                                                <input type="number" id="aNonlinearValue" class="value-input" min="0"
+                                                    max="100" step="1" value="50">
+                                            </div>
+                                            <div class="slider-group">
+                                                <label for="bNonlinear">Price Sensitivity (b):</label>
+                                                <input type="range" id="bNonlinear" min="0" max="1" step="0.05"
+                                                    value="0.2">
+                                                <input type="number" id="bNonlinearValue" class="value-input" min="0"
+                                                    max="1" step="0.05" value="0.2">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="demand-linear">
-                                    <div class="slider-group">
-                                        <label for="a">a:</label>
-                                        <input type="range" id="a" min="0" max="100" value="50">
-                                        <input type="number" id="aValue" value="50">
+                                <div class="supply-controls">
+                                    <div class="supply-parameters">
+                                        <h3>Supply Parameters</h3>
+                                        <div class="slider-group">
+                                            <label for="c">c:</label>
+                                            <input type="range" id="a" min="0" max="100" value="50">
+                                            <input type="number" id="aValue" value="50">
+                                        </div>
+                                        <div class="slider-group">
+                                            <label for="d">d: </label>
+                                            <input type="range" id="b" min="0" max="10" step="0.1" value="5">
+                                            <input type="number" id="bValue" value="5">
+                                        </div>
                                     </div>
-                                    <div class="slider-group">
-                                        <label for="b">b: </label>
-                                        <input type="range" id="b" min="0" max="10" step="0.1" value="5">
-                                        <input type="number" id="bValue" value="5">
-                                    </div>
-                                </div>
-                                <div class="demand-income">
-                                    <div class="slider-group">
-                                        <label for="income">Income (I):</label>
-                                        <input type="range" id="income" min="0" max="1000" step="10" value="500">
-                                        <input type="number" id="incomeValue" class="value-input" min="0" max="1000"
-                                            step="10" value="500">
-                                    </div>
-                                    <div class="slider-group">
-                                        <label for="k">Preference Share (k):</label>
-                                        <input type="range" id="k" min="0" max="1" step="0.05" value="0.5">
-                                        <input type="number" id="kValue" class="value-input" min="0" max="1" step="0.05"
-                                            value="0.5">
-                                    </div>
-                                </div>
-                                <div class="demand-nonlinear">
-                                    <div class="slider-group">
-                                        <label for="aNonlinear">Scale (a):</label>
-                                        <input type="range" id="aNonlinear" min="0" max="100" step="1" value="50">
-                                        <input type="number" id="aNonlinearValue" class="value-input" min="0" max="100"
-                                            step="1" value="50">
-                                    </div>
-                                    <div class="slider-group">
-                                        <label for="bNonlinear">Price Sensitivity (b):</label>
-                                        <input type="range" id="bNonlinear" min="0" max="1" step="0.05" value="0.2">
-                                        <input type="number" id="bNonlinearValue" class="value-input" min="0" max="1"
-                                            step="0.05" value="0.2">
+                                    <div class="tax-controls supply-only">
+                                        <h3>Tax Controls</h3>
+                                        <div class="slider-group">
+                                            <label for="taxRate">Tax (t):</label>
+                                            <input type="range" id="taxRate" min="0" max="1" step="0.05" value="0">
+                                            <input type="number" id="taxRateValue" min="0" max="1" step="0.05" value="0">
+                                        </div>
                                     </div>
                                 </div>
                             </section>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -95,8 +124,8 @@
             <div class="general-metrics">
                 <p>Equilibrium Price: <span id="equilibriumPrice">8.33</span></p>
                 <p>Equilibrium Quantity: <span id="equilibriumQuantity">41.67</span></p>
-                <p>Revenue-Maximizing Price: <span id="revenueMaximizingPrice">5.00</span></p>
-                <p>Revenue-Maximizing Quantity: <span id="revenueMaximizingQuantity">25.00</span></p>
+                <p class="demand-only">Revenue-Maximizing Price: <span id="revenueMaximizingPrice">5.00</span></p>
+                <p class="demand-only">Revenue-Maximizing Quantity: <span id="revenueMaximizingQuantity">25.00</span></p>
             </div>
             <div class="demand-side-metrics">
 

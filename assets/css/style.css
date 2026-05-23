@@ -14,3 +14,11 @@
     width: 90%;
     margin: auto;
 }
+
+.demand-linear, .demand-income, .demand-nonlinear, .demand-only, .supply-only {
+    display: none;
+}
+
+.demand-linear.active, .demand-income.active, .demand-nonlinear.active, .demand-only.active, .supply-only.active {
+    display: block;   
+}
