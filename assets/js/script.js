@@ -88,9 +88,13 @@ for (let button of modeButtons) {
 for (let input of manualInputs) {
     input.addEventListener("input", (e) => {
         const value = parseFloat(e.target.value);
+        if (isNaN(value)) {
+            return;
+        }
         for (let slider of sliders) {
             if (slider.id === e.target.id.replace("Value", "")) {
                 slider.value = value;
+                slider.dispatchEvent(new Event("input"));
             }
         }
     });
@@ -157,11 +161,17 @@ function displayMetricValues() {
         if(state.mode === "demand") {
             var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
         }
+        else {
+
+        }
     }
     else if (state.demandType === "nonlinear") {
         var [P, Q] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, state.t);
         if(state.mode === "demand") {
             var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(state.aNonlinear, state.bNonlinear);
+        }
+        else {
+
         }
     }
     else {
@@ -169,19 +179,27 @@ function displayMetricValues() {
         if(state.mode === "demand") {
             var [P_max, Q_max] = ['No Unique Revenue Maximizing Price', 'No Unique Revenue Maximizing Quantity'];   
         }
+        else {
+
+        }
     }
     equilibriumPriceElement.textContent = P.toFixed(2);
     equilibriumQuantityElement.textContent = Q.toFixed(2);
     revenueMaximizingPriceElement.textContent = typeof P_max === "number" ? P_max.toFixed(2) : P_max;
     revenueMaximizingQuantityElement.textContent = typeof Q_max === "number" ? Q_max.toFixed(2) : Q_max;
+    taxDeadweightElement.textContent = typeof DWL === "number" ? DWL.toFixed(2) : DWL;
 }
 
 function calculateEquilibriumLinear(a, b, c, d, t) {
     const P = (a - c + d * t) / (b + d);
     const Q = a - b * P;
     const chokePrice = a / b;
+    const maxQuantity = a;
     if (Q < 0) {
         return [chokePrice, 0];
+    }
+    else if (P < 0) {
+        return [0, maxQuantity];
     }
     else {
         return [P, Q];
