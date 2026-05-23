@@ -50,33 +50,34 @@ const taxSlider = document.getElementById('t');
 const taxInput = document.getElementById('tValue');
 
 //e.target.innerText.split("-")[0].toLowerCase()
-for(let button of modeButtons) {
+for (let button of modeButtons) {
     button.addEventListener("click", (e) => {
         const newMode = e.target.dataset.mode;
-        if(state.mode === newMode && modeButtonClicked) {
+        if (state.mode === newMode && modeButtonClicked) {
             return;
         }
         else {
             state.mode = newMode;
             modeButtonClicked = true;
+            displayMetricValues();
         }
-        if(state.mode === "demand") {
+        if (state.mode === "demand") {
             state.t = 0;
             taxSlider.value = state.t;
             taxInput.value = state.t;
-            displayEquilibriumValues();
-            for(let element of supplyOnlyElements) {
+            displayMetricValues();
+            for (let element of supplyOnlyElements) {
                 element.classList.remove("active");
             }
-            for(let element of demandOnlyElements) {
+            for (let element of demandOnlyElements) {
                 element.classList.add("active");
             }
         }
         else {
-            for(let element of demandOnlyElements) {
+            for (let element of demandOnlyElements) {
                 element.classList.remove("active");
             }
-            for(let element of supplyOnlyElements) {
+            for (let element of supplyOnlyElements) {
                 element.classList.add("active");
             }
         }
@@ -105,7 +106,7 @@ for (let slider of sliders) {
                 input.value = value;
             }
         }
-        displayEquilibriumValues();
+        displayMetricValues();
     });
 }
 
@@ -142,49 +143,56 @@ demandType.addEventListener("change", (e) => {
     document.querySelector('.demand-' + previousDemandType).classList.remove('active');
     document.querySelector('.demand-' + state.demandType).classList.add('active');
     previousDemandType = state.demandType;
-    displayEquilibriumValues();
+    displayMetricValues();
 });
 
-displayEquilibriumValues();
+displayMetricValues();
 modeButtons[0].click();
 
 //var used because it is function-scoped and allows us to redefine it in different cases without issues. Let is block-scoped and results in having to repeat code for each demand type, which is less efficient.
 
-function displayEquilibriumValues() {
+function displayMetricValues() {
     if (state.demandType === "linear") {
         var [P, Q] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, state.t);
-        var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
+        if(state.mode === "demand") {
+            var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
+        }
     }
-    else if (state.demandType === "income") {
-        var [P, Q] = calculateEquilibriumIncome(state.income, state.k, state.c, state.d, state.t);
+    else if (state.demandType === "nonlinear") {
+        var [P, Q] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, state.t);
+        if(state.mode === "demand") {
+            var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(state.aNonlinear, state.bNonlinear);
+        }
     }
     else {
-        var [P, Q] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, state.t);
-        var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(state.aNonlinear, state.bNonlinear);
+        var [P, Q] = calculateEquilibriumIncome(state.income, state.k, state.c, state.d, state.t);
+        if(state.mode === "demand") {
+            var [P_max, Q_max] = ['No Unique Revenue Maximizing Price', 'No Unique Revenue Maximizing Quantity'];   
+        }
     }
     equilibriumPriceElement.textContent = P.toFixed(2);
     equilibriumQuantityElement.textContent = Q.toFixed(2);
-    revenueMaximizingPriceElement.textContent = P_max.toFixed(2);
-    revenueMaximizingQuantityElement.textContent = Q_max.toFixed(2);
+    revenueMaximizingPriceElement.textContent = typeof P_max === "number" ? P_max.toFixed(2) : P_max;
+    revenueMaximizingQuantityElement.textContent = typeof Q_max === "number" ? Q_max.toFixed(2) : Q_max;
 }
 
 function calculateEquilibriumLinear(a, b, c, d, t) {
-  const P = (a - c + d * t) / (b + d);
-  const Q = a - b * P;
-  const chokePrice = a / b;
-  if(Q < 0) {
-    return [chokePrice, 0];
-  }
-  else {
-    return [P, Q];
-  }
+    const P = (a - c + d * t) / (b + d);
+    const Q = a - b * P;
+    const chokePrice = a / b;
+    if (Q < 0) {
+        return [chokePrice, 0];
+    }
+    else {
+        return [P, Q];
+    }
 }
 
 function calculateEquilibriumIncome(income, k, c, d, t) {
-  const term = c - d * t;
-  const P = (-term + Math.sqrt(term * term + 4 * d * k * income)) / (2 * d);
-  const Q = c + d * (P - t);
-  return [P, Q];
+    const term = c - d * t;
+    const P = (-term + Math.sqrt(term * term + 4 * d * k * income)) / (2 * d);
+    const Q = c + d * (P - t);
+    return [P, Q];
 }
 
 function approximateEquilibriumNonlinear() {
