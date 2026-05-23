@@ -2,7 +2,7 @@ const state = {
     mode: "demand",
     demandType: "linear",
     supplyType: "linear",
-    wedge: 0,
+    t: 0,
     a: 50,
     b: 1,
     income: 500,
@@ -32,6 +32,7 @@ const demandDefaults = {
 };
 
 let previousDemandType = state.demandType;
+let modeButtonClicked = false;
 const equilibriumPriceElement = document.getElementById("equilibriumPrice");
 const equilibriumQuantityElement = document.getElementById("equilibriumQuantity");
 const revenueMaximizingPriceElement = document.getElementById("revenueMaximizingPrice");
@@ -45,19 +46,24 @@ const supplyModeButton = document.getElementById("supply-mode");
 const modeButtons = document.querySelectorAll(".mode-button");
 const supplyOnlyElements = document.querySelectorAll(".supply-only");
 const demandOnlyElements = document.querySelectorAll(".demand-only");
+const taxSlider = document.getElementById('t');
+const taxInput = document.getElementById('tValue');
 
 //e.target.innerText.split("-")[0].toLowerCase()
 for(let button of modeButtons) {
     button.addEventListener("click", (e) => {
         const newMode = e.target.dataset.mode;
-        if(state.mode === newMode) {
+        if(state.mode === newMode && modeButtonClicked) {
             return;
         }
         else {
             state.mode = newMode;
+            modeButtonClicked = true;
         }
         if(state.mode === "demand") {
-            state.wedge = 0;
+            state.t = 0;
+            taxSlider.value = state.t;
+            taxInput.value = state.t;
             displayEquilibriumValues();
             for(let element of supplyOnlyElements) {
                 element.classList.remove("active");
@@ -94,7 +100,6 @@ for (let slider of sliders) {
         const value = parseFloat(e.target.value);
         const id = e.target.id;
         state[id] = value;
-        console.log(value);
         for (let input of manualInputs) {
             if (input.id === id + "Value") {
                 input.value = value;
@@ -140,19 +145,21 @@ demandType.addEventListener("change", (e) => {
     displayEquilibriumValues();
 });
 
+displayEquilibriumValues();
+modeButtons[0].click();
+
 //var used because it is function-scoped and allows us to redefine it in different cases without issues. Let is block-scoped and results in having to repeat code for each demand type, which is less efficient.
 
 function displayEquilibriumValues() {
     if (state.demandType === "linear") {
-        var [P, Q] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d);
+        var [P, Q] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, state.t);
         var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
     }
     else if (state.demandType === "income") {
-        var [P, Q] = calculateEquilibriumIncome(state.income, state.k, state.c, state.d);
-        var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesIncome(state.income, state.k);
+        var [P, Q] = calculateEquilibriumIncome(state.income, state.k, state.c, state.d, state.t);
     }
     else {
-        var [P, Q] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d);
+        var [P, Q] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, state.t);
         var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(state.aNonlinear, state.bNonlinear);
     }
     equilibriumPriceElement.textContent = P.toFixed(2);
@@ -161,16 +168,23 @@ function displayEquilibriumValues() {
     revenueMaximizingQuantityElement.textContent = Q_max.toFixed(2);
 }
 
-function calculateEquilibriumLinear(a, b, c, d) {
-    const P = (a - c) / (b + d);
-    const Q = c + b * P;
+function calculateEquilibriumLinear(a, b, c, d, t) {
+  const P = (a - c + d * t) / (b + d);
+  const Q = a - b * P;
+  const chokePrice = a / b;
+  if(Q < 0) {
+    return [chokePrice, 0];
+  }
+  else {
     return [P, Q];
+  }
 }
 
-function calculateEquilibriumIncome(income, k, c, d) {
-    const P = (-c + Math.sqrt(c * c + 4 * d * k * income)) / (2 * d);
-    const Q = c + d * P;
-    return [P, Q];
+function calculateEquilibriumIncome(income, k, c, d, t) {
+  const term = c - d * t;
+  const P = (-term + Math.sqrt(term * term + 4 * d * k * income)) / (2 * d);
+  const Q = c + d * (P - t);
+  return [P, Q];
 }
 
 function approximateEquilibriumNonlinear() {

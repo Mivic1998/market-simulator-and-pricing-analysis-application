@@ -53,8 +53,8 @@
                                             </div>
                                             <div class="slider-group">
                                                 <label for="b">b: </label>
-                                                <input type="range" id="b" min="0" max="10" step="0.1" value="5">
-                                                <input type="number" id="bValue" value="5">
+                                                <input type="range" id="b" min="0" max="10" step="0.1" value="1">
+                                                <input type="number" id="bValue" value="1">
                                             </div>
                                         </div>
                                         <div class="demand-income">
@@ -95,21 +95,21 @@
                                         <h3>Supply Parameters</h3>
                                         <div class="slider-group">
                                             <label for="c">c:</label>
-                                            <input type="range" id="a" min="0" max="100" value="50">
-                                            <input type="number" id="aValue" value="50">
+                                            <input type="range" id="c" min="0" max="100" value="0">
+                                            <input type="number" id="cValue" value="0">
                                         </div>
                                         <div class="slider-group">
                                             <label for="d">d: </label>
-                                            <input type="range" id="b" min="0" max="10" step="0.1" value="5">
-                                            <input type="number" id="bValue" value="5">
+                                            <input type="range" id="d" min="0" max="5" step="0.1" value="1">
+                                            <input type="number" id="dValue" value="1">
                                         </div>
                                     </div>
                                     <div class="tax-controls supply-only">
                                         <h3>Tax Controls</h3>
                                         <div class="slider-group">
-                                            <label for="taxRate">Tax (t):</label>
-                                            <input type="range" id="taxRate" min="0" max="1" step="0.05" value="0">
-                                            <input type="number" id="taxRateValue" min="0" max="1" step="0.05" value="0">
+                                            <label for="t">Tax (t):</label>
+                                            <input type="range" id="t" min="0" max="50" step="0.1" value="0">
+                                            <input type="number" id="tValue" min="0" max="50" step="0.1" value="0">
                                         </div>
                                     </div>
                                 </div>
@@ -122,10 +122,10 @@
         <section class="metrics-panel">
             <h2 class="section-heading">Key Metrics</h2>
             <div class="general-metrics">
-                <p>Equilibrium Price: <span id="equilibriumPrice">8.33</span></p>
-                <p>Equilibrium Quantity: <span id="equilibriumQuantity">41.67</span></p>
-                <p class="demand-only">Revenue-Maximizing Price: <span id="revenueMaximizingPrice">5.00</span></p>
-                <p class="demand-only">Revenue-Maximizing Quantity: <span id="revenueMaximizingQuantity">25.00</span></p>
+                <p>Equilibrium Price: <span id="equilibriumPrice"></span></p>
+                <p>Equilibrium Quantity: <span id="equilibriumQuantity"></span></p>
+                <p class="demand-only">Revenue-Maximizing Price: <span id="revenueMaximizingPrice"></span></p>
+                <p class="demand-only">Revenue-Maximizing Quantity: <span id="revenueMaximizingQuantity"></span></p>
             </div>
             <div class="demand-side-metrics">
 
