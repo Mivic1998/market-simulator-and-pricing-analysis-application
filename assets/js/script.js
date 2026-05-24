@@ -260,9 +260,30 @@ function calculateEquilibriumIncome(income, k, c, d, t) {
     return [P, Q];
 }
 
-function approximateEquilibriumNonlinear() {
 
+function approximateEquilibriumNonlinear(a, b, c, d, t) {
+    function f(P) {
+        return a * Math.exp(-b * P) - (c + d * (P - t));
+    }
+    let p_low = 0;
+    const epsilon = 0.01;
+    let P_high = (1 / b) * Math.log(a / epsilon);
+    while (f(P_high) > 0) {
+        P_high *= 2;
+    }
+    let tolerance = 0.0001;
+    let P_mid = (p_low + P_high) / 2;
+    while (Math.abs(f(P_mid)) > tolerance) {
+        if (f(p_low) * f(P_mid) < 0) {
+            P_high = P_mid;
+        } else {
+            p_low = P_mid;
+        }
+        P_mid = (p_low + P_high) / 2;
+    }
+    return [P_mid, f(P_mid)];
 }
+
 
 function calculateRevenueMaximizingCoordinatesLinear(a, b) {
     const P = a / (2 * b);
