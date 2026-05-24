@@ -413,3 +413,6 @@ function generatePlotPointsDemandNonlinear(a, b) {
     }
     return points;
 }
+
+function generateInsights(a, b, c, d, t, demandType, mode) {
+}
