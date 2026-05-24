@@ -365,3 +365,48 @@ function calculateDWLNonlinear(a, b, c, d, t) {
 
     return term1 - term2;
 }
+
+function generatePlotPointsSupplyNoTax(a, b, c, d) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.001) {
+        const Q = c + d * P;
+        points.push({ x: Q, y: P });
+    }
+    return points;
+}
+
+function generatePlotPointsSupplyWithTax(a, b, c, d, t) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.001) {
+        const Q = canvasHeight - (c + d * (P - t)) * (canvasHeight / 100);
+        points.push({ x: Q, y: P });
+    }
+    return points;
+}
+
+function generatePlotPointsDemandLinear(a, b) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.001) {
+        const Q = canvasHeight - (a - b * P) * (canvasHeight / 100);
+        points.push({ x: Q, y: P });
+    }       
+    return points;
+}
+
+function generatePlotPointsDemandIncome(income, k) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.001) {
+        const Q = canvasHeight - (k * income / P) * (canvasHeight / 100);
+        points.push({ x: Q, y: P });
+    }
+    return points;
+}
+
+function generatePlotPointsDemandNonlinear(a, b) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.001) {
+        const Q = canvasHeight - (a * Math.exp(-b * P)) * (canvasHeight / 100);
+        points.push({ x: Q, y: P });
+    }
+    return points;
+}
