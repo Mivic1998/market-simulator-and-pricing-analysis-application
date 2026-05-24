@@ -37,6 +37,16 @@ const equilibriumPriceElement = document.getElementById("equilibriumPrice");
 const equilibriumQuantityElement = document.getElementById("equilibriumQuantity");
 const revenueMaximizingPriceElement = document.getElementById("revenueMaximizingPrice");
 const revenueMaximizingQuantityElement = document.getElementById("revenueMaximizingQuantity");
+const revenueAtEquilibriumElement = document.getElementById("totalRevenueEquilibrium");
+const revenueAtMaxElement = document.getElementById("totalRevenueMax");
+const welfareLossElement = document.getElementById("welfareLoss");
+const priceNoTaxElement = document.getElementById("priceNoTax");
+const quantityNoTaxElement = document.getElementById("quantityNoTax");
+const consumerPriceElement = document.getElementById("pricePaid");
+const producerPriceElement = document.getElementById("priceReceived");
+const quantityAfterTaxElement = document.getElementById("quantityAfterTax");
+const taxRevenueElement = document.getElementById("taxRevenue");
+const deadweightLossElement = document.getElementById("deadweightLoss");
 const demandType = document.getElementById("demandType");
 const supplyType = document.getElementById("supplyType");
 const sliders = document.querySelectorAll(".slider-group input[type='range']");
@@ -158,36 +168,73 @@ modeButtons[0].click();
 function displayMetricValues() {
     if (state.demandType === "linear") {
         var [P, Q] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, state.t);
-        if(state.mode === "demand") {
+        if (state.mode === "demand") {
             var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
+            var revenueAtEquilibrium = calculateTotalRevenue(P, Q);
+            var revenueAtMax = calculateTotalRevenue(P_max, Q_max);
+            var welfareLoss = calculateWelfareLossLinear(state.a, state.b, state.c, state.d, P, Q);
         }
         else {
-
+            var [P_noTax, Q_noTax] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, 0);
+            var taxRevenue = calculateTaxRevenue(state.t, Q);
+            var priceReceived = calculatePriceReceived(P, state.t);
+            var deadweightLoss = calculateDWLLinear(state.a, state.b, state.c, state.d, state.t);
         }
     }
     else if (state.demandType === "nonlinear") {
         var [P, Q] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, state.t);
-        if(state.mode === "demand") {
+        if (state.mode === "demand") {
             var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(state.aNonlinear, state.bNonlinear);
+            var revenueAtEquilibrium = calculateTotalRevenue(P, Q);
+            var revenueAtMax = calculateTotalRevenue(P_max, Q_max);
+            var welfareLoss = calculateWelfareLossNonlinearRevenueMax(state.aNonlinear, state.bNonlinear, state.c, state.d);
         }
         else {
-
+            var [P_noTax, Q_noTax] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, 0);
+            var taxRevenue = calculateTaxRevenue(state.t, Q);
+            var priceReceived = calculatePriceReceived(P, state.t);
+            var deadweightLoss = calculateDWLNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, state.t);
         }
     }
     else {
         var [P, Q] = calculateEquilibriumIncome(state.income, state.k, state.c, state.d, state.t);
-        if(state.mode === "demand") {
-            var [P_max, Q_max] = ['No Unique Revenue Maximizing Price', 'No Unique Revenue Maximizing Quantity'];   
+        if (state.mode === "demand") {
+            var [P_max, Q_max] = ['No Unique Revenue Maximizing Price', 'No Unique Revenue Maximizing Quantity'];
+            var revenueAtEquilibrium = calculateTotalRevenue(P, Q);
+            var revenueAtMax = 'Maximising Coordinates Not Defined for Income-Based Demand Due to Constant Elasticity';
+            var welfareLoss = 'Welfare Loss Not Defined for Income-Based Demand Due to Constant Elasticity';
         }
         else {
-
+            var [P_noTax, Q_noTax] = calculateEquilibriumIncome(state.income, state.k, state.c, state.d, 0);
+            var taxRevenue = calculateTaxRevenue(state.t, Q);
+            var priceReceived = calculatePriceReceived(P, state.t);
+            var deadweightLoss = calculateDWLIncome(state.income, state.k, state.c, state.d, state.t);
         }
     }
-    equilibriumPriceElement.textContent = P.toFixed(2);
-    equilibriumQuantityElement.textContent = Q.toFixed(2);
-    revenueMaximizingPriceElement.textContent = typeof P_max === "number" ? P_max.toFixed(2) : P_max;
-    revenueMaximizingQuantityElement.textContent = typeof Q_max === "number" ? Q_max.toFixed(2) : Q_max;
-    taxDeadweightElement.textContent = typeof DWL === "number" ? DWL.toFixed(2) : DWL;
+    setMetric(equilibriumPriceElement, P, state.mode === "demand");
+    setMetric(equilibriumQuantityElement, Q, state.mode === "demand");
+
+    setMetric(revenueMaximizingPriceElement, P_max, state.mode === "demand");
+    setMetric(revenueMaximizingQuantityElement, Q_max, state.mode === "demand");
+    setMetric(revenueAtEquilibriumElement, revenueAtEquilibrium, state.mode === "demand");
+    setMetric(revenueAtMaxElement, revenueAtMax, state.mode === "demand");
+    setMetric(welfareLossElement, welfareLoss, state.mode === "demand");
+
+    setMetric(priceNoTaxElement, P_noTax, state.mode === "supply");
+    setMetric(quantityNoTaxElement, Q_noTax, state.mode === "supply");
+    setMetric(consumerPriceElement, P, state.mode === "supply");
+    setMetric(producerPriceElement, priceReceived, state.mode === "supply");
+    setMetric(quantityAfterTaxElement, Q, state.mode === "supply");
+    setMetric(taxRevenueElement, taxRevenue, state.mode === "supply");
+    setMetric(deadweightLossElement, deadweightLoss, state.mode === "supply");
+}
+
+function formatValue(value) {
+    return typeof value === "number" ? value.toFixed(2) : value;
+}
+
+function setMetric(element, value, condition) {
+    element.textContent = condition ? formatValue(value) : "";
 }
 
 function calculateEquilibriumLinear(a, b, c, d, t) {
@@ -227,4 +274,73 @@ function calculateRevenueMaximizingCoordinatesNonlinear(aNonlinear, bNonlinear) 
     const P = 1 / bNonlinear;
     const Q = aNonlinear * Math.exp(-bNonlinear * P);
     return [P, Q]
+}
+
+function calculateTotalRevenue(P, Q) {
+    return P * Q;
+}
+
+
+function calculateWelfareLossLinear(a, b, c, d, P_eq, Q_eq) {
+    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
+
+    const Pd_eq = a - b * P_eq === Q_eq ? P_eq : (a - Q_eq) / b;
+    const MC_eq = (Q_eq - c) / d;
+
+    return 0.5 * (Q_max - Q_eq) * (Pd_eq - MC_eq);
+}
+
+function calculateWelfareLossNonlinearRevenueMax(a, b, c, d) {
+
+    const [P_eq, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
+
+    const [P_max, Q_max] = getRevenueMaxNonlinear(a, b);
+
+    const demand_eq = Q_eq * Math.log(Q_eq) - Q_eq - Q_eq * Math.log(a);
+    const demand_max = Q_max * Math.log(Q_max) - Q_max - Q_max * Math.log(a);
+
+    const term1 = -(1 / b) * (demand_eq - demand_max);
+
+    const term2 = (1 / d) * ((Q_eq * Q_eq - Q_max * Q_max) / 2 - c * (Q_eq - Q_max));
+
+    return term1 - term2;
+}
+
+
+function calculatePriceReceived(P, t) {
+    return P - t;
+}
+
+function calculateTaxRevenue(t, Q) {
+    return t * Q;
+}
+
+function calculateDWLLinear(a, b, c, d, t) {
+    const Q0 = calculateEquilibriumLinear(a, b, c, d, 0)[1];
+    const Qt = calculateEquilibriumLinear(a, b, c, d, t)[1];
+
+    return 0.5 * t * (Q0 - Qt);
+}
+
+function calculateDWLIncome(income, k, c, d, t) {
+    const Q0 = calculateEquilibriumIncome(income, k, c, d, 0)[1];
+    const Qt = calculateEquilibriumIncome(income, k, c, d, t)[1];
+
+    const term1 = k * income * Math.log(Q0 / Qt);
+    const term2 = (1 / d) * ((Q0 * Q0 - Qt * Qt) / 2 - c * (Q0 - Qt));
+
+    return term1 - term2;
+}
+
+function calculateDWLNonlinear(a, b, c, d, t) {
+    const Q0 = approximateEquilibriumNonlinear(a, b, c, d, 0)[1];
+    const Qt = approximateEquilibriumNonlinear(a, b, c, d, t)[1];
+
+    const demand0 = Q0 * Math.log(Q0) - Q0 - Q0 * Math.log(a);
+    const demandT = Qt * Math.log(Qt) - Qt - Qt * Math.log(a);
+
+    const term1 = -(1 / b) * (demand0 - demandT);
+    const term2 = (1 / d) * ((Q0 * Q0 - Qt * Qt) / 2 - c * (Q0 - Qt));
+
+    return term1 - term2;
 }
