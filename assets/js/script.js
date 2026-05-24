@@ -95,23 +95,27 @@ for (let button of modeButtons) {
 }
 
 for (let input of manualInputs) {
-    input.addEventListener("input", (e) => {
-        const value = parseFloat(e.target.value);
-        if (isNaN(value)) {
-            return;
-        }
-        for (let slider of sliders) {
-            if (slider.id === e.target.id.replace("Value", "")) {
-                slider.value = value;
-                slider.dispatchEvent(new Event("input"));
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const raw = e.target.value.trim();
+            const value = Number(raw);
+            if (raw === "" || isNaN(value)) {
+                return;
+            }
+            for (let slider of sliders) {
+                if (slider.id === e.target.id.replace("Value", "")) {
+                    slider.value = value;
+                    slider.dispatchEvent(new Event("input"));
+                }
             }
         }
     });
 }
 
+
 for (let slider of sliders) {
     slider.addEventListener("input", (e) => {
-        const value = parseFloat(e.target.value);
+        const value = Number(e.target.value);
         const id = e.target.id;
         state[id] = value;
         for (let input of manualInputs) {
@@ -388,7 +392,7 @@ function generatePlotPointsDemandLinear(a, b) {
     for (let P = 0; P <= 100; P += 0.001) {
         const Q = canvasHeight - (a - b * P) * (canvasHeight / 100);
         points.push({ x: Q, y: P });
-    }       
+    }
     return points;
 }
 
