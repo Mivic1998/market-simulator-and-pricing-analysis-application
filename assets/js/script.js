@@ -1,7 +1,6 @@
 const state = {
     mode: "demand",
     demandType: "linear",
-    supplyType: "linear",
     t: 0,
     a: 50,
     b: 1,
