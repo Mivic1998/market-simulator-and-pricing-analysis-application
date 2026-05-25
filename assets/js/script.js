@@ -34,6 +34,7 @@ let currentMetrics = {};
 
 let previousDemandType = state.demandType;
 let modeButtonClicked = false;
+const mainSection = document.querySelector(".main-section");
 const equilibriumPriceElement = document.getElementById("equilibriumPrice");
 const equilibriumQuantityElement = document.getElementById("equilibriumQuantity");
 const revenueMaximizingPriceElement = document.getElementById("revenueMaximizingPrice");
@@ -60,6 +61,7 @@ const demandOnlyElements = document.querySelectorAll(".demand-only");
 const taxSlider = document.getElementById('t');
 const taxInput = document.getElementById('tValue');
 const insightsContainer = document.querySelector(".insights-content");
+const presetButtons = document.querySelectorAll(".preset-btn");
 
 //e.target.innerText.split("-")[0].toLowerCase()
 for (let button of modeButtons) {
@@ -78,8 +80,6 @@ for (let button of modeButtons) {
             state.t = 0;
             taxSlider.value = state.t;
             taxInput.value = state.t;
-            displayAndStoreMetricValues();
-            renderInsights();
             for (let element of supplyOnlyElements) {
                 element.classList.remove("active");
             }
@@ -171,12 +171,39 @@ demandType.addEventListener("change", (e) => {
         }
     }
     state.demandType = e.target.value;
-    document.querySelector('.demand-' + previousDemandType).classList.remove('active');
-    document.querySelector('.demand-' + state.demandType).classList.add('active');
+    const previousDemandElements = document.querySelectorAll('.demand-' + previousDemandType);
+    for (let element of previousDemandElements) {
+        element.classList.remove('active');
+    }
+    const currentDemandElements = document.querySelectorAll('.demand-' + state.demandType);
+    for (let element of currentDemandElements) {
+        element.classList.add('active');
+    }
     previousDemandType = state.demandType;
     displayAndStoreMetricValues();
     renderInsights();
 });
+
+for (let button of presetButtons) {
+    const preset = button.dataset.preset;
+    button.addEventListener("click", () => {
+        changeParametersPreset(preset);
+        for (let input of manualInputs) {
+            const key = input.id.replace("Value", "");
+            input.value = state[key];
+        }
+
+        for (let slider of sliders) {
+            slider.value = state[slider.id];
+        }
+
+        displayAndStoreMetricValues();
+        renderInsights();
+        mainSection.scrollIntoView({
+            behavior: "smooth"
+        });
+    });
+}
 
 displayAndStoreMetricValues();
 modeButtons[0].click();
@@ -678,4 +705,122 @@ function generateInsights(state, metrics) {
 function renderInsights() {
     const insights = generateInsights(state, currentMetrics);
     insightsContainer.innerHTML = insights.map(insight => `<p>${insight}</p>`).join("");
+}
+
+function changeParametersPreset(preset) {
+
+    state.c = 0;
+    state.d = 1;
+    state.t = 0;
+
+    if (preset === "demandModeLinearOne") {
+        state.a = 80;
+        state.b = 0.3;
+    }
+    else if (preset === "demandModeLinearTwo") {
+        state.a = 50;
+        state.b = 3;
+    }
+    else if (preset === "demandModeLinearThree") {
+        state.a = 50;
+        state.b = 1;
+    }
+    else if (preset === "demandModeLinearFour") {
+        state.a = 100;
+        state.b = 1;
+    }
+    else if (preset === "demandModeNonlinearOne") {
+        state.aNonlinear = 60;
+        state.bNonlinear = 2;
+    }
+    else if (preset === "demandModeNonlinearTwo") {
+        state.aNonlinear = 60;
+        state.bNonlinear = 0.3;
+    }
+    else if (preset === "demandModeNonlinearThree") {
+        state.aNonlinear = 100;
+        state.bNonlinear = 1.8;
+    }
+    else if (preset === "demandModeNonlinearFour") {
+        state.aNonlinear = 100;
+        state.bNonlinear = 0.4;
+    }
+    else if (preset === "demandModeIncomeOne") {
+        state.income = 200;
+        state.k = 0.7;
+    }
+    else if (preset === "demandModeIncomeTwo") {
+        state.income = 40;
+        state.k = 0.2;
+    }
+    else if (preset === "demandModeIncomeThree") {
+        state.income = 200;
+        state.k = 0.3;
+    }
+    else if (preset === "demandModeIncomeFour") {
+        state.income = 100;
+        state.k = 0.5;
+    }
+    else if (preset === "supplyModeLinearOne") {
+        state.a = 60;
+        state.b = 0.4;
+        state.t = 15;
+    }
+    else if (preset === "supplyModeLinearTwo") {
+        state.a = 60;
+        state.b = 3;
+        state.t = 15;
+    }
+    else if (preset === "supplyModeLinearThree") {
+        state.a = 60;
+        state.b = 1;
+        state.d = 0.3;
+        state.t = 12;
+    }
+    else if (preset === "supplyModeLinearFour") {
+        state.a = 50;
+        state.b = 1;
+        state.t = 2;
+    }
+    else if (preset === "supplyModeNonlinearOne") {
+        state.aNonlinear = 60;
+        state.bNonlinear = 2;
+        state.t = 15;
+    }
+    else if (preset === "supplyModeNonlinearTwo") {
+        state.aNonlinear = 60;
+        state.bNonlinear = 0.3;
+        state.t = 15;
+    }
+    else if (preset === "supplyModeNonlinearThree") {
+        state.aNonlinear = 100;
+        state.bNonlinear = 1;
+        state.t = 12;
+    }
+    else if (preset === "supplyModeNonlinearFour") {
+        state.aNonlinear = 60;
+        state.bNonlinear = 1;
+        state.d = 0.3;
+        state.t = 10;
+    }
+    else if (preset === "supplyModeIncomeOne") {
+        state.income = 30;
+        state.k = 0.2;
+        state.t = 15;
+    }
+    else if (preset === "supplyModeIncomeTwo") {
+        state.income = 150;
+        state.k = 0.6;
+        state.t = 15;
+    }
+    else if (preset === "supplyModeIncomeThree") {
+        state.income = 100;
+        state.k = 0.8;
+        state.t = 10;
+    }
+    else if (preset === "supplyModeIncomeFour") {
+        state.income = 100;
+        state.k = 0.3;
+        state.t = 10;
+    }
 }
