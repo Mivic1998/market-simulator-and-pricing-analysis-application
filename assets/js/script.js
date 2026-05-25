@@ -499,6 +499,35 @@ function generatePlotPointsDemandNonlinear(a, b) {
     return points;
 }
 
+function generatePlotPointsRevenueLinear(a, b) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.5) {
+        const Q = a - b * P;
+        const R = P * Q;
+        points.push({ x: P, y: R });
+    }
+    return points;
+}
+
+function generatePlotPointsRevenueNonlinear(a, b) {
+    const points = [];
+    for (let P = 0; P <= 100; P += 0.5) {
+        const Q = a * Math.exp(-b * P);
+        const R = P * Q;
+        points.push({ x: P, y: R });
+    }
+    return points;
+}
+
+function generatePlotPointsRevenueIncome(k, income) {
+    const R = k * income;
+
+    return [
+        { x: 0, y: R },
+        { x: 100, y: R }
+    ];
+}
+
 function generateInsights(state, metrics) {
     const insights = [];
 
