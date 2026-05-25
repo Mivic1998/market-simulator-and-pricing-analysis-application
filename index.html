@@ -27,9 +27,7 @@
                     <div class="row flex-md-row-reverse">
                         <div class="col-12 col-md-8">
                             <section class="graph-panel">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, voluptate. Doloribus,
-                                quisquam. Voluptas, voluptate. Doloribus, quisquam. Voluptas, voluptate. Doloribus,
-                                quisquam. Voluptas, voluptate. Doloribus, quisquam.
+                                <canvas id="marketCanvas" width="600" height="400"></canvas>
                             </section>
                         </div>
                         <div class="col-12 col-md-4">
@@ -154,6 +152,12 @@
 
             </div>
         </section>
+        <section class="revenue-graph-panel">
+            <h2 class="section-heading">Total Revenue Graph</h2>
+            <div class="revenue-graph-content">
+                <canvas id="revenueCanvas" width="600" height="400"></canvas>
+            </div>
+        </section>
         <section class="presets-panel">
             <h2 class="section-heading">Presets</h2>
             <div class="presets-buttons">
@@ -167,13 +171,15 @@
                     <div class="demand-nonlinear">
                         <button class="preset-btn" data-preset="demandModeNonlinearOne">High Sensitivity</button>
                         <button class="preset-btn" data-preset="demandModeNonlinearTwo">Low Sensitivity</button>
-                        <button class="preset-btn" data-preset="demandModeNonlinearThree">Sensitive Large Market</button>
+                        <button class="preset-btn" data-preset="demandModeNonlinearThree">Sensitive Large
+                            Market</button>
                         <button class="preset-btn" data-preset="demandModeNonlinearFour">Stable Large Market</button>
                     </div>
                     <div class="demand-income">
                         <button class="preset-btn" data-preset="demandModeIncomeOne">High Income and Preference</button>
                         <button class="preset-btn" data-preset="demandModeIncomeTwo">Low Income and Preference</button>
-                        <button class="preset-btn" data-preset="demandModeIncomeThree">High Income, Low Preference</button>
+                        <button class="preset-btn" data-preset="demandModeIncomeThree">High Income, Low
+                            Preference</button>
                         <button class="preset-btn" data-preset="demandModeIncomeFour">Moderate Demand</button>
                     </div>
                 </div>
@@ -185,7 +191,8 @@
                         <button class="preset-btn" data-preset="supplyModeLLinearFour">Low Tax</button>
                     </div>
                     <div class="demand-nonlinear">
-                        <button class="preset-btn" data-preset="supplyModeNonlinearOne">Sensitive Demand, High Tax</button>
+                        <button class="preset-btn" data-preset="supplyModeNonlinearOne">Sensitive Demand, High
+                            Tax</button>
                         <button class="preset-btn" data-preset="supplyModeNonlinearTwo">Stable Demand, High Tax</button>
                         <button class="preset-btn" data-preset="supplyModeNonlinearThree">Large Market, Tax</button>
                         <button class="preset-btn" data-preset="supplyModeNonlinearFour">Inelastic Supply</button>

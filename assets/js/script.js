@@ -31,10 +31,15 @@ const demandDefaults = {
 };
 
 let currentMetrics = {};
-
 let previousDemandType = state.demandType;
 let modeButtonClicked = false;
 const mainSection = document.querySelector(".main-section");
+const canvasMain = document.getElementById("marketCanvas");
+const ctxMain = canvas.getContext("2d");
+const canvasRevenue = document.getElementById("revenueCanvas");
+const ctxRevenue = canvasRevenue.getContext("2d");
+const canvasWidth = canvas.width;
+const canvasHeight = canvas.height;
 const equilibriumPriceElement = document.getElementById("equilibriumPrice");
 const equilibriumQuantityElement = document.getElementById("equilibriumQuantity");
 const revenueMaximizingPriceElement = document.getElementById("revenueMaximizingPrice");
@@ -294,6 +299,29 @@ function setMetric(element, value, condition) {
     element.textContent = condition ? formatValue(value) : "";
 }
 
+
+function drawCurve(points, color) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+
+    let first = true;
+
+    for (let point of points) {
+        const x = point.x * scaleX;
+        const y = canvasHeight - point.y * scaleY;
+
+        if (first) {
+            ctx.moveTo(x, y);
+            first = false;
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+
+    ctx.stroke();
+}
+
+
 function calculateEquilibriumLinear(a, b, c, d, t) {
     const P = (a - c + d * t) / (b + d);
     const Q = a - b * P;
@@ -438,7 +466,7 @@ function generatePlotPointsSupplyNoTax(a, b, c, d) {
 function generatePlotPointsSupplyWithTax(a, b, c, d, t) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
-        const Q = canvasHeight - (c + d * (P - t)) * (canvasHeight / 100);
+        const Q = c + d * (P - t);
         points.push({ x: Q, y: P });
     }
     return points;
@@ -447,7 +475,7 @@ function generatePlotPointsSupplyWithTax(a, b, c, d, t) {
 function generatePlotPointsDemandLinear(a, b) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
-        const Q = canvasHeight - (a - b * P) * (canvasHeight / 100);
+        const Q = a - b * P;
         points.push({ x: Q, y: P });
     }
     return points;
@@ -456,7 +484,7 @@ function generatePlotPointsDemandLinear(a, b) {
 function generatePlotPointsDemandIncome(income, k) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
-        const Q = canvasHeight - (k * income / P) * (canvasHeight / 100);
+        const Q = k * income / P;
         points.push({ x: Q, y: P });
     }
     return points;
@@ -465,7 +493,7 @@ function generatePlotPointsDemandIncome(income, k) {
 function generatePlotPointsDemandNonlinear(a, b) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
-        const Q = canvasHeight - (a * Math.exp(-b * P)) * (canvasHeight / 100);
+        const Q = a * Math.exp(-b * P);
         points.push({ x: Q, y: P });
     }
     return points;
