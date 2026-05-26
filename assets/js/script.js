@@ -321,6 +321,42 @@ function drawCurve(points, color) {
     ctx.stroke();
 }
 
+function retrievePointsNeededForPlotting(mode, demandType) {
+    let points = []
+    let pointsList = []
+    if (mode === 'demand') {
+        points = generatePlotPointsSupplyNoTax(state.c, state.d);
+        pointsList.push(points)
+        if (demandType === 'linear') {
+            points = generatePlotPointsDemandLinear(state.a, state.b);
+            pointsList.push(points);
+        }
+        else if (demandType === 'nonlinear') {
+            points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+            pointsList.push(points);
+        }
+        else {
+            points = generatePlotPointsDemandIncome(state.k, state.income);
+            pointsList.push(points);
+        }
+    }
+    else {
+        points = generatePlotPointsSupplyNoTax(state.c, state.d);
+        pointsList.push(points)
+        points = generatePlotPointsSupplyWithTax(state.c, state.d, state.t)
+        pointsList.push(points)
+        if (demandType === 'linear') {
+
+        }
+        else if (demandType === 'nonlinear') {
+
+        }
+        else {
+
+        }
+    }
+}
+
 
 function calculateEquilibriumLinear(a, b, c, d, t) {
     const P = (a - c + d * t) / (b + d);
@@ -454,7 +490,7 @@ function calculateDWLNonlinear(a, b, c, d, t) {
     return term1 - term2;
 }
 
-function generatePlotPointsSupplyNoTax(a, b, c, d) {
+function generatePlotPointsSupplyNoTax(c, d) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
         const Q = c + d * P;
@@ -463,7 +499,7 @@ function generatePlotPointsSupplyNoTax(a, b, c, d) {
     return points;
 }
 
-function generatePlotPointsSupplyWithTax(a, b, c, d, t) {
+function generatePlotPointsSupplyWithTax(c, d, t) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
         const Q = c + d * (P - t);
