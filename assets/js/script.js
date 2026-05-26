@@ -385,12 +385,12 @@ function drawCurves() {
 
         ctxMain.stroke();
         if (state.mode === "demand") {
-            if (i === 0) labelCurve([points[1]], "Supply", "green", -10, -10);
-            if (i === 1) labelCurve(points, "Demand", "blue", 5, 5);
+            if (i === 0) labelCurve([points[1]], "Supply (S)", "green", -10, -10);
+            if (i === 1) labelCurve(points, "Demand (D)", "blue", 5, 5);
         } else {
-            if (i === 0) labelCurve(points, "S", "green", 5, 5);
-            if (i === 1) labelCurve(points, "S + t", "red", 5, 5);
-            if (i === 2) labelCurve(points, "Demand", "blue", 5, 5);
+            if (i === 0) labelCurve(points, "Supply (S)", "green", 5, 5);
+            if (i === 1) labelCurve(points, "Supply with Tax (S + t)", "red", 5, 5);
+            if (i === 2) labelCurve(points, "Demand (D)", "blue", 5, 5);
         }
     }
 }
@@ -584,7 +584,6 @@ function generatePlotPointsSupplyNoTax(c, d) {
         Q2 = c + d * P2
     }
 
-
     const endPoint = { x: Q2, y: P2 };
 
     return [xIntercept, endPoint];
@@ -600,13 +599,20 @@ function generatePlotPointsSupplyWithTax(c, d, t) {
     else {
         firstPoint = { x: c - d * t, y: 0 };
     }
-    // pick another valid point (e.g. maxP)
-    const P2 = maxP;
-    const Q2 = c + d * (P2 - t);
+    
+    let P2 = maxP;
+    let Q2
+    if(c + d * (P2 - t) > maxQ) {
+        Q2 = maxQ;
+        P2 = ((maxQ - c) / d) + t
+    }
+    else {
+        Q2 = c + d * (P2 - t)
+    }
+    
+    const endPoint = { x: Q2, y: P2 };
 
-    const secondPoint = { x: Q2, y: P2 };
-
-    return [firstPoint, secondPoint];
+    return [firstPoint, endPoint];
 }
 
 
