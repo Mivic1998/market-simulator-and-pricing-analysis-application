@@ -22,3 +22,25 @@
 .demand-linear.active, .demand-income.active, .demand-nonlinear.active, .demand-only.active, .supply-only.active {
     display: block;   
 }
+
+.graph-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.axis-label {
+    position: absolute;
+    font-weight: bold;
+}
+
+/* P label (y-axis) */
+.y-label {
+    left: -80px;
+    top: 0;
+}
+
+/* Q label (x-axis) */
+.x-label {
+    bottom: -20px;
+    right: 0;
+}

@@ -40,6 +40,11 @@ const canvasRevenue = document.getElementById("revenueCanvas");
 const ctxRevenue = canvasRevenue.getContext("2d");
 const canvasWidth = canvasMain.width;
 const canvasHeight = canvasMain.height;
+const maxQ = 100;
+const maxP = 100;
+const margin = 30;
+const scaleX = (canvasWidth - margin) / maxQ;
+const scaleY = (canvasHeight - margin) / maxP;
 const equilibriumPriceElement = document.getElementById("equilibriumPrice");
 const equilibriumQuantityElement = document.getElementById("equilibriumQuantity");
 const revenueMaximizingPriceElement = document.getElementById("revenueMaximizingPrice");
@@ -79,6 +84,7 @@ for (let button of modeButtons) {
             state.mode = newMode;
             modeButtonClicked = true;
             displayAndStoreMetricValues();
+            drawCurves();
             renderInsights();
         }
         if (state.mode === "demand") {
@@ -134,6 +140,7 @@ for (let slider of sliders) {
             }
         }
         displayAndStoreMetricValues();
+        drawCurves();
         renderInsights();
     });
 }
@@ -186,6 +193,7 @@ demandType.addEventListener("change", (e) => {
     }
     previousDemandType = state.demandType;
     displayAndStoreMetricValues();
+    drawCurves();
     renderInsights();
 });
 
@@ -201,17 +209,17 @@ for (let button of presetButtons) {
         for (let slider of sliders) {
             slider.value = state[slider.id];
         }
-
         displayAndStoreMetricValues();
+        drawCurves();
         renderInsights();
         mainSection.scrollIntoView({
             behavior: "smooth"
         });
     });
 }
-
 displayAndStoreMetricValues();
 modeButtons[0].click();
+drawCurves();
 renderInsights();
 
 //var used because it is function-scoped and allows us to redefine it in different cases without issues. Let is block-scoped and results in having to repeat code for each demand type, which is less efficient.
@@ -299,40 +307,107 @@ function setMetric(element, value, condition) {
     element.textContent = condition ? formatValue(value) : "";
 }
 
+function drawAxes() {
+    ctxMain.beginPath();
+    ctxMain.strokeStyle = "black";
+    ctxMain.lineWidth = 1;
 
-function drawCurve(points, color) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
+    // ✅ Y-axis (Q = 0 line)
+    ctxMain.moveTo(margin, 0);
+    ctxMain.lineTo(margin, canvasHeight - margin);
 
-    let first = true;
+    // ✅ X-axis (P = 0 line)
+    ctxMain.moveTo(margin, canvasHeight - margin);
+    ctxMain.lineTo(canvasWidth, canvasHeight - margin);
 
-    for (let point of points) {
-        const x = point.x * scaleX;
-        const y = canvasHeight - point.y * scaleY;
+    ctxMain.stroke();
 
-        if (first) {
-            ctx.moveTo(x, y);
-            first = false;
+    const arrowSize = 6;
+
+    // ✅ Y-axis arrow
+    ctxMain.beginPath();
+    ctxMain.moveTo(margin, 0);
+    ctxMain.lineTo(margin - arrowSize, arrowSize);
+    ctxMain.lineTo(margin + arrowSize, arrowSize);
+    ctxMain.closePath();
+    ctxMain.fill();
+
+    // ✅ X-axis arrow
+    ctxMain.beginPath();
+    ctxMain.moveTo(canvasWidth, canvasHeight - margin);
+    ctxMain.lineTo(canvasWidth - arrowSize, canvasHeight - margin - arrowSize);
+    ctxMain.lineTo(canvasWidth - arrowSize, canvasHeight - margin + arrowSize);
+    ctxMain.closePath();
+    ctxMain.fill();
+}
+
+function labelCurve(points, text, color, right, up) {
+    const index = Math.floor(points.length * 0.5);
+    const point = points[index];
+
+    const x = margin + point.x * scaleX;
+    const y = (canvasHeight - margin) - point.y * scaleY;
+
+    ctxMain.fillStyle = color;
+    ctxMain.font = "14px Arial";
+
+    ctxMain.fillText(text, x + right, y - up);
+}
+
+function drawCurves() {
+    ctxMain.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    drawAxes();
+
+    const pointsList = retrievePointsNeededForPlotting(state.mode, state.demandType);
+
+    const colors = (state.mode === "demand") ? ["green", "blue"] : ["green", "red", "blue"];
+
+    for (let i = 0; i < pointsList.length; i++) {
+        const points = pointsList[i];
+
+        ctxMain.beginPath();
+        ctxMain.strokeStyle = colors[i];
+
+        let first = true;
+
+        for (let point of points) {
+            const x = margin + point.x * scaleX;
+            const y = (canvasHeight - margin) - point.y * scaleY;
+
+            if (first) {
+                ctxMain.moveTo(x, y);
+                first = false;
+            } else {
+                ctxMain.lineTo(x, y);
+            }
+        }
+
+        ctxMain.stroke();
+        if (state.mode === "demand") {
+            if (i === 0) labelCurve([points[1]], "Supply", "green", -10, -10);
+            if (i === 1) labelCurve(points, "Demand", "blue", 5, 5);
         } else {
-            ctx.lineTo(x, y);
+            if (i === 0) labelCurve(points, "S", "green", 5, 5);
+            if (i === 1) labelCurve(points, "S + t", "red", 5, 5);
+            if (i === 2) labelCurve(points, "Demand", "blue", 5, 5);
         }
     }
-
-    ctx.stroke();
 }
+
 
 function retrievePointsNeededForPlotting(mode, demandType) {
     let points = []
     let pointsList = []
     if (mode === 'demand') {
         points = generatePlotPointsSupplyNoTax(state.c, state.d);
-        pointsList.push(points)
+        pointsList.push(points);
         if (demandType === 'linear') {
             points = generatePlotPointsDemandLinear(state.a, state.b);
             pointsList.push(points);
         }
         else if (demandType === 'nonlinear') {
-            points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+            points = generatePlotPointsDemandNonlinear(state.aNonlinear, state.bNonlinear);
             pointsList.push(points);
         }
         else {
@@ -342,19 +417,23 @@ function retrievePointsNeededForPlotting(mode, demandType) {
     }
     else {
         points = generatePlotPointsSupplyNoTax(state.c, state.d);
-        pointsList.push(points)
-        points = generatePlotPointsSupplyWithTax(state.c, state.d, state.t)
-        pointsList.push(points)
+        pointsList.push(points);
+        points = generatePlotPointsSupplyWithTax(state.c, state.d, state.t);
+        pointsList.push(points);
         if (demandType === 'linear') {
-
+            points = generatePlotPointsDemandLinear(state.a, state.b);
+            pointsList.push(points);
         }
         else if (demandType === 'nonlinear') {
-
+            points = generatePlotPointsDemandNonlinear(state.aNonlinear, state.bNonlinear);
+            pointsList.push(points);
         }
         else {
-
+            points = generatePlotPointsDemandIncome(state.k, state.income);
+            pointsList.push(points);
         }
     }
+    return pointsList
 }
 
 
@@ -491,35 +570,60 @@ function calculateDWLNonlinear(a, b, c, d, t) {
 }
 
 function generatePlotPointsSupplyNoTax(c, d) {
-    const points = [];
-    for (let P = 0; P <= 100; P += 0.5) {
-        const Q = c + d * P;
-        points.push({ x: Q, y: P });
+    // always include origin-side intercept
+    const xIntercept = { x: c, y: 0 };
+
+    // pick another valid point (e.g. maxP)
+    let P2 = maxP;
+    let Q2
+    if(c + d * P2 > maxQ) {
+        Q2 = maxQ;
+        P2 = (maxQ - c) / d
     }
-    return points;
+    else {
+        Q2 = c + d * P2
+    }
+
+
+    const endPoint = { x: Q2, y: P2 };
+
+    return [xIntercept, endPoint];
 }
+
 
 function generatePlotPointsSupplyWithTax(c, d, t) {
-    const points = [];
-    for (let P = 0; P <= 100; P += 0.5) {
-        const Q = c + d * (P - t);
-        points.push({ x: Q, y: P });
+    let firstPoint
+
+    if (-(c / d) + t > 0) {
+        firstPoint = { x: 0, y: -(c / d) + t };
     }
-    return points;
+    else {
+        firstPoint = { x: c - d * t, y: 0 };
+    }
+    // pick another valid point (e.g. maxP)
+    const P2 = maxP;
+    const Q2 = c + d * (P2 - t);
+
+    const secondPoint = { x: Q2, y: P2 };
+
+    return [firstPoint, secondPoint];
 }
 
+
 function generatePlotPointsDemandLinear(a, b) {
-    const points = [];
-    for (let P = 0; P <= 100; P += 0.5) {
-        const Q = a - b * P;
-        points.push({ x: Q, y: P });
-    }
-    return points;
+    return [
+        { x: a, y: 0 },          // x-intercept
+        { x: 0, y: a / b }       // y-intercept
+    ];
 }
+
 
 function generatePlotPointsDemandIncome(income, k) {
     const points = [];
     for (let P = 0; P <= 100; P += 0.5) {
+        if (P === 0) {
+            continue
+        }
         const Q = k * income / P;
         points.push({ x: Q, y: P });
     }
