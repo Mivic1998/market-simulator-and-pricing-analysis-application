@@ -358,6 +358,12 @@ function drawCurves() {
     ctxMain.clearRect(0, 0, canvasWidth, canvasHeight);
 
     drawAxes();
+    
+   if (state.mode === "demand") {
+        drawDemandModeShading();
+    } else {
+        drawSupplyModeShading();
+    }
 
     const pointsList = retrievePointsNeededForPlotting(state.mode, state.demandType);
 
@@ -434,6 +440,232 @@ function retrievePointsNeededForPlotting(mode, demandType) {
         }
     }
     return pointsList
+}
+
+function toCanvas(Q, P) {
+    return {
+        x: margin + Q * scaleX,
+        y: (canvasHeight - margin) - P * scaleY
+    };
+}
+
+function drawDemandModeShading() {
+    const P = currentMetrics.P;
+    const Q = currentMetrics.Q;
+
+    if (state.demandType === "linear") {
+        drawCSLinear(state.a, state.b, P, Q);
+        drawPS(state.c, state.d, P, Q);
+        drawWelfareLossLinear(state.a, state.b, state.c, state.d);
+    }
+    else if (state.demandType === "nonlinear") {
+        drawCSNonlinear(state.aNonlinear, state.bNonlinear, P, Q);
+        drawPS(state.c, state.d, P, Q);
+        drawWelfareLossNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d);
+    }
+    else {
+        drawCSIncome(state.k, state.income, P, Q);
+        drawPS(state.c, state.d, P, Q);
+    }
+}
+
+function drawSupplyModeShading() {
+    const P = currentMetrics.P;
+    const Q = currentMetrics.Q;
+    const [P0, Q0] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, 0);
+
+    const P_p = P - state.t;
+
+    drawCSLinear(state.a, state.b, P, Q);
+    drawPS(state.c, state.d, P_p, Q);
+    drawTaxRevenue(P, P_p, Q);
+    drawDWLTax(Q0, Q, state.a, state.b, state.c, state.d);
+}
+
+function drawCSLinear(a, b, P_eq, Q_eq) {
+    const ctx = ctxMain;
+
+    const top = toCanvas(0, a / b);
+    const eq = toCanvas(Q_eq, P_eq);
+    const left = toCanvas(0, P_eq);
+
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(eq.x, eq.y);
+    ctx.lineTo(left.x, left.y);
+    ctx.closePath();
+
+    ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
+    ctx.fill();
+}
+
+function drawCSNonlinear(a, b, P_eq, Q_eq) {
+    const ctx = ctxMain;
+
+    ctx.beginPath();
+
+    let first = true;
+
+    for (let P = 0; P <= P_eq; P += 0.3) {
+        const Q = a * Math.exp(-b * P);
+        if (Q > Q_eq) continue;
+
+        const { x, y } = toCanvas(Q, P);
+
+        if (first) {
+            ctx.moveTo(x, y);
+            first = false;
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+
+    const eq = toCanvas(Q_eq, P_eq);
+    const left = toCanvas(0, P_eq);
+
+    ctx.lineTo(eq.x, eq.y);
+    ctx.lineTo(left.x, left.y);
+
+    ctx.closePath();
+    ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
+    ctx.fill();
+}
+
+function drawCSIncome(k, income, P_eq, Q_eq) {
+    const ctx = ctxMain;
+
+    ctx.beginPath();
+
+    let first = true;
+
+    for (let P = 0.5; P <= P_eq; P += 0.3) {
+        const Q = k * income / P;
+        if (Q > Q_eq) continue;
+
+        const { x, y } = toCanvas(Q, P);
+
+        if (first) {
+            ctx.moveTo(x, y);
+            first = false;
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+
+    const eq = toCanvas(Q_eq, P_eq);
+    const left = toCanvas(0, P_eq);
+
+    ctx.lineTo(eq.x, eq.y);
+    ctx.lineTo(left.x, left.y);
+
+    ctx.closePath();
+    ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
+    ctx.fill();
+}
+
+function drawPS(c, d, P_eq, Q_eq) {
+    const ctx = ctxMain;
+
+    const intercept = toCanvas(0, -c / d);
+    const eq = toCanvas(Q_eq, P_eq);
+    const left = toCanvas(0, P_eq);
+
+    ctx.beginPath();
+    ctx.moveTo(intercept.x, intercept.y);
+    ctx.lineTo(eq.x, eq.y);
+    ctx.lineTo(left.x, left.y);
+    ctx.closePath();
+
+    ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+    ctx.fill();
+}
+
+function drawWelfareLossLinear(a, b, c, d) {
+    const [P_eq, Q_eq] = calculateEquilibriumLinear(a, b, c, d, 0);
+    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
+
+    const p1 = toCanvas(Q_max, (a - Q_max) / b);
+    const p2 = toCanvas(Q_eq, P_eq);
+    const p3 = toCanvas(Q_max, (Q_max - c) / d);
+
+    ctxMain.beginPath();
+    ctxMain.moveTo(p1.x, p1.y);
+    ctxMain.lineTo(p2.x, p2.y);
+    ctxMain.lineTo(p3.x, p3.y);
+    ctxMain.closePath();
+
+    ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctxMain.fill();
+}
+
+function drawWelfareLossNonlinear(a, b, c, d) {
+    const [P_eq, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
+    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(a, b);
+
+    const ctx = ctxMain;
+
+    ctx.beginPath();
+    let first = true;
+
+    for (let Q = Q_max; Q <= Q_eq; Q += 0.5) {
+        const P_d = -(1 / b) * Math.log(Q / a);
+        const { x, y } = toCanvas(Q, P_d);
+
+        if (first) {
+            ctx.moveTo(x, y);
+            first = false;
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+
+    for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
+        const P_s = (Q - c) / d;
+        const { x, y } = toCanvas(Q, P_s);
+        ctx.lineTo(x, y);
+    }
+
+    ctx.closePath();
+    ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctx.fill();
+}
+
+function drawTaxRevenue(P_c, P_p, Q) {
+    const topLeft = toCanvas(0, P_c);
+    const topRight = toCanvas(Q, P_c);
+    const botRight = toCanvas(Q, P_p);
+    const botLeft = toCanvas(0, P_p);
+
+    ctxMain.beginPath();
+    ctxMain.moveTo(topLeft.x, topLeft.y);
+    ctxMain.lineTo(topRight.x, topRight.y);
+    ctxMain.lineTo(botRight.x, botRight.y);
+    ctxMain.lineTo(botLeft.x, botLeft.y);
+    ctxMain.closePath();
+
+    ctxMain.fillStyle = "rgba(255, 165, 0, 0.3)";
+    ctxMain.fill();
+}
+
+function drawDWLTax(Q0, Q_t, a, b, c, d) {
+    const ctx = ctxMain;
+
+    const P_d_t = (a - Q_t) / b;
+    const P_s_t = (Q_t - c) / d;
+    const P_d_0 = (a - Q0) / b;
+
+    const p1 = toCanvas(Q0, P_d_0);
+    const p2 = toCanvas(Q_t, P_d_t);
+    const p3 = toCanvas(Q_t, P_s_t);
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.closePath();
+
+    ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctx.fill();
 }
 
 
