@@ -492,9 +492,38 @@ function drawSupplyModeShading() {
 function drawCSLinear(a, b, P_eq, Q_eq) {
     const ctx = ctxMain;
 
-    const top = toCanvas(0, a / b);
+    const isVerticalDemand = Math.abs(b) < 0.00001;
+    const isVerticalSupply = Math.abs(state.d) < 0.01;
+
+    //VERTICAL DEMAND CASE
+    if (isVerticalDemand) {
+
+        const Q = Q_eq;
+
+        const topLeft = toCanvas(0, maxP);
+        const topRight = toCanvas(Q, maxP);
+        const bottomRight = toCanvas(Q, P_eq);
+        const bottomLeft = toCanvas(0, P_eq);
+
+        ctx.beginPath();
+        ctx.moveTo(topLeft.x, topLeft.y);
+        ctx.lineTo(topRight.x, topRight.y);
+        ctx.lineTo(bottomRight.x, bottomRight.y);
+        ctx.lineTo(bottomLeft.x, bottomLeft.y);
+        ctx.closePath();
+
+        ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
+        ctx.fill();
+
+        return;
+    }
+
+    //NORMAL / VERTICAL SUPPLY CASE
+    const Q_start = isVerticalSupply ? state.c : 0;
+
+    const top = toCanvas(Q_start, (a - Q_start) / b);
     const eq = toCanvas(Q_eq, P_eq);
-    const left = toCanvas(0, P_eq);
+    const left = toCanvas(Q_start, P_eq);
 
     ctx.beginPath();
     ctx.moveTo(top.x, top.y);
@@ -506,17 +535,43 @@ function drawCSLinear(a, b, P_eq, Q_eq) {
     ctx.fill();
 }
 
+
 function drawCSNonlinear(a, b, P_eq, Q_eq) {
     ctxMain.beginPath();
 
+    const isVerticalDemand = b < 0.01; 
+    const isVerticalSupply = Math.abs(state.d) < 0.01;
+
+    if (isVerticalDemand) {
+
+        const Q = Q_eq;
+
+        const top = toCanvas(Q, maxP);     // extend up
+        const bottom = toCanvas(Q, P_eq);  // down to price
+        const leftBottom = toCanvas(0, P_eq);
+        const leftTop = toCanvas(0, maxP);
+
+        ctxMain.moveTo(leftTop.x, leftTop.y);
+        ctxMain.lineTo(top.x, top.y);
+        ctxMain.lineTo(bottom.x, bottom.y);
+        ctxMain.lineTo(leftBottom.x, leftBottom.y);
+
+        ctxMain.closePath();
+        ctxMain.fillStyle = "rgba(0, 0, 255, 0.2)";
+        ctxMain.fill();
+
+        return;
+    }
+
+    const Q_start = isVerticalSupply ? state.c : 0.1;
+
     let started = false;
 
-    // ────────── TOP: demand ──────────
-    for (let Q = 0.1; Q <= Q_eq; Q += 0.5) {
+    // TOP: demand curve
+    for (let Q = Q_start; Q <= Q_eq; Q += 0.5) {
         let P = -(1 / b) * Math.log(Q / a);
 
-        if (P < P_eq) continue;
-        if (P < 0) continue;
+        if (P < P_eq || P < 0) continue;
 
         const pt = toCanvas(Q, P);
 
@@ -528,12 +583,12 @@ function drawCSNonlinear(a, b, P_eq, Q_eq) {
         }
     }
 
-    // ────────── RIGHT SIDE: equilibrium point ──────────
+    // equilibrium point
     const eq = toCanvas(Q_eq, P_eq);
     ctxMain.lineTo(eq.x, eq.y);
 
-    // ────────── BOTTOM: PRICE LINE (critical fix) ──────────
-    for (let Q = Q_eq; Q >= 0; Q -= 0.5) {
+    // bottom (price line)
+    for (let Q = Q_eq; Q >= Q_start; Q -= 0.5) {
         const pt = toCanvas(Q, P_eq);
         ctxMain.lineTo(pt.x, pt.y);
     }
@@ -542,6 +597,7 @@ function drawCSNonlinear(a, b, P_eq, Q_eq) {
     ctxMain.fillStyle = "rgba(0, 0, 255, 0.2)";
     ctxMain.fill();
 }
+
 
 function drawCSIncome(k, income, P_eq, Q_eq) {
     ctxMain.beginPath();
@@ -955,12 +1011,24 @@ function generatePlotPointsSupplyWithTax(c, d, t) {
 }
 
 
+
 function generatePlotPointsDemandLinear(a, b) {
+
+    //HANDLE VERTICAL DEMAND
+    if (Math.abs(b) < 0.00001) {
+        return [
+            { x: a, y: 0 },
+            { x: a, y: maxP }  // vertical line
+        ];
+    }
+
+    //NORMAL CASE
     return [
-        { x: a, y: 0 },          // x-intercept
-        { x: 0, y: a / b }       // y-intercept
+        { x: a, y: 0 },
+        { x: 0, y: a / b }
     ];
 }
+
 
 
 function generatePlotPointsDemandIncome(income, k) {
