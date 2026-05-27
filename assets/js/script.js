@@ -614,7 +614,7 @@ function drawCSNonlinear(a, b, P_eq, Q_eq) {
     let started = false;
 
     // TOP: demand curve
-    for (let Q = Q_start; Q <= Q_eq; Q += 0.5) {
+    for (let Q = Q_start; Q <= Q_eq; Q += 0.1) {
         let P = -(1 / b) * Math.log(Q / a);
 
         if (P < P_eq || P < 0) continue;
@@ -634,7 +634,7 @@ function drawCSNonlinear(a, b, P_eq, Q_eq) {
     ctxMain.lineTo(eq.x, eq.y);
 
     // bottom (price line)
-    for (let Q = Q_eq; Q >= Q_start; Q -= 0.5) {
+    for (let Q = Q_eq; Q >= Q_start; Q -= 0.1) {
         const pt = toCanvas(Q, P_eq);
         ctxMain.lineTo(pt.x, pt.y);
     }
@@ -651,7 +651,7 @@ function drawCSIncome(k, income, P_eq, Q_eq) {
     let started = false;
 
     // TOP: demand (Q-loop, not P-loop)
-    for (let Q = 0.1; Q <= Q_eq; Q += 0.5) {
+    for (let Q = 0.1; Q <= Q_eq; Q += 0.1) {
         let P = (k * income) / Q;
 
         if (P < P_eq) continue;
@@ -671,7 +671,7 @@ function drawCSIncome(k, income, P_eq, Q_eq) {
     ctxMain.lineTo(eq.x, eq.y);
 
     // back along price line
-    for (let Q = Q_eq; Q >= 0; Q -= 0.5) {
+    for (let Q = Q_eq; Q >= 0; Q -= 0.1) {
         const { x, y } = toCanvas(Q, P_eq);
         ctxMain.lineTo(x, y);
     }
@@ -694,7 +694,7 @@ function drawPS(c, d, P_eq, Q_eq) {
     ctxMain.lineTo(eqTop.x, eqTop.y);
 
     // 3. follow supply curve down until it hits axis
-    for (let Q = Q_eq; Q >= c; Q -= 0.5) {
+    for (let Q = Q_eq; Q >= c; Q -= 0.1) {
         let P_s = (Q - c) / d;
         const pt = toCanvas(Q, P_s);
         ctxMain.lineTo(pt.x, pt.y);
@@ -722,7 +722,7 @@ function drawWelfareLossLinear(a, b, c, d) {
     let started = false;
 
     // TOP: demand curve (Q_max → Q_eq)
-    for (let Q = Q_max; Q <= Q_eq; Q += 0.5) {
+    for (let Q = Q_max; Q <= Q_eq; Q += 0.1) {
         let P_d = (a - Q) / b;
 
         if (P_d < 0) continue;
@@ -738,7 +738,7 @@ function drawWelfareLossLinear(a, b, c, d) {
     }
 
     // BOTTOM: switch axis → supply (same rule as PS)
-    for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
+    for (let Q = Q_eq; Q >= Q_max; Q -= 0.1) {
         let P_s = (Q - c) / d;
 
         if (P_s <= 0) {
@@ -767,7 +767,7 @@ function drawWelfareLossNonlinear(a, b, c, d) {
     let started = false;
 
     // TOP: demand curve
-    for (let Q = Q_max; Q <= Q_eq; Q += 0.5) {
+    for (let Q = Q_max; Q <= Q_eq; Q += 0.1) {
         let P_d = -(1 / b) * Math.log(Q / a);
 
         if (P_d < 0) continue;
@@ -783,7 +783,7 @@ function drawWelfareLossNonlinear(a, b, c, d) {
     }
 
     // BOTTOM: supply curve (reverse direction)
-    for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
+    for (let Q = Q_eq; Q >= Q_max; Q -= 0.1) {
         let P_s = (Q - c) / d;
 
         if (P_s < 0) P_s = 0;
