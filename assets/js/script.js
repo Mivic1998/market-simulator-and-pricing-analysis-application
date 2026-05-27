@@ -134,7 +134,7 @@ for (let slider of sliders) {
         const value = Number(e.target.value);
         const id = e.target.id;
         if (id === "d" && Math.abs(value) < 0.01) {
-            state[id] = 0.000001;   // ✅ NOT zero
+            state[id] = 0.000001;
         } else {
             state[id] = value;
         }
@@ -316,11 +316,11 @@ function drawAxes() {
     ctxMain.strokeStyle = "black";
     ctxMain.lineWidth = 1;
 
-    // ✅ Y-axis (Q = 0 line)
+    //Y-axis (Q = 0 line)
     ctxMain.moveTo(margin, 0);
     ctxMain.lineTo(margin, canvasHeight - margin);
 
-    // ✅ X-axis (P = 0 line)
+    //X-axis (P = 0 line)
     ctxMain.moveTo(margin, canvasHeight - margin);
     ctxMain.lineTo(canvasWidth, canvasHeight - margin);
 
@@ -328,7 +328,7 @@ function drawAxes() {
 
     const arrowSize = 6;
 
-    // ✅ Y-axis arrow
+    // Y-axis arrow
     ctxMain.beginPath();
     ctxMain.moveTo(margin, 0);
     ctxMain.lineTo(margin - arrowSize, arrowSize);
@@ -336,7 +336,7 @@ function drawAxes() {
     ctxMain.closePath();
     ctxMain.fill();
 
-    // ✅ X-axis arrow
+    //X-axis arrow
     ctxMain.beginPath();
     ctxMain.moveTo(canvasWidth, canvasHeight - margin);
     ctxMain.lineTo(canvasWidth - arrowSize, canvasHeight - margin - arrowSize);
@@ -639,7 +639,6 @@ function drawWelfareLossLinear(a, b, c, d) {
     for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
         let P_s = (Q - c) / d;
 
-        // ✅ CRITICAL FIX
         if (P_s <= 0) {
             const axisPoint = toCanvas(Q, 0);
             ctxMain.lineTo(axisPoint.x, axisPoint.y);
@@ -665,7 +664,7 @@ function drawWelfareLossNonlinear(a, b, c, d) {
 
     let started = false;
 
-    // ✅ TOP: demand curve
+    // TOP: demand curve
     for (let Q = Q_max; Q <= Q_eq; Q += 0.5) {
         let P_d = -(1 / b) * Math.log(Q / a);
 
@@ -681,7 +680,7 @@ function drawWelfareLossNonlinear(a, b, c, d) {
         }
     }
 
-    // ✅ BOTTOM: supply curve (reverse direction)
+    // BOTTOM: supply curve (reverse direction)
     for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
         let P_s = (Q - c) / d;
 
@@ -795,7 +794,7 @@ function approximateEquilibriumNonlinear(a, b, c, d, t) {
     let f_low = f(Q_low);
     let f_high = f(Q_high);
 
-    // ✅ NO ROOT → CORNER SOLUTION
+    //NO ROOT → CORNER SOLUTION
     if (f_low * f_high > 0) {
         const Qd0 = a;
         const Qs0 = c - d * t;
@@ -821,7 +820,7 @@ function approximateEquilibriumNonlinear(a, b, c, d, t) {
 
     const Q = Q_mid;
 
-    // ✅ always compute P from supply (numerically stable)
+    //always compute P from supply (numerically stable)
     const P = Math.max(0, (Q - c) / d + t);
 
     return [P, Q];
