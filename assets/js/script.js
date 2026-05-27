@@ -479,14 +479,60 @@ function drawDemandModeShading() {
 function drawSupplyModeShading() {
     const P = currentMetrics.P;
     const Q = currentMetrics.Q;
-    const [P0, Q0] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, 0);
 
     const P_p = P - state.t;
 
-    drawCSLinear(state.a, state.b, P, Q);
-    drawPS(state.c, state.d, P_p, Q);
-    drawTaxRevenue(P, P_p, Q);
-    drawDWLTax(Q0, Q, state.a, state.b, state.c, state.d);
+    // NO-TAX equilibrium (must match demand type)
+    let Q0;
+
+    if (state.demandType === "linear") {
+        [, Q0] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, 0);
+
+        drawCSLinear(state.a, state.b, P, Q);
+        drawPS(state.c, state.d, P_p, Q);
+        drawTaxRevenue(P, P_p, Q);
+        drawDWLTax(Q0, Q, state.a, state.b, state.c, state.d);
+    }
+
+    else if (state.demandType === "nonlinear") {
+        [, Q0] = approximateEquilibriumNonlinear(
+            state.aNonlinear,
+            state.bNonlinear,
+            state.c,
+            state.d,
+            0
+        );
+
+        drawCSNonlinear(state.aNonlinear, state.bNonlinear, P, Q);
+        drawPS(state.c, state.d, P_p, Q);
+        drawTaxRevenue(P, P_p, Q);
+
+        // use nonlinear DWL shading
+        drawWelfareLossNonlinear(
+            state.aNonlinear,
+            state.bNonlinear,
+            state.c,
+            state.d,
+            state.t
+        );
+    }
+
+    else { // income
+        [, Q0] = calculateEquilibriumIncome(
+            state.income,
+            state.k,
+            state.c,
+            state.d,
+            0
+        );
+
+        drawCSIncome(state.k, state.income, P, Q);
+        drawPS(state.c, state.d, P_p, Q);
+        drawTaxRevenue(P, P_p, Q);
+
+        // no geometric DWL implemented for income yet
+        // optional: skip or add later
+    }
 }
 
 function drawCSLinear(a, b, P_eq, Q_eq) {
