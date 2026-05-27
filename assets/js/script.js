@@ -133,7 +133,11 @@ for (let slider of sliders) {
     slider.addEventListener("input", (e) => {
         const value = Number(e.target.value);
         const id = e.target.id;
-        state[id] = value;
+        if (id === "d" && Math.abs(value) < 0.01) {
+            state[id] = 0.000001;   // ✅ NOT zero
+        } else {
+            state[id] = value;
+        }
         for (let input of manualInputs) {
             if (input.id === id + "Value") {
                 input.value = value;
@@ -358,8 +362,8 @@ function drawCurves() {
     ctxMain.clearRect(0, 0, canvasWidth, canvasHeight);
 
     drawAxes();
-    
-   if (state.mode === "demand") {
+
+    if (state.mode === "demand") {
         drawDemandModeShading();
     } else {
         drawSupplyModeShading();
@@ -455,16 +459,19 @@ function drawDemandModeShading() {
 
     if (state.demandType === "linear") {
         drawCSLinear(state.a, state.b, P, Q);
-        drawPS(state.c, state.d, P, Q);
         drawWelfareLossLinear(state.a, state.b, state.c, state.d);
     }
     else if (state.demandType === "nonlinear") {
         drawCSNonlinear(state.aNonlinear, state.bNonlinear, P, Q);
-        drawPS(state.c, state.d, P, Q);
         drawWelfareLossNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d);
     }
     else {
         drawCSIncome(state.k, state.income, P, Q);
+    }
+    if (P === 0) {
+        return
+    }
+    else {
         drawPS(state.c, state.d, P, Q);
     }
 }
@@ -500,135 +507,195 @@ function drawCSLinear(a, b, P_eq, Q_eq) {
 }
 
 function drawCSNonlinear(a, b, P_eq, Q_eq) {
-    const ctx = ctxMain;
+    ctxMain.beginPath();
 
-    ctx.beginPath();
+    let started = false;
 
-    let first = true;
+    // ────────── TOP: demand ──────────
+    for (let Q = 0.1; Q <= Q_eq; Q += 0.5) {
+        let P = -(1 / b) * Math.log(Q / a);
 
-    for (let P = 0; P <= P_eq; P += 0.3) {
-        const Q = a * Math.exp(-b * P);
-        if (Q > Q_eq) continue;
+        if (P < P_eq) continue;
+        if (P < 0) continue;
 
-        const { x, y } = toCanvas(Q, P);
+        const pt = toCanvas(Q, P);
 
-        if (first) {
-            ctx.moveTo(x, y);
-            first = false;
+        if (!started) {
+            ctxMain.moveTo(pt.x, pt.y);
+            started = true;
         } else {
-            ctx.lineTo(x, y);
+            ctxMain.lineTo(pt.x, pt.y);
         }
     }
 
+    // ────────── RIGHT SIDE: equilibrium point ──────────
     const eq = toCanvas(Q_eq, P_eq);
-    const left = toCanvas(0, P_eq);
+    ctxMain.lineTo(eq.x, eq.y);
 
-    ctx.lineTo(eq.x, eq.y);
-    ctx.lineTo(left.x, left.y);
+    // ────────── BOTTOM: PRICE LINE (critical fix) ──────────
+    for (let Q = Q_eq; Q >= 0; Q -= 0.5) {
+        const pt = toCanvas(Q, P_eq);
+        ctxMain.lineTo(pt.x, pt.y);
+    }
 
-    ctx.closePath();
-    ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
-    ctx.fill();
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(0, 0, 255, 0.2)";
+    ctxMain.fill();
 }
 
 function drawCSIncome(k, income, P_eq, Q_eq) {
-    const ctx = ctxMain;
+    ctxMain.beginPath();
 
-    ctx.beginPath();
+    let started = false;
 
-    let first = true;
+    // TOP: demand (Q-loop, not P-loop)
+    for (let Q = 0.1; Q <= Q_eq; Q += 0.5) {
+        let P = (k * income) / Q;
 
-    for (let P = 0.5; P <= P_eq; P += 0.3) {
-        const Q = k * income / P;
-        if (Q > Q_eq) continue;
+        if (P < P_eq) continue;
 
         const { x, y } = toCanvas(Q, P);
 
-        if (first) {
-            ctx.moveTo(x, y);
-            first = false;
+        if (!started) {
+            ctxMain.moveTo(x, y);
+            started = true;
         } else {
-            ctx.lineTo(x, y);
+            ctxMain.lineTo(x, y);
         }
     }
 
+    // equilibrium point
     const eq = toCanvas(Q_eq, P_eq);
-    const left = toCanvas(0, P_eq);
+    ctxMain.lineTo(eq.x, eq.y);
 
-    ctx.lineTo(eq.x, eq.y);
-    ctx.lineTo(left.x, left.y);
+    // back along price line
+    for (let Q = Q_eq; Q >= 0; Q -= 0.5) {
+        const { x, y } = toCanvas(Q, P_eq);
+        ctxMain.lineTo(x, y);
+    }
 
-    ctx.closePath();
-    ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
-    ctx.fill();
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(0, 0, 255, 0.2)";
+    ctxMain.fill();
 }
+
 
 function drawPS(c, d, P_eq, Q_eq) {
-    const ctx = ctxMain;
+    ctxMain.beginPath();
 
-    const intercept = toCanvas(0, -c / d);
-    const eq = toCanvas(Q_eq, P_eq);
-    const left = toCanvas(0, P_eq);
+    // 1. start at price on axis
+    const leftTop = toCanvas(0, P_eq);
+    ctxMain.moveTo(leftTop.x, leftTop.y);
 
-    ctx.beginPath();
-    ctx.moveTo(intercept.x, intercept.y);
-    ctx.lineTo(eq.x, eq.y);
-    ctx.lineTo(left.x, left.y);
-    ctx.closePath();
+    // 2. go to equilibrium
+    const eqTop = toCanvas(Q_eq, P_eq);
+    ctxMain.lineTo(eqTop.x, eqTop.y);
 
-    ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-    ctx.fill();
+    // 3. follow supply curve down until it hits axis
+    for (let Q = Q_eq; Q >= c; Q -= 0.5) {
+        let P_s = (Q - c) / d;
+        const pt = toCanvas(Q, P_s);
+        ctxMain.lineTo(pt.x, pt.y);
+    }
+
+    // 4. straight back to origin along axis
+    const intercept = toCanvas(c, 0);
+    ctxMain.lineTo(intercept.x, intercept.y);
+
+    const origin = toCanvas(0, 0);
+    ctxMain.lineTo(origin.x, origin.y);
+
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(0, 255, 0, 0.2)";
+    ctxMain.fill();
 }
+
 
 function drawWelfareLossLinear(a, b, c, d) {
     const [P_eq, Q_eq] = calculateEquilibriumLinear(a, b, c, d, 0);
     const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
 
-    const p1 = toCanvas(Q_max, (a - Q_max) / b);
-    const p2 = toCanvas(Q_eq, P_eq);
-    const p3 = toCanvas(Q_max, (Q_max - c) / d);
-
     ctxMain.beginPath();
-    ctxMain.moveTo(p1.x, p1.y);
-    ctxMain.lineTo(p2.x, p2.y);
-    ctxMain.lineTo(p3.x, p3.y);
-    ctxMain.closePath();
 
+    let started = false;
+
+    // TOP: demand curve (Q_max → Q_eq)
+    for (let Q = Q_max; Q <= Q_eq; Q += 0.5) {
+        let P_d = (a - Q) / b;
+
+        if (P_d < 0) continue;
+
+        const { x, y } = toCanvas(Q, P_d);
+
+        if (!started) {
+            ctxMain.moveTo(x, y);
+            started = true;
+        } else {
+            ctxMain.lineTo(x, y);
+        }
+    }
+
+    // BOTTOM: switch axis → supply (same rule as PS)
+    for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
+        let P_s = (Q - c) / d;
+
+        // ✅ CRITICAL FIX
+        if (P_s <= 0) {
+            const axisPoint = toCanvas(Q, 0);
+            ctxMain.lineTo(axisPoint.x, axisPoint.y);
+        } else {
+            const { x, y } = toCanvas(Q, P_s);
+            ctxMain.lineTo(x, y);
+        }
+    }
+
+    ctxMain.closePath();
     ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
     ctxMain.fill();
 }
 
 function drawWelfareLossNonlinear(a, b, c, d) {
-    const [P_eq, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
-    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(a, b);
 
-    const ctx = ctxMain;
+    const [, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
+    const [, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(a, b);
 
-    ctx.beginPath();
-    let first = true;
+    if (!Q_eq || Q_max >= Q_eq) return;
 
+    ctxMain.beginPath();
+
+    let started = false;
+
+    // ✅ TOP: demand curve
     for (let Q = Q_max; Q <= Q_eq; Q += 0.5) {
-        const P_d = -(1 / b) * Math.log(Q / a);
+        let P_d = -(1 / b) * Math.log(Q / a);
+
+        if (P_d < 0) continue;
+
         const { x, y } = toCanvas(Q, P_d);
 
-        if (first) {
-            ctx.moveTo(x, y);
-            first = false;
+        if (!started) {
+            ctxMain.moveTo(x, y);
+            started = true;
         } else {
-            ctx.lineTo(x, y);
+            ctxMain.lineTo(x, y);
         }
     }
 
+    // ✅ BOTTOM: supply curve (reverse direction)
     for (let Q = Q_eq; Q >= Q_max; Q -= 0.5) {
-        const P_s = (Q - c) / d;
+        let P_s = (Q - c) / d;
+
+        if (P_s < 0) P_s = 0;
+
         const { x, y } = toCanvas(Q, P_s);
-        ctx.lineTo(x, y);
+        ctxMain.lineTo(x, y);
     }
 
-    ctx.closePath();
-    ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
-    ctx.fill();
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctxMain.fill();
 }
+
 
 function drawTaxRevenue(P_c, P_p, Q) {
     const topLeft = toCanvas(0, P_c);
@@ -686,6 +753,11 @@ function calculateEquilibriumLinear(a, b, c, d, t) {
 }
 
 function calculateEquilibriumIncome(income, k, c, d, t) {
+    if(d === 0) {
+        const Q = c;
+        const P = (income * k) / Q;
+        return [P, Q]
+    }
     const term = c - d * t;
     const P = (-term + Math.sqrt(term * term + 4 * d * k * income)) / (2 * d);
     const Q = c + d * (P - t);
@@ -694,29 +766,65 @@ function calculateEquilibriumIncome(income, k, c, d, t) {
 
 
 function approximateEquilibriumNonlinear(a, b, c, d, t) {
-    function f(P) {
-        return a * Math.exp(-b * P) - (c + d * (P - t));
+
+    // Inverse demand: P(Q)
+    function Pd(Q) {
+        return -(1 / b) * Math.log(Q / a);
     }
-    let p_low = 0;
-    const epsilon = 0.01;
-    let P_high = (1 / b) * Math.log(a / epsilon);
-    while (f(P_high) > 0) {
-        P_high *= 2;
+
+    if (Math.abs(d) === 0) {
+        const Q = c;
+        const P = Math.max(0, Pd(Q));   // ALWAYS use demand here
+        return [P, Q];
     }
-    let iterations = 0;
-    let maxIterations = 500;
-    let tolerance = 0.0001;
-    let P_mid = (p_low + P_high) / 2;
-    while (Math.abs(f(P_mid)) > tolerance && iterations < maxIterations) {
-        if (f(p_low) * f(P_mid) < 0) {
-            P_high = P_mid;
+
+
+    // Inverse supply: P(Q)
+    function Ps(Q) {
+        return (Q - c) / d + t;
+    }
+
+    function f(Q) {
+        return Pd(Q) - Ps(Q);
+    }
+
+    // Avoid log(0)
+    let Q_low = 1e-6;
+    let Q_high = a;
+
+    let f_low = f(Q_low);
+    let f_high = f(Q_high);
+
+    // ✅ NO ROOT → CORNER SOLUTION
+    if (f_low * f_high > 0) {
+        const Qd0 = a;
+        const Qs0 = c - d * t;
+        return [0, Math.min(Qd0, Qs0)];
+    }
+
+    let Q_mid;
+
+    for (let i = 0; i < 100; i++) {
+        Q_mid = 0.5 * (Q_low + Q_high);
+        let f_mid = f(Q_mid);
+
+        if (Math.abs(f_mid) < 1e-6) break;
+
+        if (f_low * f_mid < 0) {
+            Q_high = Q_mid;
+            f_high = f_mid;
         } else {
-            p_low = P_mid;
+            Q_low = Q_mid;
+            f_low = f_mid;
         }
-        P_mid = (p_low + P_high) / 2;
-        iterations++;
     }
-    return [P_mid, c + d * (P_mid - t)];
+
+    const Q = Q_mid;
+
+    // ✅ always compute P from supply (numerically stable)
+    const P = Math.max(0, (Q - c) / d + t);
+
+    return [P, Q];
 }
 
 
@@ -808,7 +916,7 @@ function generatePlotPointsSupplyNoTax(c, d) {
     // pick another valid point (e.g. maxP)
     let P2 = maxP;
     let Q2
-    if(c + d * P2 > maxQ) {
+    if (c + d * P2 > maxQ) {
         Q2 = maxQ;
         P2 = (maxQ - c) / d
     }
@@ -831,17 +939,17 @@ function generatePlotPointsSupplyWithTax(c, d, t) {
     else {
         firstPoint = { x: c - d * t, y: 0 };
     }
-    
+
     let P2 = maxP;
     let Q2
-    if(c + d * (P2 - t) > maxQ) {
+    if (c + d * (P2 - t) > maxQ) {
         Q2 = maxQ;
         P2 = ((maxQ - c) / d) + t
     }
     else {
         Q2 = c + d * (P2 - t)
     }
-    
+
     const endPoint = { x: Q2, y: P2 };
 
     return [firstPoint, endPoint];
