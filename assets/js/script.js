@@ -491,7 +491,7 @@ function drawSupplyModeShading() {
         drawCSLinear(state.a, state.b, P, Q);
         drawPS(state.c, state.d, P_p, Q);
         drawTaxRevenue(P, P_p, Q);
-        drawDWLTax(Q0, Q, state.a, state.b, state.c, state.d);
+        drawDWLLinearTax(Q0, Q, state.a, state.b, state.c, state.d);
     }
 
     else if (state.demandType === "nonlinear") {
@@ -506,6 +506,13 @@ function drawSupplyModeShading() {
         drawCSNonlinear(state.aNonlinear, state.bNonlinear, P, Q);
         drawPS(state.c, state.d, P_p, Q);
         drawTaxRevenue(P, P_p, Q);
+        drawDWLNonlinearTax(
+            state.aNonlinear,
+            state.bNonlinear,
+            state.c,
+            state.d,
+            state.t
+        );
 
         // use nonlinear DWL shading
         drawWelfareLossNonlinear(
@@ -529,6 +536,13 @@ function drawSupplyModeShading() {
         drawCSIncome(state.k, state.income, P, Q);
         drawPS(state.c, state.d, P_p, Q);
         drawTaxRevenue(P, P_p, Q);
+        drawDWLIncomeTax(
+            state.k,
+            state.income,
+            state.c,
+            state.d,
+            state.t
+        );
 
         // no geometric DWL implemented for income yet
         // optional: skip or add later
@@ -585,7 +599,7 @@ function drawCSLinear(a, b, P_eq, Q_eq) {
 function drawCSNonlinear(a, b, P_eq, Q_eq) {
     ctxMain.beginPath();
 
-    const isVerticalDemand = b < 0.01; 
+    const isVerticalDemand = b < 0.01;
     const isVerticalSupply = Math.abs(state.d) < 0.01;
 
     if (isVerticalDemand) {
@@ -683,6 +697,11 @@ function drawCSIncome(k, income, P_eq, Q_eq) {
 
 
 function drawPS(c, d, P_eq, Q_eq) {
+
+    const P_s_at_Q = (Q_eq - c) / d;
+    if (P_s_at_Q < 0) return;
+
+
     ctxMain.beginPath();
 
     // 1. start at price on axis
@@ -694,13 +713,21 @@ function drawPS(c, d, P_eq, Q_eq) {
     ctxMain.lineTo(eqTop.x, eqTop.y);
 
     // 3. follow supply curve down until it hits axis
-    for (let Q = Q_eq; Q >= c; Q -= 0.1) {
+    for (let Q = Q_eq; Q >= c; Q -= 0.5) {
+
         let P_s = (Q - c) / d;
-        const pt = toCanvas(Q, P_s);
-        ctxMain.lineTo(pt.x, pt.y);
+
+        if (P_s <= 0) {
+            // ✅ switch to axis (THIS is the only fix you needed)
+            const axisPoint = toCanvas(Q, 0);
+            ctxMain.lineTo(axisPoint.x, axisPoint.y);
+        } else {
+            const pt = toCanvas(Q, P_s);
+            ctxMain.lineTo(pt.x, pt.y);
+        }
     }
 
-    // 4. straight back to origin along axis
+    // 4. straight back along axis to origin
     const intercept = toCanvas(c, 0);
     ctxMain.lineTo(intercept.x, intercept.y);
 
@@ -799,10 +826,13 @@ function drawWelfareLossNonlinear(a, b, c, d) {
 
 
 function drawTaxRevenue(P_c, P_p, Q) {
+
+    const P_p_clipped = Math.max(0, P_p); // ✅ FIX
+
     const topLeft = toCanvas(0, P_c);
     const topRight = toCanvas(Q, P_c);
-    const botRight = toCanvas(Q, P_p);
-    const botLeft = toCanvas(0, P_p);
+    const botRight = toCanvas(Q, P_p_clipped);
+    const botLeft = toCanvas(0, P_p_clipped);
 
     ctxMain.beginPath();
     ctxMain.moveTo(topLeft.x, topLeft.y);
@@ -815,25 +845,134 @@ function drawTaxRevenue(P_c, P_p, Q) {
     ctxMain.fill();
 }
 
-function drawDWLTax(Q0, Q_t, a, b, c, d) {
-    const ctx = ctxMain;
 
-    const P_d_t = (a - Q_t) / b;
-    const P_s_t = (Q_t - c) / d;
-    const P_d_0 = (a - Q0) / b;
+function drawDWLLinearTax(Q0, Q_t, a, b, c, d) {
 
-    const p1 = toCanvas(Q0, P_d_0);
-    const p2 = toCanvas(Q_t, P_d_t);
-    const p3 = toCanvas(Q_t, P_s_t);
+    const isVerticalDemand = Math.abs(b) < 0.00001;
+    if (isVerticalDemand) return;
 
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.lineTo(p3.x, p3.y);
-    ctx.closePath();
+    ctxMain.beginPath();
 
-    ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
-    ctx.fill();
+    // ────────── TOP: demand curve (Q_t → Q0) ──────────
+    for (let Q = Q_t; Q <= Q0; Q += 0.1) {
+        let P_d = (a - Q) / b;
+
+        if (P_d < 0) continue;
+
+        const { x, y } = toCanvas(Q, P_d);
+
+        if (Q === Q_t) {
+            ctxMain.moveTo(x, y);
+        } else {
+            ctxMain.lineTo(x, y);
+        }
+    }
+
+    // ────────── BOTTOM: supply OR axis (SWITCH LOGIC) ──────────
+    for (let Q = Q0; Q >= Q_t; Q -= 0.1) {
+
+        let P_s = (Q - c) / d;
+
+        if (P_s <= 0) {
+            // ✅ SWITCH TO AXIS
+            const pt = toCanvas(Q, 0);
+            ctxMain.lineTo(pt.x, pt.y);
+        } else {
+            // ✅ NORMAL SUPPLY
+            const pt = toCanvas(Q, P_s);
+            ctxMain.lineTo(pt.x, pt.y);
+        }
+    }
+
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctxMain.fill();
+}
+
+function drawDWLNonlinearTax(a, b, c, d, t) {
+
+    const [, Q0] = approximateEquilibriumNonlinear(a, b, c, d, 0);
+    const [, Q_t] = approximateEquilibriumNonlinear(a, b, c, d, t);
+
+    if (!Q0 || !Q_t || Q_t >= Q0) return;
+
+    ctxMain.beginPath();
+
+    let started = false;
+
+    // ───── TOP: demand curve ─────
+    for (let Q = Q_t; Q <= Q0; Q += 0.1) {
+
+        let P_d = -(1 / b) * Math.log(Q / a);
+
+        if (P_d < 0) continue;
+
+        const { x, y } = toCanvas(Q, P_d);
+
+        if (!started) {
+            ctxMain.moveTo(x, y);
+            started = true;
+        } else {
+            ctxMain.lineTo(x, y);
+        }
+    }
+
+    // ───── BOTTOM: supply OR axis ─────
+    for (let Q = Q0; Q >= Q_t; Q -= 0.1) {
+
+        let P_s = (Q - c) / d;
+
+        if (P_s <= 0) {
+            const pt = toCanvas(Q, 0); // ✅ axis switch
+            ctxMain.lineTo(pt.x, pt.y);
+        } else {
+            const pt = toCanvas(Q, P_s);
+            ctxMain.lineTo(pt.x, pt.y);
+        }
+    }
+
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctxMain.fill();
+}
+
+function drawDWLIncomeTax(k, income, c, d, t) {
+
+    const [, Q0] = calculateEquilibriumIncome(income, k, c, d, 0);
+    const [, Q_t] = calculateEquilibriumIncome(income, k, c, d, t);
+
+    if (!Q0 || !Q_t || Q_t >= Q0) return;
+
+    ctxMain.beginPath();
+
+    let started = false;
+
+    // ───── TOP: demand curve ─────
+    for (let Q = Q_t; Q <= Q0; Q += 0.1) {
+        let P_d = (k * income) / Q;
+
+        const { x, y } = toCanvas(Q, P_d);
+
+        if (!started) {
+            ctxMain.moveTo(x, y);
+            started = true;
+        } else {
+            ctxMain.lineTo(x, y);
+        }
+    }
+
+    // ───── BOTTOM: supply curve ─────
+    for (let Q = Q0; Q >= Q_t; Q -= 0.1) {
+        let P_s = (Q - c) / d;
+        if (P_s < 0) P_s = 0;
+
+        const { x, y } = toCanvas(Q, P_s);
+        ctxMain.lineTo(x, y);
+    }
+
+    ctxMain.closePath();
+    ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctxMain.fill();
 }
 
 
@@ -854,7 +993,7 @@ function calculateEquilibriumLinear(a, b, c, d, t) {
 }
 
 function calculateEquilibriumIncome(income, k, c, d, t) {
-    if(d === 0) {
+    if (d === 0) {
         const Q = c;
         const P = (income * k) / Q;
         return [P, Q]
