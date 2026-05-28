@@ -91,6 +91,7 @@ for (let button of modeButtons) {
             state.t = 0;
             taxSlider.value = state.t;
             taxInput.value = state.t;
+            drawRevenue()
             for (let element of supplyOnlyElements) {
                 element.classList.remove("active");
             }
@@ -145,6 +146,7 @@ for (let slider of sliders) {
         }
         displayAndStoreMetricValues();
         drawCurves();
+        drawRevenue();
         renderInsights();
     });
 }
@@ -198,6 +200,7 @@ demandType.addEventListener("change", (e) => {
     previousDemandType = state.demandType;
     displayAndStoreMetricValues();
     drawCurves();
+    drawRevenue();
     renderInsights();
 });
 
@@ -215,16 +218,202 @@ for (let button of presetButtons) {
         }
         displayAndStoreMetricValues();
         drawCurves();
+        drawRevenue();
         renderInsights();
         mainSection.scrollIntoView({
             behavior: "smooth"
         });
     });
 }
+
+canvasMain.addEventListener("mousemove", handleMouseMove);
+canvasMain.addEventListener("mouseleave", handleMouseLeave);
+
+canvasRevenue.addEventListener("mousemove", handleRevenueMouseMove);
+canvasRevenue.addEventListener("mouseleave", handleRevenueMouseLeave);
+
+function handleMouseLeave() {
+
+    drawCurves();
+}
+
+function handleRevenueMouseLeave() {
+    drawRevenue(); // clears hover dot
+}
+
+
+
 displayAndStoreMetricValues();
 modeButtons[0].click();
 drawCurves();
+drawRevenue();
 renderInsights();
+
+function handleMouseMove(event) {
+    const Q = getMouseQ(event);
+    const P = getDemandPrice(Q);
+
+    if (!P || P < 0 || P > maxP) {
+        drawCurves();
+        return;
+    }
+
+    const PED = calculatePED(Q, P);
+
+    drawHoverOverlay(Q, P, PED);
+}
+
+function handleRevenueMouseMove(event) {
+
+    const Q = getMouseQRevenue(event);
+    const P = getDemandPrice(Q);
+
+    if (!P || P < 0 || P > maxP) {
+        drawRevenue();
+        return;
+    }
+
+    const TR = P * Q;
+
+    // redraw base graph
+    drawRevenue();
+
+    // draw hover point on top
+    drawRevenueOverlay(Q, TR);
+}
+
+function drawRevenueOverlay(Q, TR) {
+
+    let points;
+
+    if (state.demandType === 'linear') {
+        points = generatePlotPointsRevenueLinear(state.a, state.b);
+    } else if (state.demandType === 'nonlinear') {
+        points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+    } else {
+        points = generatePlotPointsRevenueIncome(state.k, state.income);
+    }
+
+    let scaleYRevenue;
+
+    if (state.demandType === "income") {
+        const maxRevenue = 1100;
+        scaleYRevenue = (canvasRevenue.height - margin) / maxRevenue;
+    } else {
+        let maxRevenue = 0;
+
+        for (let point of points) {
+            if (point.y > maxRevenue) {
+                maxRevenue = point.y;
+            }
+        }
+
+        scaleYRevenue = (canvasRevenue.height - margin) / (maxRevenue * 1.1);
+    }
+
+    const x = margin + Q * scaleX;
+    const y = (canvasRevenue.height - margin) - TR * scaleYRevenue;
+
+    // red dot
+    ctxRevenue.beginPath();
+    ctxRevenue.arc(x, y, 4, 0, Math.PI * 2);
+    ctxRevenue.fillStyle = "red";
+    ctxRevenue.fill();
+
+    // label
+    ctxRevenue.fillStyle = "black";
+    ctxRevenue.font = "12px Arial";
+    ctxRevenue.fillText(`TR: ${TR.toFixed(2)}`, x + 10, y - 10);
+}
+
+function getMouseQ(event) {
+    const rect = canvasMain.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+
+    const Q = (mouseX - margin) / scaleX;
+
+    return Math.max(0, Math.min(Q, maxQ));
+}
+
+function getMouseQRevenue(event) {
+    const rect = canvasRevenue.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+
+    const Q = (mouseX - margin) / scaleX;
+
+    return Math.max(0, Math.min(Q, maxQ));
+}
+
+function getDemandPrice(Q) {
+    if (Q <= 0) return null;
+
+    if (state.demandType === "linear") {
+        return (state.a - Q) / state.b;
+    } else if (state.demandType === "nonlinear") {
+        return -(1 / state.bNonlinear) * Math.log(Q / state.aNonlinear);
+    } else {
+        return state.k * state.income / Q;
+    }
+}
+
+function calculatePED(Q, P) {
+    if (!P || Q <= 0) return null;
+
+    if (state.demandType === "linear") {
+        return -state.b * (P / Q);
+    } else if (state.demandType === "nonlinear") {
+        return -state.bNonlinear * P;
+    } else {
+        return -1;
+    }
+}
+
+function drawHoverOverlay(Q, P, PED) {
+    drawCurves(); // redraw base graph first
+
+    const { x, y } = toCanvas(Q, P);
+
+    // dot
+    ctxMain.beginPath();
+    ctxMain.arc(x, y, 4, 0, Math.PI * 2);
+    ctxMain.fillStyle = "black";
+    ctxMain.fill();
+
+    // vertical guide
+    ctxMain.beginPath();
+    ctxMain.moveTo(x, canvasHeight - margin);
+    ctxMain.lineTo(x, y);
+    ctxMain.strokeStyle = "gray";
+    ctxMain.stroke();
+
+    // PED text
+    ctxMain.fillStyle = "black";
+    ctxMain.font = "12px Arial";
+
+    if (PED !== null) {
+        ctxMain.fillText(`PED: ${PED.toFixed(2)}`, x + 10, y - 10);
+    }
+}
+
+function drawRevenuePoint(Q, TR) {
+    ctxRevenue.clearRect(0, 0, canvasRevenue.width, canvasRevenue.height);
+
+    const scaleXR = canvasRevenue.width / maxQ;
+    const scaleYR = canvasRevenue.height / maxP;
+
+    const x = Q * scaleXR;
+    const y = canvasRevenue.height - TR * scaleYR;
+
+    ctxRevenue.beginPath();
+    ctxRevenue.arc(x, y, 4, 0, Math.PI * 2);
+    ctxRevenue.fillStyle = "red";
+    ctxRevenue.fill();
+
+    ctxRevenue.fillStyle = "black";
+    ctxRevenue.fillText(`TR: ${TR.toFixed(2)}`, x + 10, y - 10);
+}
+
+
 
 //var used because it is function-scoped and allows us to redefine it in different cases without issues. Let is block-scoped and results in having to repeat code for each demand type, which is less efficient.
 
@@ -311,39 +500,41 @@ function setMetric(element, value, condition) {
     element.textContent = condition ? formatValue(value) : "";
 }
 
-function drawAxes() {
-    ctxMain.beginPath();
-    ctxMain.strokeStyle = "black";
-    ctxMain.lineWidth = 1;
+function drawAxes(ctx) {
 
-    //Y-axis (Q = 0 line)
-    ctxMain.moveTo(margin, 0);
-    ctxMain.lineTo(margin, canvasHeight - margin);
+    ctx.beginPath();
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
 
-    //X-axis (P = 0 line)
-    ctxMain.moveTo(margin, canvasHeight - margin);
-    ctxMain.lineTo(canvasWidth, canvasHeight - margin);
+    // Y-axis
+    ctx.moveTo(margin, 0);
+    ctx.lineTo(margin, canvasHeight - margin);
 
-    ctxMain.stroke();
+    // X-axis
+    ctx.moveTo(margin, canvasHeight - margin);
+    ctx.lineTo(canvasWidth, canvasHeight - margin);
+
+    ctx.stroke();
 
     const arrowSize = 6;
 
-    // Y-axis arrow
-    ctxMain.beginPath();
-    ctxMain.moveTo(margin, 0);
-    ctxMain.lineTo(margin - arrowSize, arrowSize);
-    ctxMain.lineTo(margin + arrowSize, arrowSize);
-    ctxMain.closePath();
-    ctxMain.fill();
+    //  Y-axis arrow
+    ctx.beginPath();
+    ctx.moveTo(margin, 0);
+    ctx.lineTo(margin - arrowSize, arrowSize);
+    ctx.lineTo(margin + arrowSize, arrowSize);
+    ctx.closePath();
+    ctx.fill();
 
-    //X-axis arrow
-    ctxMain.beginPath();
-    ctxMain.moveTo(canvasWidth, canvasHeight - margin);
-    ctxMain.lineTo(canvasWidth - arrowSize, canvasHeight - margin - arrowSize);
-    ctxMain.lineTo(canvasWidth - arrowSize, canvasHeight - margin + arrowSize);
-    ctxMain.closePath();
-    ctxMain.fill();
+    // X-axis arrow
+    ctx.beginPath();
+    ctx.moveTo(canvasWidth, canvasHeight - margin);
+    ctx.lineTo(canvasWidth - arrowSize, canvasHeight - margin - arrowSize);
+    ctx.lineTo(canvasWidth - arrowSize, canvasHeight - margin + arrowSize);
+    ctx.closePath();
+    ctx.fill();
 }
+
 
 function labelCurve(points, text, color, right, up) {
     const index = Math.floor(points.length * 0.5);
@@ -361,7 +552,7 @@ function labelCurve(points, text, color, right, up) {
 function drawCurves() {
     ctxMain.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    drawAxes();
+    drawAxes(ctxMain);
 
     if (state.mode === "demand") {
         drawDemandModeShading();
@@ -403,6 +594,98 @@ function drawCurves() {
             if (i === 2) labelCurve(points, "Demand (D)", "blue", 5, 5);
         }
     }
+}
+
+function drawRevenue() {
+
+    let points;
+
+    if (state.demandType === 'linear') {
+        points = generatePlotPointsRevenueLinear(state.a, state.b);
+    }
+    else if (state.demandType === 'nonlinear') {
+        points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+    }
+    else {
+        points = generatePlotPointsRevenueIncome(state.k, state.income);
+    }
+
+    ctxRevenue.clearRect(0, 0, canvasRevenue.width, canvasRevenue.height);
+
+    drawAxes(ctxRevenue);
+
+    let scaleYRevenue;
+
+    if (state.demandType === "income") {
+        const maxRevenue = 1100;
+        scaleYRevenue = (canvasRevenue.height - margin) / maxRevenue;
+    }
+    else {
+        let maxRevenue = 0;
+
+        for (let point of points) {
+            if (point.y > maxRevenue) {
+                maxRevenue = point.y;
+            }
+        }
+
+        scaleYRevenue = (canvasRevenue.height - margin) / (maxRevenue * 1.1);
+    }
+
+    // draw revenue curve
+    ctxRevenue.beginPath();
+    ctxRevenue.strokeStyle = "purple";
+
+    let first = true;
+
+    for (let point of points) {
+        const x = margin + point.x * scaleX;
+        const y = (canvasRevenue.height - margin) - point.y * scaleYRevenue;
+
+        if (first) {
+            ctxRevenue.moveTo(x, y);
+            first = false;
+        } else {
+            ctxRevenue.lineTo(x, y);
+        }
+    }
+
+    ctxRevenue.stroke();
+
+    // MAX POINT (always visible)
+    let P_max, Q_max;
+
+    if (state.demandType === "linear") {
+        [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
+    }
+    else if (state.demandType === "nonlinear") {
+        [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(
+            state.aNonlinear,
+            state.bNonlinear
+        );
+    }
+    else {
+        return; // income → no unique max
+    }
+
+    const TR_max = P_max * Q_max;
+
+    const xMax = margin + Q_max * scaleX;
+    const yMax = (canvasRevenue.height - margin) - TR_max * scaleYRevenue;
+
+    ctxRevenue.beginPath();
+    ctxRevenue.arc(xMax, yMax, 5, 0, Math.PI * 2);
+    ctxRevenue.fillStyle = "blue";
+    ctxRevenue.fill();
+
+    ctxRevenue.fillStyle = "black";
+    ctxRevenue.font = "12px Arial";
+    ctxRevenue.fillText(
+        `Max TR = ${TR_max.toFixed(2)}`,
+        xMax + 10,
+        yMax - 10
+    );
+
 }
 
 
@@ -718,7 +1001,7 @@ function drawPS(c, d, P_eq, Q_eq) {
         let P_s = (Q - c) / d;
 
         if (P_s <= 0) {
-            // ✅ switch to axis (THIS is the only fix you needed)
+            // switch to axis (THIS is the only fix you needed)
             const axisPoint = toCanvas(Q, 0);
             ctxMain.lineTo(axisPoint.x, axisPoint.y);
         } else {
@@ -827,7 +1110,7 @@ function drawWelfareLossNonlinear(a, b, c, d) {
 
 function drawTaxRevenue(P_c, P_p, Q) {
 
-    const P_p_clipped = Math.max(0, P_p); // ✅ FIX
+    const P_p_clipped = Math.max(0, P_p); // FIX
 
     const topLeft = toCanvas(0, P_c);
     const topRight = toCanvas(Q, P_c);
@@ -874,11 +1157,11 @@ function drawDWLLinearTax(Q0, Q_t, a, b, c, d) {
         let P_s = (Q - c) / d;
 
         if (P_s <= 0) {
-            // ✅ SWITCH TO AXIS
+            // SWITCH TO AXIS
             const pt = toCanvas(Q, 0);
             ctxMain.lineTo(pt.x, pt.y);
         } else {
-            // ✅ NORMAL SUPPLY
+            // NORMAL SUPPLY
             const pt = toCanvas(Q, P_s);
             ctxMain.lineTo(pt.x, pt.y);
         }
@@ -923,7 +1206,7 @@ function drawDWLNonlinearTax(a, b, c, d, t) {
         let P_s = (Q - c) / d;
 
         if (P_s <= 0) {
-            const pt = toCanvas(Q, 0); // ✅ axis switch
+            const pt = toCanvas(Q, 0); // axis switch
             ctxMain.lineTo(pt.x, pt.y);
         } else {
             const pt = toCanvas(Q, P_s);
@@ -974,7 +1257,6 @@ function drawDWLIncomeTax(k, income, c, d, t) {
     ctxMain.fillStyle = "rgba(255, 0, 0, 0.3)";
     ctxMain.fill();
 }
-
 
 function calculateEquilibriumLinear(a, b, c, d, t) {
     const P = (a - c + d * t) / (b + d);
