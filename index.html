@@ -23,8 +23,15 @@
                 Dark Mode
             </button>
         </div>
-        <h1 class="main-heading">Market Simulator And Pricing Analysis Application</h1>
-        <p>This application simulates how supply and demand interact, allowing analysis of pricing and taxation effects.
+        <h1 class="main-heading pb-1">Market Simulator And Pricing Analysis Application</h1>
+        <p>
+            This application simulates how supply and demand interact,
+            allowing analysis of pricing and taxation effects.
+        </p>
+        <p>
+            <a href="theory_updated.html" class="theory-link">
+                Learn more about the theory behind the model.
+            </a>
         </p>
     </header>
     <section class="mode-toggle">
@@ -36,13 +43,15 @@
     <main>
         <section class="main-section">
             <h2 class="section-heading text-center">Main Market Graph</h2>
-            <p class="text-center">This graph displays the market equilibrium and shows how supply and demand curves interact.</p>
+            <p class="text-center">This graph displays the market equilibrium and shows how supply and demand curves
+                interact.</p>
             <div class="main-grid">
                 <div class="container">
                     <div class="row flex-lg-row-reverse">
                         <div class="col-12 col-lg-8">
                             <section class="graph-panel">
-                                <p class="canvas-text">The canvas visualises curves, equilibrium points, and economic welfare areas
+                                <p class="canvas-text">The canvas visualises curves, equilibrium points, and economic
+                                    welfare areas
                                     dynamically.</p>
                                 <canvas id="marketCanvas" width="600" height="400"></canvas>
                                 <section class="insights-panel">
@@ -130,7 +139,8 @@
                                         <div class="supply-controls">
                                             <div class="supply-parameters">
                                                 <h3>Supply Parameters</h3>
-                                                <p>Adjust these variables to see how outcomes respond to changing market conditions on the supply side.</p>
+                                                <p>Adjust these variables to see how outcomes respond to changing market
+                                                    conditions on the supply side.</p>
                                                 <div class="slider-group">
                                                     <label for="c">c:</label>
                                                     <p class="param-desc">Supply intercept — baseline price component
@@ -309,7 +319,8 @@
         </section>
         <section class="revenue-graph-panel demand-only">
             <h2 class="section-heading text-center">Total Revenue Graph</h2>
-            <p class="text-center">This graph shows how total revenue changes with output and highlights the maximum revenue point.</p>
+            <p class="text-center">This graph shows how total revenue changes with output and highlights the maximum
+                revenue point.</p>
             <div class="revenue-graph-content">
                 <canvas id="revenueCanvas" width="600" height="400"></canvas>
             </div>
