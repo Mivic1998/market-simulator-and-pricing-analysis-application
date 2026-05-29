@@ -44,14 +44,38 @@
             margin-top: 25px;
         }
 
-        code {
-            background: #eef2ff;
-            padding: 2px 6px;
-            border-radius: 4px;
+        .equation {
+            font-size: 1.2rem;
+
+            text-align: center;
+
+            margin: 20px 0;
+
+            font-style: italic;
+
+            font-family: "Times New Roman", serif;
         }
 
         ul {
             padding-left: 22px;
+        }
+
+        .back-link {
+            display: inline-block;
+
+            margin-bottom: 30px;
+
+            color: #2563eb;
+            text-decoration: none;
+
+            font-weight: 600;
+            font-size: 0.95rem;
+
+            transition: opacity 0.2s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.75;
         }
     </style>
 </head>
@@ -61,6 +85,10 @@
     <div class="container">
 
         <h1>Market Simulator Theory Guide</h1>
+
+        <a href="index.html" class="back-link">
+            ← Return to Simulator
+        </a>
 
         <section>
             <h2>Overview</h2>
@@ -88,7 +116,9 @@
             </p>
 
             <p>
-                <code>P = a - bQ</code>
+            <p class="equation">
+                P = a - bQ
+            </p>
             </p>
 
             <ul>
@@ -125,8 +155,8 @@
                 The underlying utility function is:
             </p>
 
-            <p>
-                <code>U(x,y)=x^k y^(1-k)</code>
+            <p class="equation">
+                U(x,y) = x<sup>k</sup>y<sup>1-k</sup>
             </p>
 
             <p>
@@ -144,8 +174,8 @@
                 the resulting demand function becomes:
             </p>
 
-            <p>
-                <code>x = (kI)/P</code>
+            <p class="equation">
+                x = kI/P
             </p>
 
             <p>
@@ -168,7 +198,10 @@
             <h2>Market Equilibrium</h2>
 
             <p>
-                Market equilibrium occurs where quantity demanded equals quantity supplied.
+                Market equilibrium occurs where quantity demanded equals quantity supplied (
+            <span class="equation">
+                Q<sub>d</sub> = Q<sub>s</sub>
+            </span>).
             </p>
 
             <p>
@@ -248,7 +281,9 @@
             </p>
 
             <p>
-                <code>TR = P × Q</code>
+            <p class="equation">
+                TR = P &times Q
+            </p>
             </p>
 
             <p>

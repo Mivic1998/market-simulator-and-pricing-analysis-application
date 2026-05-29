@@ -2211,14 +2211,14 @@ function renderInsights() {
     items.push({
         color: 'rgba(0,0,255,0.8)',
         label: 'Consumer Surplus',
-        desc: 'Net benefit consumers receive: area under demand and above price.'
+        desc: 'Net benefit received by buyers: area under demand and above price, interpreted as the aggregate difference over all units purchased between the maximum amount the consumer is willing to pay and the actual price paid, approximated through integration.'
     });
 
     // Producer surplus (green)
     items.push({
         color: 'rgba(0,255,0,0.8)',
         label: 'Producer Surplus',
-        desc: 'Net benefit producers receive: area above supply and below price.'
+        desc: 'Net benefit received by buyers: area above supply and below price, interpreted as the aggregate difference over all units sold between minimum amount the producer is willing to sell for and the actual price received, approximated through integration.'
     });
 
     // Welfare loss / deadweight loss (red) - shown when relevant
@@ -2227,7 +2227,7 @@ function renderInsights() {
         items.push({
             color: 'rgba(255,0,0,0.8)',
             label: 'Welfare / Deadweight Loss',
-            desc: 'Lost total surplus due to reduced trade (e.g. from taxation or output restriction).'
+            desc: 'Total economic surplus (CS + PS + any income claimed by the government in the case of a tax) lost as a result of reduced market activity (such as taxation or other output restrictions), eliminating mutually beneficial trades between buyers and sellers.'
         });
     }
 
@@ -2236,7 +2236,7 @@ function renderInsights() {
         items.push({
             color: 'rgba(255,165,0,0.9)',
             label: 'Tax Revenue',
-            desc: 'Revenue collected by the government: tax × quantity traded.'
+            desc: 'Revenue collected by the government, which is given by the level of taxation per unit multiplied by the quantity traded.'
         });
     }
 
