@@ -42,7 +42,7 @@ const canvasWidth = canvasMain.width;
 const canvasHeight = canvasMain.height;
 const maxQ = 100;
 const maxP = 100;
-const margin = 30;
+const margin = 80;
 const scaleX = (canvasWidth - margin) / maxQ;
 const scaleY = (canvasHeight - margin) / maxP;
 const equilibriumPriceElement = document.getElementById("equilibriumPrice");
@@ -253,7 +253,7 @@ function handleMouseMove(event) {
     const Q = getMouseQ(event);
     const P = getDemandPrice(Q);
 
-    if (!P || P < 0 || P > maxP) {
+    if (P === null || P < 0 || P > maxP) {
         drawCurves();
         return;
     }
@@ -268,7 +268,7 @@ function handleRevenueMouseMove(event) {
     const Q = getMouseQRevenue(event);
     const P = getDemandPrice(Q);
 
-    if (!P || P < 0 || P > maxP) {
+    if (!P || P < 0 || P > maxP || state.demandType === 'income') {
         drawRevenue();
         return;
     }
@@ -505,6 +505,7 @@ function drawAxes(ctx) {
     ctx.beginPath();
     ctx.strokeStyle = "black";
     ctx.lineWidth = 1;
+    ctx.fillStyle = "black";
 
     // Y-axis
     ctx.moveTo(margin, 0);
@@ -533,6 +534,101 @@ function drawAxes(ctx) {
     ctx.lineTo(canvasWidth - arrowSize, canvasHeight - margin + arrowSize);
     ctx.closePath();
     ctx.fill();
+
+    // slightly offset so it’s readable
+    ctx.fillText("0", margin - 10, canvasHeight - margin + 15);
+
+}
+
+function drawPointGuides(Q, P, labelP, labelQ, color = "gray") {
+
+    const { x, y } = toCanvas(Q, P);
+
+    ctxMain.setLineDash([5, 5]);
+    ctxMain.strokeStyle = color;
+
+    // vertical line (Q*)
+    ctxMain.beginPath();
+    ctxMain.moveTo(x, canvasHeight - margin);
+    ctxMain.lineTo(x, y);
+    ctxMain.stroke();
+
+    // horizontal line (P*)
+    ctxMain.beginPath();
+    ctxMain.moveTo(margin, y);
+    ctxMain.lineTo(x, y);
+    ctxMain.stroke();
+
+    ctxMain.setLineDash([]);
+
+    // labels on axes
+    ctxMain.fillStyle = "black";
+    ctxMain.font = "12px Arial";
+
+    // Q* label (on x-axis)
+    ctxMain.fillText(labelQ, x - 10, canvasHeight - margin + 20);
+
+    // P* label (on y-axis)
+    ctxMain.fillText(labelP, margin - 20, y + 5)
+
+}
+
+function drawRevenueGuides(Q, TR, color = "blue") {
+
+    // ✅ recompute same scaling used in drawRevenue
+    let points;
+
+    if (state.demandType === 'linear') {
+        points = generatePlotPointsRevenueLinear(state.a, state.b);
+    } else if (state.demandType === 'nonlinear') {
+        points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+    } else {
+        points = generatePlotPointsRevenueIncome(state.k, state.income);
+    }
+
+    let scaleYRevenue;
+
+    if (state.demandType === "income") {
+        const maxRevenue = 1100;
+        scaleYRevenue = (canvasRevenue.height - margin) / maxRevenue;
+    } else {
+        let maxRevenue = 0;
+
+        for (let point of points) {
+            if (point.y > maxRevenue) {
+                maxRevenue = point.y;
+            }
+        }
+
+        scaleYRevenue = (canvasRevenue.height - margin) / (maxRevenue * 1.1);
+    }
+
+    const x = margin + Q * scaleX;
+    const y = (canvasRevenue.height - margin) - TR * scaleYRevenue;
+
+    ctxRevenue.setLineDash([5, 5]);
+    ctxRevenue.strokeStyle = color;
+
+    // vertical (Qᵣ)
+    ctxRevenue.beginPath();
+    ctxRevenue.moveTo(x, canvasRevenue.height - margin);
+    ctxRevenue.lineTo(x, y);
+    ctxRevenue.stroke();
+
+    // horizontal (TR max)
+    ctxRevenue.beginPath();
+    ctxRevenue.moveTo(margin, y);
+    ctxRevenue.lineTo(x, y);
+    ctxRevenue.stroke();
+
+    ctxRevenue.setLineDash([]);
+
+    // ✅ labels
+    ctxRevenue.fillStyle = color;
+    ctxRevenue.font = "12px Arial";
+
+    ctxRevenue.fillText("Qᵣ", x - 10, canvasRevenue.height - margin + 15);
+    ctxRevenue.fillText("TRₘₐₓ", margin - 40, y + 5);
 }
 
 
@@ -594,6 +690,76 @@ function drawCurves() {
             if (i === 2) labelCurve(points, "Demand (D)", "blue", 5, 5);
         }
     }
+
+    const { P, Q } = currentMetrics;
+
+    if (P !== null && Q !== null) {
+        drawPointGuides(Q, P, "P*", "Q*");
+    }
+
+    const { P_max, Q_max } = currentMetrics;
+
+    if (
+        state.mode === "demand" &&
+        typeof P_max === "number" &&
+        typeof Q_max === "number"
+    ) {
+        drawPointGuides(Q_max, P_max, "Pᵣ", "Qᵣ", "red");
+    }
+
+    if (state.mode === "supply") {
+
+        // ✅ with tax (already computed)
+        drawPointGuides(
+            currentMetrics.Q,
+            currentMetrics.P,
+            "Pₜ",
+            "Qₜ",
+            "red"
+        );
+
+        // ✅ one-off no-tax equilibrium ONLY for drawing
+        let P0, Q0;
+
+        if (state.demandType === "linear") {
+            [P0, Q0] = calculateEquilibriumLinear(
+                state.a, state.b, state.c, state.d, 0
+            );
+        }
+        else if (state.demandType === "nonlinear") {
+            [P0, Q0] = approximateEquilibriumNonlinear(
+                state.aNonlinear,
+                state.bNonlinear,
+                state.c,
+                state.d,
+                0
+            );
+        }
+        else {
+            [P0, Q0] = calculateEquilibriumIncome(
+                state.income,
+                state.k,
+                state.c,
+                state.d,
+                0
+            );
+        }
+
+        //draw it
+        if (P0 !== null && Q0 !== null) {
+            drawPointGuides(Q0, P0, "P₀", "Q₀", "black");
+        }
+    }
+
+    ctxMain.fillStyle = "black";
+    ctxMain.font = "14px Arial";
+
+    // Price axis
+    ctxMain.fillText("Price (P)", margin - 65, 15);
+
+    // Quantity axis
+    ctxMain.fillText("Quantity (Q)", canvasWidth - 80, canvasHeight - margin + 25)
+
 }
 
 function drawRevenue() {
@@ -665,7 +831,14 @@ function drawRevenue() {
         );
     }
     else {
-        return; // income → no unique max
+        const R = state.k * state.income;
+
+        const y = (canvasRevenue.height - margin) - R * scaleYRevenue;
+
+        ctxRevenue.fillStyle = "black";
+        ctxRevenue.font = "13px Arial";
+        ctxRevenue.fillText(`TR = ${R.toFixed(2)}`, margin + 10, y - 10);
+        return;
     }
 
     const TR_max = P_max * Q_max;
@@ -685,6 +858,17 @@ function drawRevenue() {
         xMax + 10,
         yMax - 10
     );
+
+    drawRevenueGuides(Q_max, TR_max);
+
+    ctxRevenue.fillStyle = "black";
+    ctxRevenue.font = "14px Arial";
+
+    // Revenue axis
+    ctxRevenue.fillText("Total Revenue (TR)", margin - 80, 15);
+
+    // Quantity axis
+    ctxRevenue.fillText("Quantity (Q)", canvasRevenue.width - 15, canvasRevenue.height - margin + 15);
 
 }
 
@@ -1521,21 +1705,31 @@ function generatePlotPointsDemandNonlinear(a, b) {
 
 function generatePlotPointsRevenueLinear(a, b) {
     const points = [];
-    for (let P = 0; P <= 100; P += 0.5) {
-        const Q = a - b * P;
+
+    for (let Q = 0; Q <= maxQ; Q += 0.5) {
+        const P = (a - Q) / b;
+        if (P < 0) {
+            break; //prevents revenue from going negative on plot
+        }
         const R = P * Q;
-        points.push({ x: P, y: R });
+        points.push({ x: Q, y: R });
     }
+
     return points;
 }
 
 function generatePlotPointsRevenueNonlinear(a, b) {
     const points = [];
-    for (let P = 0; P <= 100; P += 0.5) {
-        const Q = a * Math.exp(-b * P);
+
+    for (let Q = 0.1; Q <= maxQ; Q += 0.2) {
+        const P = -(1 / b) * Math.log(Q / a);
+        if(P < 0) {
+            break;
+        }
         const R = P * Q;
-        points.push({ x: P, y: R });
+        points.push({ x: Q, y: R });
     }
+
     return points;
 }
 

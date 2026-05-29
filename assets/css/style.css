@@ -1,46 +1,203 @@
+/* ===== GLOBAL ===== */
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* ===== HEADER ===== */
+header {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: white;
+}
+
+.main-heading {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+header p {
+    margin-top: 10px;
+    opacity: 0.9;
+    font-size: 15px;
+}
+
+/* ===== SECTIONS ===== */
+section {
+    background: white;
+    margin: 25px auto;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 1100px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease;
+}
+
+section:hover {
+    transform: translateY(-2px);
+}
+
+.section-heading {
+    font-size: 22px;
+    font-weight: 600;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+}
+
+/* section description text */
+section > p {
+    color: #475569;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* ===== MODE TOGGLE ===== */
 .mode-toggle {
+    text-align: center;
+}
+
+.mode-button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    margin: 8px;
+    background: #e2e8f0;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.mode-button.active {
+    background: #4f46e5;
+    color: white;
+    box-shadow: 0 4px 10px rgba(79,70,229,0.3);
+}
+
+.mode-button:hover {
+    background: #c7d2fe;
+}
+
+/* ===== GRID ===== */
+.main-grid {
+    margin-top: 20px;
+}
+
+/* ===== GRAPH PANEL ===== */
+.graph-panel {
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 30px;
+    flex-direction: column;
 }
 
-.market-panel-heading {
-    align-self: center;
+/* ===== CANVAS ===== */
+canvas {
+    display: block;
+    margin: 20px auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    max-width: 100%;
 }
 
-.main-layout {
-    background-color: red;
-    width: 90%;
-    margin: auto;
+/* ===== CONTROLS PANEL ===== */
+.controls-panel {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 
-.demand-linear, .demand-income, .demand-nonlinear, .demand-only, .supply-only {
+.controls-panel p {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* ===== SLIDERS ===== */
+.slider-group {
+    margin-bottom: 16px;
+}
+
+.slider-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.slider-group p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 4px 0;
+}
+
+.slider-group input[type="range"] {
+    width: 100%;
+}
+
+.slider-group input[type="number"] {
+    width: 75px;
+    margin-top: 4px;
+}
+
+/* ===== METRICS ===== */
+.general-metrics p {
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 6px 0;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.general-metrics span {
+    font-weight: 600;
+}
+
+/* ===== INSIGHTS ===== */
+.insights-content p {
+    background: #eef2ff;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+/* ===== PRESETS ===== */
+.preset-btn {
+    margin: 5px;
+    padding: 7px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #e2e8f0;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+    background: #c7d2fe;
+}
+
+.preset-btn:active {
+    transform: scale(0.96);
+}
+
+/* ===== VISIBILITY ===== */
+.demand-linear, .demand-income, .demand-nonlinear,
+.demand-only, .supply-only {
     display: none;
 }
 
-.demand-linear.active, .demand-income.active, .demand-nonlinear.active, .demand-only.active, .supply-only.active {
-    display: block;   
+.demand-linear.active, .demand-income.active,
+.demand-nonlinear.active, .demand-only.active,
+.supply-only.active {
+    display: block;
 }
 
-.graph-wrapper {
-    position: relative;
-    display: inline-block;
-}
 
-.axis-label {
-    position: absolute;
-    font-weight: bold;
-}
 
-/* P label (y-axis) */
-.y-label {
-    left: -80px;
-    top: 0;
-}
-
-/* Q label (x-axis) */
-.x-label {
-    bottom: -20px;
-    right: 0;
-}
