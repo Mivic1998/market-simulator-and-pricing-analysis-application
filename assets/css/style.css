@@ -144,14 +144,12 @@ canvas {
 }
 
 /* ===== METRICS ===== */
-.general-metrics p {
+.general-metrics div {
     background: #f1f5f9;
     padding: 10px;
     border-radius: 6px;
     margin: 6px 0;
     font-size: 14px;
-    display: flex;
-    justify-content: space-between;
 }
 
 .general-metrics span {
@@ -194,8 +192,11 @@ canvas {
 }
 
 .demand-linear.active, .demand-income.active,
-.demand-nonlinear.active, .demand-only.active,
-.supply-only.active {
+.demand-nonlinear.active {
+    display: block;
+}
+
+.demand-only.visible, .supply-only.visible {
     display: block;
 }
 

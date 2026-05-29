@@ -83,6 +83,7 @@ for (let button of modeButtons) {
         else {
             state.mode = newMode;
             modeButtonClicked = true;
+            button.style.backgroundColor = "red"
             displayAndStoreMetricValues();
             drawCurves();
             renderInsights();
@@ -93,18 +94,18 @@ for (let button of modeButtons) {
             taxInput.value = state.t;
             drawRevenue()
             for (let element of supplyOnlyElements) {
-                element.classList.remove("active");
+                element.classList.remove("visible");
             }
             for (let element of demandOnlyElements) {
-                element.classList.add("active");
+                element.classList.add("visible");
             }
         }
         else {
             for (let element of demandOnlyElements) {
-                element.classList.remove("active");
+                element.classList.remove("visible");
             }
             for (let element of supplyOnlyElements) {
-                element.classList.add("active");
+                element.classList.add("visible");
             }
         }
 
@@ -633,7 +634,7 @@ function drawRevenueGuides(Q, TR, color = "blue") {
 
 
 function labelCurve(points, text, color, right, up) {
-    const index = Math.floor(points.length * 0.5);
+    const index = Math.floor(points.length * 0.7);
     const point = points[index];
 
     const x = margin + point.x * scaleX;
@@ -682,13 +683,201 @@ function drawCurves() {
 
         ctxMain.stroke();
         if (state.mode === "demand") {
-            if (i === 0) labelCurve([points[1]], "Supply (S)", "green", -10, -10);
-            if (i === 1) labelCurve(points, "Demand (D)", "blue", 5, 5);
+
+            // ✅ SUPPLY (always linear)
+            if (i === 0) {
+                let offsetX = -10;
+                let offsetY = 30;
+                if (state.d < 1.2) {
+                    offsetX = -20;
+                }
+                if (state.d < 0.9) {
+                    offsetX = -45
+                }
+                if (state.d < 0.5) {
+                    offsetX = -70
+                }
+                if (state.d < 0.3 && state.c < 15) {
+                    offsetX = 20;
+                }
+                if (state.c > 64) {
+                    offsetX = -70;
+                }
+
+                labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
+            }
+
+            // ✅ DEMAND
+            if (i === 1) {
+                if (state.demandType === "linear") {
+
+                    let offsetX, offsetY;
+                    if (state.a < 5) {
+                        offsetX = 5;
+                        offsetY = 10;
+                    }
+                    else {
+                        if (state.b < 0.6) {
+                            // flat demand
+                            offsetX = 20;
+                            offsetY = -20;
+                            if (state.a > 80 && state.b < 0.2) {
+                                offsetX = -90
+                            }
+                        }
+
+                        else if (state.b > 1) {
+                            offsetX = 20
+                            offsetY = 5
+                            if (state.a > 90) {
+                                offsetY = 0
+                            }
+                        }
+
+                        else {
+                            offsetX = 20;
+                            offsetY = -10;
+                        }
+                    }
+                    if (state.a < 5 && state.b < 0.1) {
+                        offsetX = 10
+                        offsetY = -15
+                    }
+
+
+
+                    labelCurve(points, "Demand (D)", "blue", offsetX, offsetY);
+
+                } else {
+                    // fallback for nonlinear/income
+                    labelCurve(points, "Demand (D)", "blue", 25, 0);
+                }
+            }
+
         } else {
-            if (i === 0) labelCurve(points, "Supply (S)", "green", 5, 5);
-            if (i === 1) labelCurve(points, "Supply with Tax (S + t)", "red", 5, 5);
-            if (i === 2) labelCurve(points, "Demand (D)", "blue", 5, 5);
+
+            // ✅ SUPPLY (no tax)
+            if (i === 0) {
+                let offsetX = -10;
+                let offsetY = 30;
+                if (state.d < 1.2) {
+                    offsetX = -20;
+                }
+                if (state.d < 0.9) {
+                    offsetX = -45
+                }
+                if (state.d < 0.5) {
+                    offsetX = -70
+                }
+                if (state.d < 0.3 && state.c < 15) {
+                    offsetX = 20;
+                }
+                if (state.c > 64) {
+                    offsetX = -70;
+                }
+
+                labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
+            }
+
+            // ✅ SUPPLY WITH TAX (same slope as supply)
+            if (i === 1) {
+                let offsetX = 10;   // start more to the right (text is longer)
+                let offsetY = -10;
+
+                // slope-based adjustments (same logic as before but shifted right)
+
+                if (state.d < 1.2) {
+                    offsetX = -5;
+                }
+
+                if (state.d < 0.9) {
+                    offsetX = -20;
+                }
+
+                if (state.d < 0.5) {
+                    offsetX = -10;
+                }
+
+                // ✅ extra correction for large tax (curve shifts left → push label right)
+                if (state.t > 10) {
+                    offsetX += 20;
+                }
+
+               
+
+                // ✅ edge case: high c (far right → shift back left)
+                if (state.c > 3) {
+                    offsetX = -200;
+                    if(state.d < 0.5) {
+                    offsetX = -160
+                    }
+                }
+                if(state.c < 30 && state.d < 0.7) {
+                offsetX = 10;
+                }
+                if(state.c > 92) {
+                offsetY = 15;
+                }
+                if(state.d > 1.1) {
+                offsetX = -200;
+                offsetY = 0;
+                }
+                if(state.c === 13 && state.t === 50 && state.d === 0.7) {
+                offsetX = -190;
+                }
+
+                // ✅ compensate for longer label text
+                offsetX += 15;
+
+                labelCurve(points, "Supply with Tax (S + t)", "red", offsetX, offsetY);
+
+            }
+
+            // ✅ DEMAND
+            if (i === 2) {
+                if (state.demandType === "linear") {
+
+                    let offsetX, offsetY;
+                    if (state.a < 5) {
+                        offsetX = 5;
+                        offsetY = 10;
+                    }
+                    else {
+                        if (state.b < 0.6) {
+                            // flat demand
+                            offsetX = 20;
+                            offsetY = -20;
+                            if (state.a > 80 && state.b < 0.2) {
+                                offsetX = -90
+                            }
+                        }
+
+                        else if (state.b > 1) {
+                            offsetX = 20
+                            offsetY = 5
+                            if (state.a > 90) {
+                                offsetY = 0
+                            }
+                        }
+
+                        else {
+                            offsetX = 20;
+                            offsetY = -10;
+                        }
+                    }
+                    if (state.a < 5 && state.b < 0.1) {
+                        offsetX = 10
+                        offsetY = -15
+                    }
+
+                    labelCurve(points, "Demand (D)", "blue", offsetX, offsetY);
+
+                } else {
+                    labelCurve(points, "Demand (D)", "blue", 5, 5);
+                }
+            }
         }
+
     }
 
     const { P, Q } = currentMetrics;
@@ -1616,49 +1805,54 @@ function calculateDWLNonlinear(a, b, c, d, t) {
 }
 
 function generatePlotPointsSupplyNoTax(c, d) {
-    // always include origin-side intercept
-    const xIntercept = { x: c, y: 0 };
 
-    // pick another valid point (e.g. maxP)
-    let P2 = maxP;
-    let Q2
-    if (c + d * P2 > maxQ) {
-        Q2 = maxQ;
-        P2 = (maxQ - c) / d
-    }
-    else {
-        Q2 = c + d * P2
+    const points = [];
+
+    // ✅ handle vertical supply (d ≈ 0)
+    if (Math.abs(d) < 0.00001) {
+        for (let P = 0; P <= maxP; P += 1) {
+            points.push({ x: c, y: P });
+        }
+        return points;
     }
 
-    const endPoint = { x: Q2, y: P2 };
+    // ✅ normal case
+    for (let P = 0; P <= maxP; P += 0.5) {
+        const Q = c + d * P;
 
-    return [xIntercept, endPoint];
+        // ✅ clip to graph bounds
+        if (Q >= 0 && Q <= maxQ) {
+            points.push({ x: Q, y: P });
+        }
+    }
+
+    return points;
 }
 
 
 function generatePlotPointsSupplyWithTax(c, d, t) {
-    let firstPoint
 
-    if (-(c / d) + t > 0) {
-        firstPoint = { x: 0, y: -(c / d) + t };
-    }
-    else {
-        firstPoint = { x: c - d * t, y: 0 };
-    }
+    const points = [];
 
-    let P2 = maxP;
-    let Q2
-    if (c + d * (P2 - t) > maxQ) {
-        Q2 = maxQ;
-        P2 = ((maxQ - c) / d) + t
-    }
-    else {
-        Q2 = c + d * (P2 - t)
+    // ✅ handle vertical supply (d ≈ 0)
+    if (Math.abs(d) < 0.00001) {
+        for (let P = 0; P <= maxP; P += 1) {
+            points.push({ x: c, y: P });
+        }
+        return points;
     }
 
-    const endPoint = { x: Q2, y: P2 };
+    // ✅ normal case
+    for (let P = 0; P <= maxP; P += 0.5) {
+        const Q = c + d * (P - t);
 
-    return [firstPoint, endPoint];
+        // ✅ clip to visible graph area
+        if (Q >= 0 && Q <= maxQ) {
+            points.push({ x: Q, y: P });
+        }
+    }
+
+    return points;
 }
 
 
@@ -1672,15 +1866,18 @@ function generatePlotPointsDemandLinear(a, b) {
             { x: a, y: maxP }  // vertical line
         ];
     }
-
+    if (a / b > maxP) {
+        return [
+            { x: a, y: 0 },
+            { x: a - b * maxP, y: maxP }
+        ];
+    }
     //NORMAL CASE
     return [
         { x: a, y: 0 },
         { x: 0, y: a / b }
     ];
 }
-
-
 
 function generatePlotPointsDemandIncome(income, k) {
     const points = [];
@@ -1723,7 +1920,7 @@ function generatePlotPointsRevenueNonlinear(a, b) {
 
     for (let Q = 0.1; Q <= maxQ; Q += 0.2) {
         const P = -(1 / b) * Math.log(Q / a);
-        if(P < 0) {
+        if (P < 0) {
             break;
         }
         const R = P * Q;
