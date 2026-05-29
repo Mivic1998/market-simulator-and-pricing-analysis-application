@@ -1,11 +1,281 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Simulator Theory Guide</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    color:#1e293b;
+    line-height:1.7;
+    margin:0;
+    padding:40px 20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+section{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    margin-bottom:25px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.06);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+h2{
+    border-bottom:2px solid #e2e8f0;
+    padding-bottom:10px;
+    margin-bottom:20px;
+}
+
+h3{
+    margin-top:25px;
+}
+
+code{
+    background:#eef2ff;
+    padding:2px 6px;
+    border-radius:4px;
+}
+
+ul{
+    padding-left:22px;
+}
+</style>
 </head>
+
 <body>
-    
+
+<div class="container">
+
+<h1>Market Simulator Theory Guide</h1>
+
+<section>
+<h2>Overview</h2>
+
+<p>
+This simulator demonstrates how supply and demand interact in a market economy.
+It allows users to explore equilibrium, taxation, revenue maximisation,
+consumer surplus, producer surplus, and deadweight loss.
+</p>
+
+<p>
+The application includes multiple demand curve types to represent different
+economic assumptions and consumer behaviours.
+</p>
+</section>
+
+<section>
+<h2>Demand Curves</h2>
+
+<h3>Linear Demand</h3>
+
+<p>
+The linear demand curve follows the equation:
+</p>
+
+<p>
+<code>P = a - bQ</code>
+</p>
+
+<ul>
+<li><strong>a</strong> represents the vertical intercept or maximum willingness to pay.</li>
+<li><strong>b</strong> measures price sensitivity.</li>
+</ul>
+
+<p>
+Linear demand is commonly used because it is simple and allows clear visualisation
+of equilibrium, taxation, and elasticity effects.
+</p>
+
+<h3>Nonlinear Demand</h3>
+
+<p>
+Nonlinear demand introduces curvature into the demand relationship.
+This allows the simulator to model markets where consumer responsiveness changes
+at different price levels.
+</p>
+
+<p>
+Unlike linear demand, nonlinear demand can represent situations where consumers
+become much more sensitive to price changes as prices rise.
+</p>
+
+<h3>Income-Based Demand</h3>
+
+<p>
+The income-based demand curve is derived from a
+<strong>Cobb–Douglas utility function</strong>.
+</p>
+
+<p>
+The underlying utility function is:
+</p>
+
+<p>
+<code>U(x,y)=x^k y^(1-k)</code>
+</p>
+
+<p>
+where:
+</p>
+
+<ul>
+<li><strong>x</strong> represents consumption of the good in the simulator.</li>
+<li><strong>y</strong> represents all other goods.</li>
+<li><strong>k</strong> represents the consumer's preference share for the good.</li>
+</ul>
+
+<p>
+When consumers maximise this utility subject to their budget constraint,
+the resulting demand function becomes:
+</p>
+
+<p>
+<code>x = (kI)/P</code>
+</p>
+
+<p>
+where:
+</p>
+
+<ul>
+<li><strong>I</strong> is consumer income.</li>
+<li><strong>P</strong> is price.</li>
+</ul>
+
+<p>
+This means demand increases with income and decreases with price.
+The model is useful because it connects demand directly to microeconomic utility theory.
+</p>
+
+</section>
+
+<section>
+<h2>Market Equilibrium</h2>
+
+<p>
+Market equilibrium occurs where quantity demanded equals quantity supplied.
+</p>
+
+<p>
+At equilibrium:
+</p>
+
+<ul>
+<li>there is no excess demand,</li>
+<li>there is no excess supply,</li>
+<li>the market clears efficiently.</li>
+</ul>
+
+<p>
+The simulator calculates equilibrium automatically by finding the intersection
+between the supply and demand curves.
+</p>
+
+</section>
+
+<section>
+<h2>Consumer and Producer Surplus</h2>
+
+<h3>Consumer Surplus</h3>
+
+<p>
+Consumer surplus measures the difference between what consumers are willing
+to pay and what they actually pay.
+</p>
+
+<p>
+Graphically, it is the area below the demand curve and above the market price.
+</p>
+
+<h3>Producer Surplus</h3>
+
+<p>
+Producer surplus measures the difference between the market price and the
+minimum price producers are willing to accept.
+</p>
+
+<p>
+Graphically, it is the area above the supply curve and below the market price.
+</p>
+
+</section>
+
+<section>
+<h2>Taxation and Deadweight Loss</h2>
+
+<p>
+A per-unit tax shifts the effective supply curve upward.
+Consumers pay a higher price while producers receive a lower price.
+</p>
+
+<p>
+The tax creates:
+</p>
+
+<ul>
+<li>government revenue,</li>
+<li>a reduction in quantity traded,</li>
+<li>deadweight loss.</li>
+</ul>
+
+<p>
+Deadweight loss represents the lost gains from trade caused by market distortion.
+It appears as the triangular welfare loss area between supply and demand.
+</p>
+
+</section>
+
+<section>
+<h2>Total Revenue</h2>
+
+<p>
+Total revenue is calculated as:
+</p>
+
+<p>
+<code>TR = P × Q</code>
+</p>
+
+<p>
+The simulator also identifies the revenue-maximising point on the demand curve.
+For linear demand, this occurs where marginal revenue equals zero.
+</p>
+
+</section>
+
+<section>
+<h2>Elasticity</h2>
+
+<p>
+Elasticity measures how responsive quantity demanded is to changes in price.
+</p>
+
+<ul>
+<li><strong>Elastic demand:</strong> quantity changes strongly when price changes.</li>
+<li><strong>Inelastic demand:</strong> quantity changes only slightly when price changes.</li>
+</ul>
+
+<p>
+Elasticity affects tax incidence, revenue generation, and welfare loss.
+</p>
+
+</section>
+
+</div>
+
 </body>
 </html>

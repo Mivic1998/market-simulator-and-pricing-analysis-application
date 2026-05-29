@@ -42,9 +42,11 @@ const canvasWidth = canvasMain.width;
 const canvasHeight = canvasMain.height;
 const maxQ = 100;
 const maxP = 100;
-const margin = 80;
-const scaleX = (canvasWidth - margin) / maxQ;
-const scaleY = (canvasHeight - margin) / maxP;
+const marginX = 80;
+const revenueMarginX = 140;
+const marginBottom = 40;
+const scaleX = (canvasWidth - marginX) / maxQ;
+const scaleY = (canvasHeight - marginBottom) / maxP;
 const equilibriumPriceElement = document.getElementById("equilibriumPrice");
 const equilibriumQuantityElement = document.getElementById("equilibriumQuantity");
 const revenueMaximizingPriceElement = document.getElementById("revenueMaximizingPrice");
@@ -71,23 +73,57 @@ const demandOnlyElements = document.querySelectorAll(".demand-only");
 const taxSlider = document.getElementById('t');
 const taxInput = document.getElementById('tValue');
 const insightsContainer = document.querySelector(".insights-content");
+const insightsKeyContainer = document.querySelector('.insights-key');
 const presetButtons = document.querySelectorAll(".preset-btn");
+const darkModeToggle = document.getElementById("darkModeToggle");
+
+document.body.classList.remove("dark-mode");
+localStorage.setItem("theme", "light");
+
+darkModeToggle.textContent = "Dark Mode";
+
+darkModeToggle.addEventListener("click", () => {
+
+    document.body.classList.toggle("dark-mode");
+
+    const isDark =
+        document.body.classList.contains("dark-mode");
+
+    localStorage.setItem(
+        "theme",
+        isDark ? "dark" : "light"
+    );
+
+    darkModeToggle.textContent =
+        isDark ? "Light Mode" : "Dark Mode";
+
+    displayAndStoreMetricValues();
+    drawCurves();
+    drawRevenue();
+    renderInsights();
+});
 
 //e.target.innerText.split("-")[0].toLowerCase()
 for (let button of modeButtons) {
     button.addEventListener("click", (e) => {
-        const newMode = e.target.dataset.mode;
+        const newMode = e.currentTarget.dataset.mode;
         if (state.mode === newMode && modeButtonClicked) {
             return;
-        }
-        else {
+        } else {
             state.mode = newMode;
             modeButtonClicked = true;
-            button.style.backgroundColor = "red"
+
+            // update active class so CSS shows which button is active
+            for (let b of modeButtons) {
+                b.classList.remove('active');
+            }
+            e.currentTarget.classList.add('active');
+
             displayAndStoreMetricValues();
             drawCurves();
             renderInsights();
         }
+
         if (state.mode === "demand") {
             state.t = 0;
             taxSlider.value = state.t;
@@ -99,8 +135,7 @@ for (let button of modeButtons) {
             for (let element of demandOnlyElements) {
                 element.classList.add("visible");
             }
-        }
-        else {
+        } else {
             for (let element of demandOnlyElements) {
                 element.classList.remove("visible");
             }
@@ -128,6 +163,33 @@ for (let input of manualInputs) {
             }
         }
     });
+
+    // apply value when clicking away (blur) as well
+    input.addEventListener('blur', (e) => {
+        const raw = e.target.value.trim();
+        const value = Number(raw);
+        if (raw === "" || isNaN(value)) return;
+        for (let slider of sliders) {
+            if (slider.id === e.target.id.replace("Value", "")) {
+                slider.value = value;
+                slider.dispatchEvent(new Event("input"));
+                mainSection.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    });
+
+    // respond to quick adjustments (arrow keys / spinner clicks) - update live without scrolling
+    input.addEventListener('input', (e) => {
+        const raw = e.target.value.trim();
+        const value = Number(raw);
+        if (raw === "" || isNaN(value)) return;
+        for (let slider of sliders) {
+            if (slider.id === e.target.id.replace("Value", "")) {
+                slider.value = value;
+                slider.dispatchEvent(new Event('input'));
+            }
+        }
+    });
 }
 
 
@@ -149,6 +211,11 @@ for (let slider of sliders) {
         drawCurves();
         drawRevenue();
         renderInsights();
+    });
+
+    // when user finishes adjusting (releases the slider), scroll to the graph
+    slider.addEventListener('change', (e) => {
+        mainSection.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
@@ -250,6 +317,19 @@ drawCurves();
 drawRevenue();
 renderInsights();
 
+function getCanvasTheme() {
+
+    const dark =
+        document.body.classList.contains("dark-mode");
+
+    return {
+        background: dark ? "#020617" : "#ffffff",
+        axis: dark ? "#f8fafc" : "#000000",
+        text: dark ? "#f8fafc" : "#000000",
+        guide: dark ? "#94a3b8" : "gray"
+    };
+}
+
 function handleMouseMove(event) {
     const Q = getMouseQ(event);
     const P = getDemandPrice(Q);
@@ -299,7 +379,7 @@ function drawRevenueOverlay(Q, TR) {
 
     if (state.demandType === "income") {
         const maxRevenue = 1100;
-        scaleYRevenue = (canvasRevenue.height - margin) / maxRevenue;
+        scaleYRevenue = (canvasRevenue.height - marginBottom) / maxRevenue;
     } else {
         let maxRevenue = 0;
 
@@ -309,11 +389,11 @@ function drawRevenueOverlay(Q, TR) {
             }
         }
 
-        scaleYRevenue = (canvasRevenue.height - margin) / (maxRevenue * 1.1);
+        scaleYRevenue = (canvasRevenue.height - marginBottom) / (maxRevenue * 1.1);
     }
 
-    const x = margin + Q * scaleX;
-    const y = (canvasRevenue.height - margin) - TR * scaleYRevenue;
+    const x = revenueMarginX + Q * scaleX;
+    const y = (canvasRevenue.height - marginBottom) - TR * scaleYRevenue;
 
     // red dot
     ctxRevenue.beginPath();
@@ -322,7 +402,7 @@ function drawRevenueOverlay(Q, TR) {
     ctxRevenue.fill();
 
     // label
-    ctxRevenue.fillStyle = "black";
+    ctxRevenue.fillStyle = getCanvasTheme().text;
     ctxRevenue.font = "12px Arial";
     ctxRevenue.fillText(`TR: ${TR.toFixed(2)}`, x + 10, y - 10);
 }
@@ -331,7 +411,7 @@ function getMouseQ(event) {
     const rect = canvasMain.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
 
-    const Q = (mouseX - margin) / scaleX;
+    const Q = (mouseX - marginX) / scaleX;
 
     return Math.max(0, Math.min(Q, maxQ));
 }
@@ -340,7 +420,7 @@ function getMouseQRevenue(event) {
     const rect = canvasRevenue.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
 
-    const Q = (mouseX - margin) / scaleX;
+    const Q = (mouseX - revenueMarginX) / scaleX;
 
     return Math.max(0, Math.min(Q, maxQ));
 }
@@ -377,18 +457,18 @@ function drawHoverOverlay(Q, P, PED) {
     // dot
     ctxMain.beginPath();
     ctxMain.arc(x, y, 4, 0, Math.PI * 2);
-    ctxMain.fillStyle = "black";
+    ctxMain.fillStyle = getCanvasTheme().text;
     ctxMain.fill();
 
     // vertical guide
     ctxMain.beginPath();
-    ctxMain.moveTo(x, canvasHeight - margin);
+    ctxMain.moveTo(x, canvasHeight - marginBottom);
     ctxMain.lineTo(x, y);
-    ctxMain.strokeStyle = "gray";
+    ctxMain.strokeStyle = getCanvasTheme().guide;
     ctxMain.stroke();
 
     // PED text
-    ctxMain.fillStyle = "black";
+    ctxMain.fillStyle = getCanvasTheme().text;
     ctxMain.font = "12px Arial";
 
     if (PED !== null) {
@@ -410,7 +490,7 @@ function drawRevenuePoint(Q, TR) {
     ctxRevenue.fillStyle = "red";
     ctxRevenue.fill();
 
-    ctxRevenue.fillStyle = "black";
+    ctxRevenue.fillStyle = getCanvasTheme().text;
     ctxRevenue.fillText(`TR: ${TR.toFixed(2)}`, x + 10, y - 10);
 }
 
@@ -501,44 +581,45 @@ function setMetric(element, value, condition) {
     element.textContent = condition ? formatValue(value) : "";
 }
 
-function drawAxes(ctx) {
+function drawAxes(ctx, axisMarginX = marginX) {
+
+    const theme = getCanvasTheme();
 
     ctx.beginPath();
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = theme.axis;
     ctx.lineWidth = 1;
-    ctx.fillStyle = "black";
+    ctx.fillStyle = theme.axis;
 
     // Y-axis
-    ctx.moveTo(margin, 0);
-    ctx.lineTo(margin, canvasHeight - margin);
+    ctx.moveTo(axisMarginX, 0);
+    ctx.lineTo(axisMarginX, canvasHeight - marginBottom);
 
     // X-axis
-    ctx.moveTo(margin, canvasHeight - margin);
-    ctx.lineTo(canvasWidth, canvasHeight - margin);
+    ctx.moveTo(axisMarginX, canvasHeight - marginBottom);
+    ctx.lineTo(canvasWidth, canvasHeight - marginBottom);
 
     ctx.stroke();
 
     const arrowSize = 6;
 
-    //  Y-axis arrow
+    // Y arrow
     ctx.beginPath();
-    ctx.moveTo(margin, 0);
-    ctx.lineTo(margin - arrowSize, arrowSize);
-    ctx.lineTo(margin + arrowSize, arrowSize);
+    ctx.moveTo(axisMarginX, 0);
+    ctx.lineTo(axisMarginX - arrowSize, arrowSize);
+    ctx.lineTo(axisMarginX + arrowSize, arrowSize);
     ctx.closePath();
     ctx.fill();
 
-    // X-axis arrow
+    // X arrow
     ctx.beginPath();
-    ctx.moveTo(canvasWidth, canvasHeight - margin);
-    ctx.lineTo(canvasWidth - arrowSize, canvasHeight - margin - arrowSize);
-    ctx.lineTo(canvasWidth - arrowSize, canvasHeight - margin + arrowSize);
+    ctx.moveTo(canvasWidth, canvasHeight - marginBottom);
+    ctx.lineTo(canvasWidth - arrowSize, canvasHeight - marginBottom - arrowSize);
+    ctx.lineTo(canvasWidth - arrowSize, canvasHeight - marginBottom + arrowSize);
     ctx.closePath();
     ctx.fill();
 
-    // slightly offset so it’s readable
-    ctx.fillText("0", margin - 10, canvasHeight - margin + 15);
-
+    ctx.fillStyle = theme.text;
+    ctx.fillText("0", axisMarginX - 10, canvasHeight - marginBottom + 15);
 }
 
 function drawPointGuides(Q, P, labelP, labelQ, color = "gray") {
@@ -548,42 +629,41 @@ function drawPointGuides(Q, P, labelP, labelQ, color = "gray") {
     ctxMain.setLineDash([5, 5]);
     ctxMain.strokeStyle = color;
 
-    // vertical line (Q*)
+    // vertical line
     ctxMain.beginPath();
-    ctxMain.moveTo(x, canvasHeight - margin);
+    ctxMain.moveTo(x, canvasHeight - marginBottom);
     ctxMain.lineTo(x, y);
     ctxMain.stroke();
 
-    // horizontal line (P*)
+    // horizontal line
     ctxMain.beginPath();
-    ctxMain.moveTo(margin, y);
+    ctxMain.moveTo(marginX, y);
     ctxMain.lineTo(x, y);
     ctxMain.stroke();
 
     ctxMain.setLineDash([]);
 
-    // labels on axes
-    ctxMain.fillStyle = "black";
+    ctxMain.fillStyle = getCanvasTheme().text;
     ctxMain.font = "12px Arial";
 
-    // Q* label (on x-axis)
-    ctxMain.fillText(labelQ, x - 10, canvasHeight - margin + 20);
+    // Q label
+    ctxMain.fillText(labelQ, x - 10, canvasHeight - marginBottom + 20);
 
-    // P* label (on y-axis)
-    ctxMain.fillText(labelP, margin - 20, y + 5)
-
+    // P label
+    ctxMain.fillText(labelP, marginX - 25, y + 5);
 }
 
 function drawRevenueGuides(Q, TR, color = "blue") {
 
-    // ✅ recompute same scaling used in drawRevenue
     let points;
 
-    if (state.demandType === 'linear') {
+    if (state.demandType === "linear") {
         points = generatePlotPointsRevenueLinear(state.a, state.b);
-    } else if (state.demandType === 'nonlinear') {
+    } 
+    else if (state.demandType === "nonlinear") {
         points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
-    } else {
+    } 
+    else {
         points = generatePlotPointsRevenueIncome(state.k, state.income);
     }
 
@@ -591,8 +671,9 @@ function drawRevenueGuides(Q, TR, color = "blue") {
 
     if (state.demandType === "income") {
         const maxRevenue = 1100;
-        scaleYRevenue = (canvasRevenue.height - margin) / maxRevenue;
-    } else {
+        scaleYRevenue = (canvasRevenue.height - marginBottom) / maxRevenue;
+    } 
+    else {
         let maxRevenue = 0;
 
         for (let point of points) {
@@ -601,35 +682,35 @@ function drawRevenueGuides(Q, TR, color = "blue") {
             }
         }
 
-        scaleYRevenue = (canvasRevenue.height - margin) / (maxRevenue * 1.1);
+        scaleYRevenue =
+            (canvasRevenue.height - marginBottom) / (maxRevenue * 1.1);
     }
 
-    const x = margin + Q * scaleX;
-    const y = (canvasRevenue.height - margin) - TR * scaleYRevenue;
+    const x = revenueMarginX + Q * scaleX;
+    const y = (canvasRevenue.height - marginBottom) - TR * scaleYRevenue;
 
     ctxRevenue.setLineDash([5, 5]);
     ctxRevenue.strokeStyle = color;
 
-    // vertical (Qᵣ)
+    // vertical guide
     ctxRevenue.beginPath();
-    ctxRevenue.moveTo(x, canvasRevenue.height - margin);
+    ctxRevenue.moveTo(x, canvasRevenue.height - marginBottom);
     ctxRevenue.lineTo(x, y);
     ctxRevenue.stroke();
 
-    // horizontal (TR max)
+    // horizontal guide
     ctxRevenue.beginPath();
-    ctxRevenue.moveTo(margin, y);
+    ctxRevenue.moveTo(revenueMarginX, y);
     ctxRevenue.lineTo(x, y);
     ctxRevenue.stroke();
 
     ctxRevenue.setLineDash([]);
 
-    // ✅ labels
-    ctxRevenue.fillStyle = color;
+    ctxRevenue.fillStyle = getCanvasTheme().text;
     ctxRevenue.font = "12px Arial";
 
-    ctxRevenue.fillText("Qᵣ", x - 10, canvasRevenue.height - margin + 15);
-    ctxRevenue.fillText("TRₘₐₓ", margin - 40, y + 5);
+    ctxRevenue.fillText("Qᵣ", x - 10, canvasRevenue.height - marginBottom + 15);
+    ctxRevenue.fillText("TRₘₐₓ", revenueMarginX - 45, y + 5);
 }
 
 
@@ -637,8 +718,8 @@ function labelCurve(points, text, color, right, up) {
     const index = Math.floor(points.length * 0.7);
     const point = points[index];
 
-    const x = margin + point.x * scaleX;
-    const y = (canvasHeight - margin) - point.y * scaleY;
+    const x = marginX + point.x * scaleX;
+    const y = (canvasHeight - marginBottom) - point.y * scaleY;
 
     ctxMain.fillStyle = color;
     ctxMain.font = "14px Arial";
@@ -647,7 +728,15 @@ function labelCurve(points, text, color, right, up) {
 }
 
 function drawCurves() {
+
     ctxMain.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    const theme = getCanvasTheme();
+
+    // background
+    ctxMain.fillStyle = theme.background;
+    ctxMain.fillRect(0, 0, canvasWidth, canvasHeight);
+
 
     drawAxes(ctxMain);
 
@@ -670,8 +759,8 @@ function drawCurves() {
         let first = true;
 
         for (let point of points) {
-            const x = margin + point.x * scaleX;
-            const y = (canvasHeight - margin) - point.y * scaleY;
+            const x = marginX + point.x * scaleX;
+            const y = (canvasHeight - marginBottom) - point.y * scaleY;
 
             if (first) {
                 ctxMain.moveTo(x, y);
@@ -803,27 +892,31 @@ function drawCurves() {
                     offsetX += 20;
                 }
 
-               
+
 
                 // ✅ edge case: high c (far right → shift back left)
                 if (state.c > 3) {
                     offsetX = -200;
-                    if(state.d < 0.5) {
-                    offsetX = -160
+                    if (state.d < 0.5) {
+                        offsetX = -160
                     }
                 }
-                if(state.c < 30 && state.d < 0.7) {
-                offsetX = 10;
+                if (state.c < 30 && state.d < 0.7) {
+                    offsetX = 10;
                 }
-                if(state.c > 92) {
-                offsetY = 15;
+                if (state.c > 92) {
+                    offsetY = 15;
                 }
-                if(state.d > 1.1) {
-                offsetX = -200;
-                offsetY = 0;
+                if (state.d > 1.1) {
+                    offsetX = -200;
+                    offsetY = 0;
                 }
-                if(state.c === 13 && state.t === 50 && state.d === 0.7) {
-                offsetX = -190;
+                if (state.c === 13 && state.t === 50 && state.d === 0.7) {
+                    offsetX = -190;
+                }
+
+                if (state.d < 0.1 && state.c > 90) {
+                    offsetY = -15;
                 }
 
                 // ✅ compensate for longer label text
@@ -940,25 +1033,27 @@ function drawCurves() {
         }
     }
 
-    ctxMain.fillStyle = "black";
+    ctxMain.fillStyle = getCanvasTheme().text;
     ctxMain.font = "14px Arial";
 
     // Price axis
-    ctxMain.fillText("Price (P)", margin - 65, 15);
+    ctxMain.fillText("Price (P)", marginX - 65, 15);
 
     // Quantity axis
-    ctxMain.fillText("Quantity (Q)", canvasWidth - 80, canvasHeight - margin + 25)
+    ctxMain.fillText("Quantity (Q)", canvasWidth - 80, canvasHeight - marginBottom + 25)
 
 }
 
 function drawRevenue() {
 
+    const theme = getCanvasTheme();
+
     let points;
 
-    if (state.demandType === 'linear') {
+    if (state.demandType === "linear") {
         points = generatePlotPointsRevenueLinear(state.a, state.b);
     }
-    else if (state.demandType === 'nonlinear') {
+    else if (state.demandType === "nonlinear") {
         points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
     }
     else {
@@ -967,13 +1062,16 @@ function drawRevenue() {
 
     ctxRevenue.clearRect(0, 0, canvasRevenue.width, canvasRevenue.height);
 
-    drawAxes(ctxRevenue);
+    ctxRevenue.fillStyle = theme.background;
+    ctxRevenue.fillRect(0, 0, canvasRevenue.width, canvasRevenue.height);
+
+    drawAxes(ctxRevenue, revenueMarginX);
 
     let scaleYRevenue;
 
     if (state.demandType === "income") {
         const maxRevenue = 1100;
-        scaleYRevenue = (canvasRevenue.height - margin) / maxRevenue;
+        scaleYRevenue = (canvasRevenue.height - marginBottom) / maxRevenue;
     }
     else {
         let maxRevenue = 0;
@@ -984,18 +1082,19 @@ function drawRevenue() {
             }
         }
 
-        scaleYRevenue = (canvasRevenue.height - margin) / (maxRevenue * 1.1);
+        scaleYRevenue =
+            (canvasRevenue.height - marginBottom) / (maxRevenue * 1.1);
     }
 
-    // draw revenue curve
     ctxRevenue.beginPath();
-    ctxRevenue.strokeStyle = "purple";
+    ctxRevenue.strokeStyle = "#c084fc";
+    ctxRevenue.lineWidth = 2;
 
     let first = true;
 
     for (let point of points) {
-        const x = margin + point.x * scaleX;
-        const y = (canvasRevenue.height - margin) - point.y * scaleYRevenue;
+        const x = revenueMarginX + point.x * scaleX;
+        const y = (canvasRevenue.height - marginBottom) - point.y * scaleYRevenue;
 
         if (first) {
             ctxRevenue.moveTo(x, y);
@@ -1006,8 +1105,8 @@ function drawRevenue() {
     }
 
     ctxRevenue.stroke();
+    ctxRevenue.lineWidth = 1;
 
-    // MAX POINT (always visible)
     let P_max, Q_max;
 
     if (state.demandType === "linear") {
@@ -1021,46 +1120,42 @@ function drawRevenue() {
     }
     else {
         const R = state.k * state.income;
+        const y = (canvasRevenue.height - marginBottom) - R * scaleYRevenue;
 
-        const y = (canvasRevenue.height - margin) - R * scaleYRevenue;
-
-        ctxRevenue.fillStyle = "black";
+        ctxRevenue.fillStyle = theme.text;
         ctxRevenue.font = "13px Arial";
-        ctxRevenue.fillText(`TR = ${R.toFixed(2)}`, margin + 10, y - 10);
+        ctxRevenue.fillText(`TR = ${R.toFixed(2)}`, revenueMarginX + 10, y - 10);
+
         return;
     }
 
     const TR_max = P_max * Q_max;
 
-    const xMax = margin + Q_max * scaleX;
-    const yMax = (canvasRevenue.height - margin) - TR_max * scaleYRevenue;
+    const xMax = revenueMarginX + Q_max * scaleX;
+    const yMax = (canvasRevenue.height - marginBottom) - TR_max * scaleYRevenue;
 
     ctxRevenue.beginPath();
     ctxRevenue.arc(xMax, yMax, 5, 0, Math.PI * 2);
-    ctxRevenue.fillStyle = "blue";
+    ctxRevenue.fillStyle = "#60a5fa";
     ctxRevenue.fill();
 
-    ctxRevenue.fillStyle = "black";
+    ctxRevenue.fillStyle = theme.text;
     ctxRevenue.font = "12px Arial";
-    ctxRevenue.fillText(
-        `Max TR = ${TR_max.toFixed(2)}`,
-        xMax + 10,
-        yMax - 10
-    );
+    ctxRevenue.fillText(`Max TR = ${TR_max.toFixed(2)}`, xMax + 10, yMax - 10);
 
     drawRevenueGuides(Q_max, TR_max);
 
-    ctxRevenue.fillStyle = "black";
+    ctxRevenue.fillStyle = theme.text;
     ctxRevenue.font = "14px Arial";
 
-    // Revenue axis
-    ctxRevenue.fillText("Total Revenue (TR)", margin - 80, 15);
+    ctxRevenue.fillText("Total Revenue (TR)", revenueMarginX - 130, 15);
 
-    // Quantity axis
-    ctxRevenue.fillText("Quantity (Q)", canvasRevenue.width - 15, canvasRevenue.height - margin + 15);
-
+    ctxRevenue.fillText(
+        "Quantity (Q)",
+        canvasRevenue.width - 80,
+        canvasRevenue.height - marginBottom + 25
+    );
 }
-
 
 function retrievePointsNeededForPlotting(mode, demandType) {
     let points = []
@@ -1104,8 +1199,8 @@ function retrievePointsNeededForPlotting(mode, demandType) {
 
 function toCanvas(Q, P) {
     return {
-        x: margin + Q * scaleX,
-        y: (canvasHeight - margin) - P * scaleY
+        x: marginX + Q * scaleX,
+        y: (canvasHeight - marginBottom) - P * scaleY
     };
 }
 
@@ -1208,17 +1303,14 @@ function drawSupplyModeShading() {
 function drawCSLinear(a, b, P_eq, Q_eq) {
     const ctx = ctxMain;
 
-    const isVerticalDemand = Math.abs(b) < 0.00001;
-    const isVerticalSupply = Math.abs(state.d) < 0.01;
+    const EPSILON = 0.00001;
+    const isVerticalDemand = Math.abs(b) < EPSILON;
 
-    //VERTICAL DEMAND CASE
+    // Vertical demand case
     if (isVerticalDemand) {
-
-        const Q = Q_eq;
-
         const topLeft = toCanvas(0, maxP);
-        const topRight = toCanvas(Q, maxP);
-        const bottomRight = toCanvas(Q, P_eq);
+        const topRight = toCanvas(Q_eq, maxP);
+        const bottomRight = toCanvas(Q_eq, P_eq);
         const bottomLeft = toCanvas(0, P_eq);
 
         ctx.beginPath();
@@ -1234,12 +1326,10 @@ function drawCSLinear(a, b, P_eq, Q_eq) {
         return;
     }
 
-    //NORMAL / VERTICAL SUPPLY CASE
-    const Q_start = isVerticalSupply ? state.c : 0;
-
-    const top = toCanvas(Q_start, (a - Q_start) / b);
+    // Normal case, including vertical supply
+    const top = toCanvas(0, a / b);
     const eq = toCanvas(Q_eq, P_eq);
-    const left = toCanvas(Q_start, P_eq);
+    const left = toCanvas(0, P_eq);
 
     ctx.beginPath();
     ctx.moveTo(top.x, top.y);
@@ -1950,229 +2040,217 @@ function generateInsights(state, metrics) {
         deadweightLoss
     } = metrics;
 
+    const EPSILON = 0.00001;
+    const isVerticalSupply = Math.abs(state.d) < EPSILON;
+
+    function addInsight(text) {
+        if (text && !insights.includes(text)) {
+            insights.push(text);
+        }
+    }
+
+    function finishInsights() {
+        const fallbackInsights = [
+            `Equilibrium is currently P = ${formatValue(P)} and Q = ${formatValue(Q)}.`,
+            `The selected demand type is ${state.demandType}.`,
+            `Supply parameter c = ${formatValue(state.c)} affects the supply curve position.`,
+            `Supply parameter d = ${formatValue(state.d)} affects supply responsiveness.`,
+            state.mode === "demand"
+                ? "Demand-side mode focuses on pricing, revenue, and welfare."
+                : "Supply-side mode focuses on tax incidence, revenue, and efficiency."
+        ];
+
+        for (let insight of fallbackInsights) {
+            addInsight(insight);
+            if (insights.length >= 5) break;
+        }
+
+        return insights.slice(0, 5);
+    }
+
     if (state.mode === "demand") {
-
         if (state.demandType === "linear") {
-
             if (state.b < 0.5 && state.a > 70) {
-                insights.push(`Strong and elastic demand (b = ${state.b.toFixed(2)}, a = ${state.a.toFixed(2)}) leads to high revenue potential but large sensitivity to price changes.`);
+                addInsight(`Strong and elastic demand (b = ${state.b.toFixed(2)}, a = ${state.a.toFixed(2)}) leads to high revenue potential but large sensitivity to price changes.`);
             }
 
             if (state.b > 2 && state.a < 40) {
-                insights.push(`Weak and inelastic demand (b = ${state.b.toFixed(2)}, a = ${state.a.toFixed(2)}) results in low quantity and limited response to pricing.`);
+                addInsight(`Weak and inelastic demand (b = ${state.b.toFixed(2)}, a = ${state.a.toFixed(2)}) results in low quantity and limited response to pricing.`);
             }
 
             if (typeof P_max === "number") {
-                insights.push(`Revenue maximisation occurs at a higher price (${P_max.toFixed(2)}) and lower quantity (${Q_max.toFixed(2)}) than equilibrium (P = ${P.toFixed(2)}, Q = ${Q.toFixed(2)}).`);
+                addInsight(`Revenue maximisation occurs at a higher price (${P_max.toFixed(2)}) and lower quantity (${Q_max.toFixed(2)}) than equilibrium (P = ${P.toFixed(2)}, Q = ${Q.toFixed(2)}).`);
             }
 
             if (typeof P_max === "number" && (Q - Q_max) > 10) {
-                insights.push(`Revenue maximisation significantly reduces output from ${Q.toFixed(2)} to ${Q_max.toFixed(2)}, indicating underproduction.`);
+                addInsight(`Revenue maximisation significantly reduces output from ${Q.toFixed(2)} to ${Q_max.toFixed(2)}, indicating underproduction.`);
             }
 
             if (welfareLoss > 5 && state.b < 0.7) {
-                insights.push(`Elastic demand (b = ${state.b.toFixed(2)}) amplifies welfare loss (${welfareLoss.toFixed(2)}) from restricting output.`);
+                addInsight(`Elastic demand amplifies welfare loss (${welfareLoss.toFixed(2)}) from restricting output.`);
             }
 
             if (welfareLoss < 2 && state.b > 2) {
-                insights.push(`Inelastic demand (b = ${state.b.toFixed(2)}) limits welfare loss (${welfareLoss.toFixed(2)}).`);
-            }
-
-            if (state.d < 0.5 && state.b < 0.5) {
-                insights.push(`Both demand (b = ${state.b.toFixed(2)}) and supply (d = ${state.d.toFixed(2)}) are responsive, making equilibrium highly sensitive to price changes.`);
-            }
-
-            if (state.d < 0.5 && state.b > 2) {
-                insights.push(`Inelastic demand (b = ${state.b.toFixed(2)}) and supply (d = ${state.d.toFixed(2)}) limit adjustments, stabilising equilibrium.`);
-            }
-
-            if (state.a > 70 && welfareLoss > 5) {
-                insights.push(`Large market size (a = ${state.a.toFixed(2)}) increases total welfare loss (${welfareLoss.toFixed(2)}).`);
+                addInsight(`Inelastic demand limits welfare loss (${welfareLoss.toFixed(2)}).`);
             }
         }
 
         else if (state.demandType === "nonlinear") {
-
             if (state.bNonlinear > 1.5 && typeof P_max === "number") {
-                insights.push(`High price sensitivity (b = ${state.bNonlinear.toFixed(2)}) causes demand to fall rapidly, making revenue highly sensitive.`);
+                addInsight(`High price sensitivity causes demand to fall rapidly, making revenue highly sensitive.`);
             }
 
             if (state.bNonlinear < 0.5 && typeof P_max === "number") {
-                insights.push(`Low price sensitivity (b = ${state.bNonlinear.toFixed(2)}) allows higher prices without large quantity reductions.`);
+                addInsight(`Low price sensitivity allows higher prices without large quantity reductions.`);
             }
 
             if (typeof P_max === "number" && (Q - Q_max) > 10) {
-                insights.push(`Revenue maximisation reduces quantity from ${Q.toFixed(2)} to ${Q_max.toFixed(2)} under nonlinear demand.`);
+                addInsight(`Revenue maximisation reduces quantity from ${Q.toFixed(2)} to ${Q_max.toFixed(2)} under nonlinear demand.`);
             }
 
-            if (welfareLoss > 5 && state.bNonlinear > 1) {
-                insights.push(`High sensitivity (b = ${state.bNonlinear.toFixed(2)}) leads to substantial welfare loss (${welfareLoss.toFixed(2)}).`);
+            if (welfareLoss > 5) {
+                addInsight(`Nonlinear demand creates welfare loss of ${welfareLoss.toFixed(2)} when output is restricted.`);
             }
 
-            if (welfareLoss < 2 && state.bNonlinear < 0.7) {
-                insights.push(`Low sensitivity (b = ${state.bNonlinear.toFixed(2)}) keeps welfare loss small (${welfareLoss.toFixed(2)}).`);
-            }
-
-            if (state.aNonlinear > 70 && state.bNonlinear < 0.5) {
-                insights.push(`High demand (a = ${state.aNonlinear.toFixed(2)}) and low sensitivity (b = ${state.bNonlinear.toFixed(2)}) support strong revenue.`);
-            }
-
-            if (state.aNonlinear > 70 && state.bNonlinear > 1.5) {
-                insights.push(`High demand (a = ${state.aNonlinear.toFixed(2)}) with strong sensitivity (b = ${state.bNonlinear.toFixed(2)}) leads to sharp quantity drops.`);
-            }
-
-            if (state.d < 0.5 && state.bNonlinear > 1) {
-                insights.push(`Limited supply responsiveness (d = ${state.d.toFixed(2)}) and sensitive demand amplify output reductions.`);
-            }
-
-            insights.push(`Demand sensitivity varies across the curve (b = ${state.bNonlinear.toFixed(2)}), unlike the linear case.`);
+            addInsight(`Demand sensitivity varies across the nonlinear demand curve.`);
         }
 
         else {
-
-            insights.push(`Revenue is constant across prices due to fixed expenditure share (k = ${state.k.toFixed(2)}).`);
-
-            if (state.income > 100 && state.k > 0.5) {
-                insights.push(`High income (${state.income.toFixed(2)}) and strong preference (k = ${state.k.toFixed(2)}) produce high consumption.`);
-            }
-
-            if (state.income < 50 && state.k < 0.3) {
-                insights.push(`Low income (${state.income.toFixed(2)}) and weak preference (k = ${state.k.toFixed(2)}) restrict demand.`);
-            }
-
-            if (state.income > 100 && state.k < 0.4) {
-                insights.push(`High income (${state.income.toFixed(2)}) but low preference (k = ${state.k.toFixed(2)}) limits consumption.`);
-            }
-
-            if (state.k > 0.6 && state.income > 60) {
-                insights.push(`High expenditure share (k = ${state.k.toFixed(2)}) sustains strong demand.`);
-            }
-
-            if (state.k < 0.3 && state.income > 60) {
-                insights.push(`Low expenditure share (k = ${state.k.toFixed(2)}) suppresses demand.`);
-            }
-
-            insights.push("No unique revenue-maximising price exists under this structure.");
-            insights.push("There is no welfare loss from pricing decisions.");
+            addInsight(`Revenue is constant across prices due to fixed expenditure share.`);
+            addInsight(`No unique revenue-maximising price exists under this demand structure.`);
+            addInsight(`There is no welfare loss from pricing decisions.`);
+            addInsight(`Income and preference share jointly determine quantity demanded.`);
         }
     }
 
     else {
+        if (isVerticalSupply) {
+            addInsight(`Supply is vertical, so quantity is fixed at Q = ${formatValue(Q)}.`);
+            addInsight(`The tax does not reduce quantity when supply is perfectly inelastic.`);
+            addInsight(`There is no deadweight loss from the tax because output does not fall.`);
+            addInsight(`The tax burden falls on producers through a lower price received.`);
+            addInsight(`Consumer price remains determined by demand at the fixed quantity.`);
+
+            return finishInsights();
+        }
 
         if (state.demandType === "linear") {
-
             if (state.t > 10 && state.b < 0.5) {
-                insights.push(`High tax (t = ${state.t.toFixed(2)}) with elastic demand (b = ${state.b.toFixed(2)}) sharply reduces quantity.`);
+                addInsight(`High tax with elastic demand sharply reduces quantity.`);
             }
 
             if (state.t > 10 && state.b > 2) {
-                insights.push(`With inelastic demand (b = ${state.b.toFixed(2)}), a high tax (t = ${state.t.toFixed(2)}) causes a smaller quantity reduction.`);
+                addInsight(`With inelastic demand, a high tax causes a smaller quantity reduction.`);
             }
 
             if (deadweightLoss > 10 && state.b < 0.7) {
-                insights.push(`Elastic demand amplifies deadweight loss (${deadweightLoss.toFixed(2)}).`);
-            }
-
-            if (deadweightLoss < 2 && state.b > 2) {
-                insights.push(`Inelastic demand keeps deadweight loss low (${deadweightLoss.toFixed(2)}).`);
-            }
-
-            if (state.d < 0.5 && state.t > 10) {
-                insights.push(`Inelastic supply (d = ${state.d.toFixed(2)}) shifts tax burden to producers.`);
-            }
-
-            if (state.d > 2 && state.b < 0.5) {
-                insights.push(`Elastic supply (d = ${state.d.toFixed(2)}) and demand lead to large quantity reductions.`);
+                addInsight(`Elastic demand amplifies deadweight loss (${deadweightLoss.toFixed(2)}).`);
             }
 
             if ((Q_noTax - Q) > 10 && state.t > 5) {
-                insights.push(`Tax reduces quantity from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
+                addInsight(`Tax reduces quantity from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
             }
 
-            if (state.t < 5 && deadweightLoss < 2) {
-                insights.push(`Small tax (t = ${state.t.toFixed(2)}) creates minimal distortion.`);
-            }
-
-            insights.push(`Tax (t = ${state.t.toFixed(2)}) creates a wedge between consumer and producer prices.`);
+            addInsight(`Tax creates a wedge between consumer and producer prices.`);
         }
 
         else if (state.demandType === "nonlinear") {
-
             if (state.t > 10 && state.bNonlinear > 1.5) {
-                insights.push(`High tax (t = ${state.t.toFixed(2)}) and strong sensitivity (b = ${state.bNonlinear.toFixed(2)}) cause a large drop in quantity.`);
+                addInsight(`High tax and strong sensitivity cause a large drop in quantity.`);
             }
 
             if (state.t > 10 && state.bNonlinear < 0.5) {
-                insights.push(`Low sensitivity (b = ${state.bNonlinear.toFixed(2)}) reduces the impact of tax (${state.t.toFixed(2)}).`);
-            }
-
-            if (deadweightLoss > 10 && state.bNonlinear > 1) {
-                insights.push(`High sensitivity amplifies deadweight loss (${deadweightLoss.toFixed(2)}).`);
-            }
-
-            if (deadweightLoss < 2 && state.bNonlinear < 0.7) {
-                insights.push(`Low sensitivity limits deadweight loss (${deadweightLoss.toFixed(2)}).`);
-            }
-
-            if ((Q_noTax - Q) > 10 && state.t > 5) {
-                insights.push(`Tax reduces output from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)} under nonlinear demand.`);
-            }
-
-            if (state.aNonlinear > 70 && state.t > 10) {
-                insights.push(`High demand (a = ${state.aNonlinear.toFixed(2)}) increases total welfare loss.`);
-            }
-
-            insights.push("Taxation effects vary across the nonlinear demand curve.");
-
-            if (state.d < 0.5 && state.t > 10) {
-                insights.push(`Limited supply response (d = ${state.d.toFixed(2)}) amplifies tax impact.`);
-            }
-        }
-
-        else {
-
-            if (state.t > 10 && state.income < 50) {
-                insights.push(`Low income (${state.income.toFixed(2)}) and high tax (${state.t.toFixed(2)}) sharply reduce consumption.`);
-            }
-
-            if (state.t > 10 && state.income > 100) {
-                insights.push(`High income (${state.income.toFixed(2)}) cushions the effect of tax (${state.t.toFixed(2)}).`);
-            }
-
-            if (state.k > 0.5 && state.t > 10) {
-                insights.push(`Strong preference (k = ${state.k.toFixed(2)}) maintains consumption despite taxation.`);
-            }
-
-            if (state.k < 0.3 && state.t > 10) {
-                insights.push(`Low preference (k = ${state.k.toFixed(2)}) amplifies the reduction in demand.`);
+                addInsight(`Low sensitivity reduces the quantity impact of tax.`);
             }
 
             if (deadweightLoss > 10) {
-                insights.push(`Taxation creates large inefficiency (${deadweightLoss.toFixed(2)}).`);
+                addInsight(`Taxation creates deadweight loss of ${deadweightLoss.toFixed(2)}.`);
             }
 
-            if (deadweightLoss < 5 && state.t < 10) {
-                insights.push(`Distortion is limited with tax (${state.t.toFixed(2)}).`);
+            if ((Q_noTax - Q) > 10 && state.t > 5) {
+                addInsight(`Tax reduces output from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)} under nonlinear demand.`);
+            }
+
+            addInsight(`Taxation effects vary across the nonlinear demand curve.`);
+        }
+
+        else {
+            if (state.t > 10 && state.income < 50) {
+                addInsight(`Low income and high tax sharply reduce consumption.`);
+            }
+
+            if (state.t > 10 && state.income > 100) {
+                addInsight(`High income cushions the effect of tax.`);
+            }
+
+            if (state.k > 0.5 && state.t > 10) {
+                addInsight(`Strong preference maintains consumption despite taxation.`);
             }
 
             if ((Q_noTax - Q) > 10) {
-                insights.push(`Consumption falls significantly from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
+                addInsight(`Consumption falls significantly from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
             }
 
-            insights.push(`Demand depends on income (${state.income.toFixed(2)}), so tax reduces purchasing power.`);
-
-            if (state.income < 50 && state.k < 0.3) {
-                insights.push(`Low income (${state.income.toFixed(2)}) and weak preference (k = ${state.k.toFixed(2)}) suppress demand.`);
-            }
+            addInsight(`Demand depends on income, so tax affects purchasing power.`);
         }
     }
 
-    return insights;
+    return finishInsights();
 }
 
 function renderInsights() {
     const insights = generateInsights(state, currentMetrics);
     insightsContainer.innerHTML = insights.map(insight => `<p>${insight}</p>`).join("");
+
+    // build conditional key / legend showing shaded areas and short explanations
+    if (!insightsKeyContainer) return;
+
+    const items = [];
+
+    // Consumer surplus (blue) - shown when demand shading is drawn
+    items.push({
+        color: 'rgba(0,0,255,0.8)',
+        label: 'Consumer Surplus',
+        desc: 'Net benefit consumers receive: area under demand and above price.'
+    });
+
+    // Producer surplus (green)
+    items.push({
+        color: 'rgba(0,255,0,0.8)',
+        label: 'Producer Surplus',
+        desc: 'Net benefit producers receive: area above supply and below price.'
+    });
+
+    // Welfare loss / deadweight loss (red) - shown when relevant
+    const showWelfare = (typeof currentMetrics.welfareLoss === 'number' && currentMetrics.welfareLoss > 0.0001) || state.mode === 'demand' || state.mode === 'supply';
+    if (showWelfare) {
+        items.push({
+            color: 'rgba(255,0,0,0.8)',
+            label: 'Welfare / Deadweight Loss',
+            desc: 'Lost total surplus due to reduced trade (e.g. from taxation or output restriction).'
+        });
+    }
+
+    // Tax revenue (orange) - only relevant in supply mode and when tax > 0
+    if (state.mode === 'supply' && state.t > 0) {
+        items.push({
+            color: 'rgba(255,165,0,0.9)',
+            label: 'Tax Revenue',
+            desc: 'Revenue collected by the government: tax × quantity traded.'
+        });
+    }
+
+    insightsKeyContainer.innerHTML = `
+        <h3 class="insights-key-title">Shaded Areas Key</h3>
+    ` + items.map(it => `
+        <div class="insight-key-item">
+            <span class="swatch" style="background:${it.color}"></span>
+            <div>
+                <strong>${it.label}</strong>
+                <div class="insight-desc">${it.desc}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function changeParametersPreset(preset) {
@@ -2292,3 +2370,88 @@ function changeParametersPreset(preset) {
         state.t = 10;
     }
 }
+
+const weatherLocationElement = document.getElementById("weatherLocation");
+const weatherTempElement = document.getElementById("weatherTemp");
+const weatherWindElement = document.getElementById("weatherWind");
+
+async function fetchWeather(lat, lon) {
+    const url = new URL("https://api.open-meteo.com/v1/forecast");
+
+    url.searchParams.set("latitude", lat);
+    url.searchParams.set("longitude", lon);
+    url.searchParams.set("current", "temperature_2m,wind_speed_10m,weather_code");
+    url.searchParams.set("timezone", "auto");
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("Weather API request failed");
+    }
+
+    return response.json();
+}
+
+function loadWeather() {
+    if (!navigator.geolocation) {
+        weatherLocationElement.textContent = "Weather unavailable";
+        weatherTempElement.textContent = "Geolocation not supported";
+        weatherWindElement.textContent = "";
+        return;
+    }
+
+    weatherLocationElement.textContent = "Getting location...";
+    weatherTempElement.textContent = "";
+    weatherWindElement.textContent = "";
+
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            try {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                const data = await fetchWeather(lat, lon);
+
+                if (!data.current) {
+                    throw new Error("No current weather returned");
+                }
+
+                weatherLocationElement.textContent = "Current weather";
+                weatherTempElement.textContent =
+                    `Temp: ${Math.round(data.current.temperature_2m)}°C`;
+                weatherWindElement.textContent =
+                    `Wind: ${Math.round(data.current.wind_speed_10m)} km/h`;
+
+                // ensure weather box shows the fetched data
+                const wb = document.getElementById('weatherBox');
+                if (wb) wb.style.display = '';
+
+            } catch (error) {
+                console.error(error);
+                weatherLocationElement.textContent = "Weather unavailable";
+                weatherTempElement.textContent = "Could not load weather";
+                weatherWindElement.textContent = "";
+                // show a friendly fallback message instead of hiding the box
+                weatherLocationElement.textContent = "Weather unavailable";
+                weatherTempElement.textContent = "Could not load weather";
+                weatherWindElement.textContent = "";
+            }
+        },
+        (error) => {
+            console.error(error);
+            // show a compact fallback when location is blocked
+            weatherLocationElement.textContent = "Location blocked";
+            weatherTempElement.textContent = "Allow location access";
+            weatherWindElement.textContent = "";
+        },
+        {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 600000
+        }
+    );
+}
+
+loadWeather();
+
+

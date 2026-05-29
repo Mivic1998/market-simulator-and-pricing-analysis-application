@@ -12,6 +12,17 @@
 
 <body>
     <header>
+        <div class="top-right-panel">
+            <div id="weatherBox" class="weather-box">
+                <span id="weatherLocation">Weather loading...</span>
+                <span id="weatherTemp"></span>
+                <span id="weatherWind"></span>
+            </div>
+
+            <button id="darkModeToggle" class="dark-mode-toggle">
+                Dark Mode
+            </button>
+        </div>
         <h1 class="main-heading">Market Simulator And Pricing Analysis Application</h1>
         <p>This application simulates how supply and demand interact, allowing analysis of pricing and taxation effects.
         </p>
@@ -24,25 +35,141 @@
     </section>
     <main>
         <section class="main-section">
-            <h2 class="section-heading">Main Market Graph</h2>
-            <p>This graph displays the market equilibrium and shows how supply and demand curves interact.</p>
+            <h2 class="section-heading text-center">Main Market Graph</h2>
+            <p class="text-center">This graph displays the market equilibrium and shows how supply and demand curves interact.</p>
             <div class="main-grid">
                 <div class="container">
-                    <div class="row flex-md-row-reverse">
-                        <div class="col-12 col-md-8">
+                    <div class="row flex-lg-row-reverse">
+                        <div class="col-12 col-lg-8">
                             <section class="graph-panel">
-                                <p>The canvas visualises curves, equilibrium points, and economic welfare areas
+                                <p class="canvas-text">The canvas visualises curves, equilibrium points, and economic welfare areas
                                     dynamically.</p>
                                 <canvas id="marketCanvas" width="600" height="400"></canvas>
                                 <section class="insights-panel">
+                                    <div class="insights-key" aria-hidden="false"></div>
+                                    <section class="controls-panel mobile-controls">
+                                        <h2 class="section-heading">Controls</h2>
+                                        <p>Use these controls to adjust parameters and observe how the market changes in
+                                            real
+                                            time.</p>
+                                        <div class="demand-controls">
+                                            <div class="demand-type">
+                                                <label for="demandType">Demand Type:</label>
+                                                <p>Select the type of demand curve to model different consumer
+                                                    behaviours.</p>
+                                                <select id="demandType">
+                                                    <option value="linear">Linear</option>
+                                                    <option value="income">Income-based</option>
+                                                    <option value="nonlinear">Non-linear</option>
+                                                </select>
+                                            </div>
+                                            <div class="demand-parameters">
+                                                <h3>Demand Parameters</h3>
+                                                <p>Modify these variables to control how demand responds to price and
+                                                    income.
+                                                </p>
+                                                <div class="demand-linear active">
+                                                    <div class="slider-group">
+                                                        <label for="a">a:</label>
+                                                        <p class="param-desc">Vertical intercept — approximate maximum
+                                                            willingness to pay.</p>
+                                                        <input type="range" id="a" min="0" max="100" value="50">
+                                                        <input type="number" id="aValue" value="50">
+                                                    </div>
+                                                    <div class="slider-group">
+                                                        <label for="b">b: </label>
+                                                        <p class="param-desc">Slope / price sensitivity — higher values
+                                                            make demand more responsive to price.</p>
+                                                        <input type="range" id="b" min="0" max="10" step="0.1"
+                                                            value="1">
+                                                        <input type="number" id="bValue" value="1">
+                                                    </div>
+                                                </div>
+                                                <div class="demand-income">
+                                                    <div class="slider-group">
+                                                        <label for="income">Income (I):</label>
+                                                        <p class="param-desc">Average consumer income used in
+                                                            income-based demand.</p>
+                                                        <input type="range" id="income" min="0" max="1000" step="10"
+                                                            value="500">
+                                                        <input type="number" id="incomeValue" class="value-input"
+                                                            min="0" max="1000" step="10" value="500">
+                                                    </div>
+                                                    <div class="slider-group">
+                                                        <label for="k">Preference Share (k):</label>
+                                                        <p class="param-desc">Share parameter controlling how strongly
+                                                            income affects demand.</p>
+                                                        <input type="range" id="k" min="0" max="1" step="0.05"
+                                                            value="0.5">
+                                                        <input type="number" id="kValue" class="value-input" min="0"
+                                                            max="1" step="0.05" value="0.5">
+                                                    </div>
+                                                </div>
+                                                <div class="demand-nonlinear">
+                                                    <div class="slider-group">
+                                                        <label for="aNonlinear">Scale (a):</label>
+                                                        <p class="param-desc">Scale parameter for nonlinear demand;
+                                                            shifts the curve horizontally.</p>
+                                                        <input type="range" id="aNonlinear" min="0" max="100" step="1"
+                                                            value="50">
+                                                        <input type="number" id="aNonlinearValue" class="value-input"
+                                                            min="0" max="100" step="1" value="50">
+                                                    </div>
+                                                    <div class="slider-group">
+                                                        <label for="bNonlinear">Price Sensitivity (b):</label>
+                                                        <p class="param-desc">Controls curvature; higher values increase
+                                                            sensitivity in nonlinear demand.</p>
+                                                        <input type="range" id="bNonlinear" min="0" max="1" step="0.05"
+                                                            value="0.2">
+                                                        <input type="number" id="bNonlinearValue" class="value-input"
+                                                            min="0" max="1" step="0.05" value="0.2">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="supply-controls">
+                                            <div class="supply-parameters">
+                                                <h3>Supply Parameters</h3>
+                                                <p>Adjust these variables to see how outcomes respond to changing market conditions on the supply side.</p>
+                                                <div class="slider-group">
+                                                    <label for="c">c:</label>
+                                                    <p class="param-desc">Supply intercept — baseline price component
+                                                        for the supply curve.</p>
+                                                    <input type="range" id="c" min="0" max="100" value="0">
+                                                    <input type="number" id="cValue" value="0">
+                                                </div>
+                                                <div class="slider-group">
+                                                    <label for="d">d: </label>
+                                                    <p class="param-desc">Supply slope — how much quantity supplied
+                                                        responds to price.</p>
+                                                    <input type="range" id="d" min="0" max="5" step="0.1" value="1">
+                                                    <input type="number" id="dValue" value="1">
+                                                </div>
+                                            </div>
+                                            <div class="tax-controls supply-only">
+                                                <h3>Tax Controls</h3>
+                                                <p>Apply a tax to see how it affects prices, quantities, and efficiency.
+                                                </p>
+                                                <div class="slider-group">
+                                                    <label for="t">Tax (t):</label>
+                                                    <p class="param-desc">Per-unit tax applied to the market; raises
+                                                        consumer price and/or reduces producer price.</p>
+                                                    <input type="range" id="t" min="0" max="50" step="0.1" value="0">
+                                                    <input type="number" id="tValue" min="0" max="50" step="0.1"
+                                                        value="0">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
                                     <h2 class="section-heading">Economic Insights</h2>
                                     <p>Automated insights explain the economic meaning of the results shown above.</p>
                                     <div class="insights-content"></div>
                                 </section>
                             </section>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-lg-4">
                             <section class="controls-panel">
+                                <h2 class="section-heading">Controls</h2>
                                 <p>Use these controls to adjust parameters and observe how the market changes in real
                                     time.</p>
                                 <div class="demand-controls">
@@ -62,11 +189,15 @@
                                         <div class="demand-linear active">
                                             <div class="slider-group">
                                                 <label for="a">a:</label>
+                                                <p class="param-desc">Vertical intercept — approximate maximum
+                                                    willingness to pay.</p>
                                                 <input type="range" id="a" min="0" max="100" value="50">
                                                 <input type="number" id="aValue" value="50">
                                             </div>
                                             <div class="slider-group">
                                                 <label for="b">b: </label>
+                                                <p class="param-desc">Slope / price sensitivity — higher values make
+                                                    demand more responsive to price.</p>
                                                 <input type="range" id="b" min="0" max="10" step="0.1" value="1">
                                                 <input type="number" id="bValue" value="1">
                                             </div>
@@ -74,6 +205,8 @@
                                         <div class="demand-income">
                                             <div class="slider-group">
                                                 <label for="income">Income (I):</label>
+                                                <p class="param-desc">Average consumer income used in income-based
+                                                    demand.</p>
                                                 <input type="range" id="income" min="0" max="1000" step="10"
                                                     value="500">
                                                 <input type="number" id="incomeValue" class="value-input" min="0"
@@ -81,6 +214,8 @@
                                             </div>
                                             <div class="slider-group">
                                                 <label for="k">Preference Share (k):</label>
+                                                <p class="param-desc">Share parameter controlling how strongly income
+                                                    affects demand.</p>
                                                 <input type="range" id="k" min="0" max="1" step="0.05" value="0.5">
                                                 <input type="number" id="kValue" class="value-input" min="0" max="1"
                                                     step="0.05" value="0.5">
@@ -89,6 +224,8 @@
                                         <div class="demand-nonlinear">
                                             <div class="slider-group">
                                                 <label for="aNonlinear">Scale (a):</label>
+                                                <p class="param-desc">Scale parameter for nonlinear demand; shifts the
+                                                    curve horizontally.</p>
                                                 <input type="range" id="aNonlinear" min="0" max="100" step="1"
                                                     value="50">
                                                 <input type="number" id="aNonlinearValue" class="value-input" min="0"
@@ -96,6 +233,8 @@
                                             </div>
                                             <div class="slider-group">
                                                 <label for="bNonlinear">Price Sensitivity (b):</label>
+                                                <p class="param-desc">Controls curvature; higher values increase
+                                                    sensitivity in nonlinear demand.</p>
                                                 <input type="range" id="bNonlinear" min="0" max="1" step="0.05"
                                                     value="0.2">
                                                 <input type="number" id="bNonlinearValue" class="value-input" min="0"
@@ -110,11 +249,15 @@
                                         <p>Adjust these variables to change how firms respond to prices.</p>
                                         <div class="slider-group">
                                             <label for="c">c:</label>
+                                            <p class="param-desc">Supply intercept — baseline price component for the
+                                                supply curve.</p>
                                             <input type="range" id="c" min="0" max="100" value="0">
                                             <input type="number" id="cValue" value="0">
                                         </div>
                                         <div class="slider-group">
                                             <label for="d">d: </label>
+                                            <p class="param-desc">Supply slope — how much quantity supplied responds to
+                                                price.</p>
                                             <input type="range" id="d" min="0" max="5" step="0.1" value="1">
                                             <input type="number" id="dValue" value="1">
                                         </div>
@@ -124,6 +267,8 @@
                                         <p>Apply a tax to see how it affects prices, quantities, and efficiency.</p>
                                         <div class="slider-group">
                                             <label for="t">Tax (t):</label>
+                                            <p class="param-desc">Per-unit tax applied to the market; raises consumer
+                                                price and/or reduces producer price.</p>
                                             <input type="range" id="t" min="0" max="50" step="0.1" value="0">
                                             <input type="number" id="tValue" min="0" max="50" step="0.1" value="0">
                                         </div>
@@ -144,7 +289,8 @@
                 <div class="demand-only">Revenue-Maximizing Price: <span id="revenueMaximizingPrice"></span></div>
                 <div class="demand-only">Revenue-Maximizing Quantity: <span id="revenueMaximizingQuantity"></span></div>
                 <div class="demand-only">Total Revenue at Equilibrium: <span id="totalRevenueEquilibrium"></span></div>
-                <div class="demand-only">Total Revenue at Revenue-Maximizing Point: <span id="totalRevenueMax"></span></div>
+                <div class="demand-only">Total Revenue at Revenue-Maximizing Point: <span id="totalRevenueMax"></span>
+                </div>
                 <div class="demand-only">Welfare Loss: <span id="welfareLoss"></span></div>
                 <div class="supply-only">Price Before Tax: <span id="priceNoTax"></span></div>
                 <div class="supply-only">Quantity Before Tax: <span id="quantityNoTax"></span></div>
@@ -162,15 +308,15 @@
             </div>
         </section>
         <section class="revenue-graph-panel demand-only">
-            <h2 class="section-heading">Total Revenue Graph</h2>
-            <p>This graph shows how total revenue changes with output and highlights the maximum revenue point.</p>
+            <h2 class="section-heading text-center">Total Revenue Graph</h2>
+            <p class="text-center">This graph shows how total revenue changes with output and highlights the maximum revenue point.</p>
             <div class="revenue-graph-content">
                 <canvas id="revenueCanvas" width="600" height="400"></canvas>
             </div>
         </section>
         <section class="presets-panel">
-            <h2 class="section-heading">Presets</h2>
-            <p>Use presets to quickly explore common market scenarios without manual adjustment.</p>
+            <h2 class="section-heading text-center">Presets</h2>
+            <p class="text-center">Use presets to quickly explore common market scenarios without manual adjustment.</p>
             <div class="presets-buttons">
                 <div class="demand-only">
                     <div class="demand-linear active">
