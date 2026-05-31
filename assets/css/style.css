@@ -302,12 +302,6 @@ label[for="d"] {
     display: none;
 }
 
-.insights-key-title {
-    font-size: 15px;
-    margin: 0 0 6px 0;
-    color: #0f172a;
-}
-
 .insight-key-item {
     display: flex;
     align-items: flex-start;
