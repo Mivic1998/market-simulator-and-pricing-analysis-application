@@ -350,12 +350,9 @@ header {
     align-items: flex-end;
 }
 
-/* Responsive: on small screens place the controls below the heading to avoid overlap */
 @media (max-width: 768px) {
-    /* keep the controls in the top-right corner but add header top padding
-       so content (title/paragraph) doesn't get overlapped */
+
     header {
-        /* increase space so the top-right controls don't overlap the title */
         padding-top: 140px;
         padding-bottom: 12px;
     }
@@ -364,25 +361,32 @@ header {
         position: absolute;
         top: 12px;
         right: 12px;
+
         display: flex;
         flex-direction: column;
         gap: 6px;
+
         align-items: flex-end;
+
         z-index: 10;
+
+        max-width: 160px;
     }
 
-   .weather-box {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+    .weather-box {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
 
-    color: #f8fafc;
-    text-align: right;
+        color: #f8fafc;
+        text-align: right;
 
-    font-size: 0.85rem;
-    line-height: 1.35;
-}
+        font-size: 0.85rem;
+        line-height: 1.35;
+
+        word-break: break-word;
+    }
 
     .dark-mode-toggle {
         margin: 0;
@@ -393,6 +397,8 @@ header {
         padding: 8px 12px 0 12px;
         font-size: 1.6rem;
         margin: 0 auto;
+
+        max-width: 90%;
     }
 
     header > p {
@@ -703,41 +709,39 @@ body.dark-mode .weather-box {
 }
 
 @media (max-width: 991px) {
-    .row.flex-lg-row-reverse {
+
+    .responsive-market-layout {
         display: flex;
         flex-direction: column;
     }
 
-    .col-lg-8,
-    .col-lg-4 {
-        width: 100%;
+    .graph-column {
+        display: contents;
     }
 
     .graph-panel {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .canvas-text {
         order: 1;
     }
 
-    #marketCanvas {
+    .controls-column {
         order: 2;
-    }
 
-    .insights-key {
-        order: 3;
-        margin-top: 12px;
-        margin-bottom: 16px;
-    }
+        width: 100%;
 
-    .controls-panel {
-        margin-top: 0;
+        margin-top: 16px;
         margin-bottom: 28px;
     }
 
     .insights-panel {
+        order: 3;
+
+        width: 100%;
+
         margin-top: 0;
+    }
+
+    .insights-key {
+        margin-top: 20px;
+        margin-bottom: 0;
     }
 }

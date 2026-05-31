@@ -47,22 +47,25 @@
                 interact.</p>
             <div class="main-grid">
                 <div class="container">
-                    <div class="row flex-lg-row-reverse">
-                        <div class="col-12 col-lg-8">
+                    <div class="row flex-lg-row-reverse responsive-market-layout">
+                        <div class="col-12 col-lg-8 graph-column">
                             <div class="graph-panel">
                                 <p class="canvas-text">The canvas visualises curves, equilibrium points, and economic
-                                    welfare areas
-                                    dynamically.</p>
+                                    welfare areas dynamically.</p>
+
                                 <canvas id="marketCanvas" width="600" height="400"></canvas>
+
                                 <div class="insights-key" aria-hidden="false"></div>
-                                <section class="insights-panel">
-                                    <h2 class="section-heading">Economic Insights</h2>
-                                    <p>Automated insights explain the economic meaning of the results shown above.</p>
-                                    <div class="insights-content"></div>
-                                </section>
                             </div>
+
+                            <section class="insights-panel">
+                                <h2 class="section-heading">Economic Insights</h2>
+                                <p>Automated insights explain the economic meaning of the results shown above.</p>
+                                <div class="insights-content"></div>
+                            </section>
                         </div>
-                        <div class="col-12 col-lg-4">
+
+                        <div class="col-12 col-lg-4 controls-column">
                             <section class="controls-panel">
                                 <h2 class="section-heading">Controls</h2>
                                 <p>Use these controls to adjust parameters and observe how the market changes in real
@@ -79,7 +82,8 @@
                                     </div>
                                     <div class="demand-parameters">
                                         <h3>Demand Parameters</h3>
-                                        <p>Adjust these variables to see how outcomes respond to changing market conditions on the demand side.
+                                        <p>Adjust these variables to see how outcomes respond to changing market
+                                            conditions on the demand side.
                                         </p>
                                         <div class="demand-linear active">
                                             <div class="slider-group">
@@ -172,6 +176,7 @@
                                 </div>
                             </section>
                         </div>
+
                     </div>
                 </div>
             </div>
