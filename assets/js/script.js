@@ -62,11 +62,8 @@ const quantityAfterTaxElement = document.getElementById("quantityAfterTax");
 const taxRevenueElement = document.getElementById("taxRevenue");
 const deadweightLossElement = document.getElementById("deadweightLoss");
 const demandType = document.getElementById("demandType");
-const supplyType = document.getElementById("supplyType");
 const sliders = document.querySelectorAll(".slider-group input[type='range']");
 const manualInputs = document.querySelectorAll(".slider-group input[type='number']");
-const demandModeButton = document.getElementById("demand-mode");
-const supplyModeButton = document.getElementById("supply-mode");
 const modeButtons = document.querySelectorAll(".mode-button");
 const supplyOnlyElements = document.querySelectorAll(".supply-only");
 const demandOnlyElements = document.querySelectorAll(".demand-only");
@@ -214,7 +211,7 @@ for (let slider of sliders) {
     });
 
     // when user finishes adjusting (releases the slider), scroll to the graph
-    slider.addEventListener('change', (e) => {
+    slider.addEventListener('change', () => {
         mainSection.scrollIntoView({ behavior: 'smooth' });
     });
 }
@@ -475,26 +472,6 @@ function drawHoverOverlay(Q, P, PED) {
         ctxMain.fillText(`PED: ${PED.toFixed(2)}`, x + 10, y - 10);
     }
 }
-
-function drawRevenuePoint(Q, TR) {
-    ctxRevenue.clearRect(0, 0, canvasRevenue.width, canvasRevenue.height);
-
-    const scaleXR = canvasRevenue.width / maxQ;
-    const scaleYR = canvasRevenue.height / maxP;
-
-    const x = Q * scaleXR;
-    const y = canvasRevenue.height - TR * scaleYR;
-
-    ctxRevenue.beginPath();
-    ctxRevenue.arc(x, y, 4, 0, Math.PI * 2);
-    ctxRevenue.fillStyle = "red";
-    ctxRevenue.fill();
-
-    ctxRevenue.fillStyle = getCanvasTheme().text;
-    ctxRevenue.fillText(`TR: ${TR.toFixed(2)}`, x + 10, y - 10);
-}
-
-
 
 //var used because it is function-scoped and allows us to redefine it in different cases without issues. Let is block-scoped and results in having to repeat code for each demand type, which is less efficient.
 
@@ -1158,8 +1135,8 @@ function drawRevenue() {
 }
 
 function retrievePointsNeededForPlotting(mode, demandType) {
-    let points = []
-    let pointsList = []
+    let points
+    let pointsList = [];
     if (mode === 'demand') {
         points = generatePlotPointsSupplyNoTax(state.c, state.d);
         pointsList.push(points);
@@ -1233,11 +1210,14 @@ function drawSupplyModeShading() {
 
     const P_p = P - state.t;
 
-    // NO-TAX equilibrium (must match demand type)
-    let Q0;
-
     if (state.demandType === "linear") {
-        [, Q0] = calculateEquilibriumLinear(state.a, state.b, state.c, state.d, 0);
+        const [, Q0] = calculateEquilibriumLinear(
+            state.a,
+            state.b,
+            state.c,
+            state.d,
+            0
+        );
 
         drawCSLinear(state.a, state.b, P, Q);
         drawPS(state.c, state.d, P_p, Q);
@@ -1246,27 +1226,11 @@ function drawSupplyModeShading() {
     }
 
     else if (state.demandType === "nonlinear") {
-        [, Q0] = approximateEquilibriumNonlinear(
-            state.aNonlinear,
-            state.bNonlinear,
-            state.c,
-            state.d,
-            0
-        );
-
         drawCSNonlinear(state.aNonlinear, state.bNonlinear, P, Q);
         drawPS(state.c, state.d, P_p, Q);
         drawTaxRevenue(P, P_p, Q);
-        drawDWLNonlinearTax(
-            state.aNonlinear,
-            state.bNonlinear,
-            state.c,
-            state.d,
-            state.t
-        );
 
-        // use nonlinear DWL shading
-        drawWelfareLossNonlinear(
+        drawDWLNonlinearTax(
             state.aNonlinear,
             state.bNonlinear,
             state.c,
@@ -1275,18 +1239,11 @@ function drawSupplyModeShading() {
         );
     }
 
-    else { // income
-        [, Q0] = calculateEquilibriumIncome(
-            state.income,
-            state.k,
-            state.c,
-            state.d,
-            0
-        );
-
+    else {
         drawCSIncome(state.k, state.income, P, Q);
         drawPS(state.c, state.d, P_p, Q);
         drawTaxRevenue(P, P_p, Q);
+
         drawDWLIncomeTax(
             state.k,
             state.income,
@@ -1294,9 +1251,6 @@ function drawSupplyModeShading() {
             state.d,
             state.t
         );
-
-        // no geometric DWL implemented for income yet
-        // optional: skip or add later
     }
 }
 
@@ -1487,8 +1441,8 @@ function drawPS(c, d, P_eq, Q_eq) {
 
 
 function drawWelfareLossLinear(a, b, c, d) {
-    const [P_eq, Q_eq] = calculateEquilibriumLinear(a, b, c, d, 0);
-    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
+    const [, Q_eq] = calculateEquilibriumLinear(a, b, c, d, 0);
+    const [, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
 
     ctxMain.beginPath();
 
@@ -1749,22 +1703,18 @@ function calculateEquilibriumIncome(income, k, c, d, t) {
     return [P, Q];
 }
 
-
 function approximateEquilibriumNonlinear(a, b, c, d, t) {
 
-    // Inverse demand: P(Q)
     function Pd(Q) {
         return -(1 / b) * Math.log(Q / a);
     }
 
     if (Math.abs(d) === 0) {
         const Q = c;
-        const P = Math.max(0, Pd(Q));   // ALWAYS use demand here
+        const P = Math.max(0, Pd(Q));
         return [P, Q];
     }
 
-
-    // Inverse supply: P(Q)
     function Ps(Q) {
         return (Q - c) / d + t;
     }
@@ -1773,15 +1723,12 @@ function approximateEquilibriumNonlinear(a, b, c, d, t) {
         return Pd(Q) - Ps(Q);
     }
 
-    // Avoid log(0)
     let Q_low = 1e-6;
     let Q_high = a;
 
     let f_low = f(Q_low);
-    let f_high = f(Q_high);
 
-    //NO ROOT → CORNER SOLUTION
-    if (f_low * f_high > 0) {
+    if (f_low * f(Q_high) > 0) {
         const Qd0 = a;
         const Qs0 = c - d * t;
         return [0, Math.min(Qd0, Qs0)];
@@ -1791,13 +1738,15 @@ function approximateEquilibriumNonlinear(a, b, c, d, t) {
 
     for (let i = 0; i < 100; i++) {
         Q_mid = 0.5 * (Q_low + Q_high);
-        let f_mid = f(Q_mid);
 
-        if (Math.abs(f_mid) < 1e-6) break;
+        const f_mid = f(Q_mid);
+
+        if (Math.abs(f_mid) < 1e-6) {
+            break;
+        }
 
         if (f_low * f_mid < 0) {
             Q_high = Q_mid;
-            f_high = f_mid;
         } else {
             Q_low = Q_mid;
             f_low = f_mid;
@@ -1805,13 +1754,10 @@ function approximateEquilibriumNonlinear(a, b, c, d, t) {
     }
 
     const Q = Q_mid;
-
-    //always compute P from supply (numerically stable)
-    const P = Math.max(0, (Q - c) / d + t);
+    const P = Math.max(0, Ps(Q));
 
     return [P, Q];
 }
-
 
 function calculateRevenueMaximizingCoordinatesLinear(a, b) {
     const P = a / (2 * b);
@@ -1831,7 +1777,7 @@ function calculateTotalRevenue(P, Q) {
 
 
 function calculateWelfareLossLinear(a, b, c, d, P_eq, Q_eq) {
-    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
+    const [, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
 
     const Pd_eq = a - b * P_eq === Q_eq ? P_eq : (a - Q_eq) / b;
     const MC_eq = (Q_eq - c) / d;
@@ -1841,9 +1787,9 @@ function calculateWelfareLossLinear(a, b, c, d, P_eq, Q_eq) {
 
 function calculateWelfareLossNonlinearRevenueMax(a, b, c, d) {
 
-    const [P_eq, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
+    const [, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
 
-    const [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(a, b);
+    const [, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(a, b);
 
     const demand_eq = Q_eq * Math.log(Q_eq) - Q_eq - Q_eq * Math.log(a);
     const demand_max = Q_max * Math.log(Q_max) - Q_max - Q_max * Math.log(a);
