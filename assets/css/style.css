@@ -131,6 +131,7 @@ canvas {
     margin-top: 20px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 30px;
 
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -689,33 +690,54 @@ body.dark-mode small {
     color: #cbd5e1 !important;
 }
 
-/* =========================================================
-   MOBILE CONTROLS
-========================================================= */
-
-.mobile-controls {
-    display: none !important;
-}
-
-@media (max-width: 991px) {
-    .mobile-controls {
-        display: block !important;
-    }
-
-    .main-section > .main-grid .col-lg-4 .controls-panel {
-        display: none !important;
-    }
-}
-
-@media (max-width: 991px) {
-    .canvas-text {
-        display: none;
-    }
-}
-
 body.dark-mode .weather-box {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+}
+
+.insights-panel {
+    margin-top: 10px;
+    padding-top: 0;
+}
+
+@media (max-width: 991px) {
+    .row.flex-lg-row-reverse {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .col-lg-8,
+    .col-lg-4 {
+        width: 100%;
+    }
+
+    .graph-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .canvas-text {
+        order: 1;
+    }
+
+    #marketCanvas {
+        order: 2;
+    }
+
+    .insights-key {
+        order: 3;
+        margin-top: 12px;
+        margin-bottom: 16px;
+    }
+
+    .controls-panel {
+        margin-top: 0;
+        margin-bottom: 28px;
+    }
+
+    .insights-panel {
+        margin-top: 0;
+    }
 }
