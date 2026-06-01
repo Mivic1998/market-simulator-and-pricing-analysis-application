@@ -140,6 +140,21 @@ Below is the colour palette implemented for the application's light mode setting
 
 The light mode palette was designed to maximise readability while maintaining meaningful colour associations. Blue tones are used consistently for demand-related and interactive elements, green is used for supply, and purple is used to represent revenue.
 
+The following key colours were used:
+
+- **Primary (Header / Interactive):** `#4f46e5`  
+- **Secondary Accent:** `#6366f1`  
+- **Background:** `#f4f6f9`  
+- **Surface (Cards / Panels):** `#ffffff`  
+- **Text (Primary):** `#1e293b`  
+- **Text (Secondary):** `#475569`  
+- **Muted Text:** `#64748b`  
+- **Borders:** `#e2e8f0`  
+- **Controls Background:** `#f8fafc`  
+- **Metrics Background:** `#f1f5f9`  
+- **Insights Background:** `#eef2ff`  
+- **Highlight (e.g. temperature / accents):** `#60a5fa`  
+
 This consistent mapping ensures that users can quickly identify relationships visually without needing to refer to labels repeatedly.
 
 ---
@@ -156,7 +171,32 @@ Dark mode was not implemented as a simple inversion of colours. Instead, it requ
 - graph elements remain distinct  
 - readability is maintained  
 
-This was particularly challenging due to the fact that canvas elements do not automatically inherit CSS styling.
+The following colours were used:
+
+- **Background:** `#020617`  
+- **Surface / Panels (Gradient):** `#0f172a → #111827`  
+- **Card / Metric Background:** `#111827`  
+- **Text (Primary):** `#f8fafc`  
+- **Text (Secondary):** `#cbd5e1`  
+- **Borders:** `#334155`  
+
+#### Data & Semantic Colours
+- **Demand (Blue/Purple tone):** `#818cf8`  
+- **Supply (Green):** `#4ade80`  
+- **Tax (Yellow):** `#facc15`  
+- **Highlight / Key Values:** `#60a5fa`  
+
+#### Interactive Elements
+- **Buttons (Default):** `#1e293b`  
+- **Buttons (Hover):** `#334155`  
+- **Active Button:** `#2563eb`  
+- **Active Border Accent:** `#60a5fa`  
+
+#### Additional Elements
+- **Canvas Background:** `#020617`  
+- **Slider Accent:** `#818cf8`  
+
+This adaptation was particularly challenging due to the fact that canvas elements do not automatically inherit CSS styling, requiring manual synchronisation of chart colours with the UI theme.
 
 ---
 
