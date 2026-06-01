@@ -93,7 +93,7 @@ Achieving a clean validation ensures:
 
 ESLint was used to review the JavaScript codebase and identify potential issues such as syntax errors, unused variables, and redeclarations.
 
-![JavaScript Validation](assets/images/testing/js-validation.PNG)
+![JavaScript Validation](assets/images/testing/eslint.PNG)
 
 When running ESLint, several warnings and errors were reported relating to variable redeclaration inside the `displayAndStoreMetricValues()` function. These included variables such as:
 

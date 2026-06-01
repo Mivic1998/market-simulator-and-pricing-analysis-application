@@ -10,7 +10,7 @@ The application therefore serves both as a **technical demonstration of advanced
 
 **Market Simulator Deployed Link:** https://mivic1998.github.io/market-simulator-and-pricing-analysis-application/
 
-![Market Simulator Initial View](assets/images/readme/main-responsive-view-two-demand-mode.png)
+![Market Simulator Initial View](assets/images/readme/main-responsive-view-two-demand-mode.PNG)
 
 ---
 
@@ -266,7 +266,7 @@ This variation reinforces an important economic insight: the burden and efficien
 
 A fully integrated dark mode is included to improve usability in low-light environments and reduce eye strain. The colour palette was redesigned rather than simply inverted, ensuring that all elements — particularly canvas-rendered graphs — maintain clear contrast and readability.  
 
-![Dark Mode View](assets/images/readme/dark-mode.png)
+![Dark Mode View](assets/images/readme/dark-mode.PNG)
 
 Special consideration was required for graph rendering, as canvas elements do not automatically inherit CSS styling. As a result, colours for curves, labels, and shading were dynamically adjusted to ensure visibility across both light and dark themes, while preserving consistent meaning (e.g. demand, supply, and revenue colours).
 
