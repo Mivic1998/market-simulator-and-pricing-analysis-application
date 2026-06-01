@@ -176,7 +176,7 @@ Below is the wireframe for the main application page on tablet:
 
 Below is the wireframe for the main application page on mobile: 
 
-![Wireframe Main Application Page Mobile](assets/images/readme/index-wireframe-mobile.png)  
+![Wireframe Main Application Page Mobile](assets/images/readme/index-wireframe-mobile.PNG)  
 
 The wireframes illustrate the structural evolution of the interface across device sizes. On desktop, the layout adopts a multi-column approach to maximise efficiency. As screen size decreases, the layout transitions into a vertically stacked structure where the graph remains prioritised and controls follow beneath.
 
