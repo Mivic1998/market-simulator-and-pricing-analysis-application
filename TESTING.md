@@ -1,76 +1,291 @@
-## ESLint Results and Justification
+## Table of Contents
 
-ESLint was used to review the JavaScript codebase and identify syntax issues, unused variables, redeclarations, and possible code-quality concerns.
+- [Testing and Validation](#testing-and-validation)
+- [CSS Validation](#css-validation)
+- [HTML Validation](#html-validation)
+- [JavaScript Validation](#javascript-validation)
+  - [ESLint Results and Justification](#eslint-results-and-justification)
+- [Lighthouse Validation](#lighthouse-validation)
+  - [Lighthouse Score Reference](#lighthouse-score-reference)
+  - [Lighthouse Results Summary](#lighthouse-results-summary)
+    - [Main Simulator Page](#main-simulator-page)
+      - [Desktop](#desktop)
+      - [Mobile](#mobile)
+    - [Theory Page](#theory-page)
+      - [Desktop (Theory)](#desktop-theory)
+      - [Mobile (Theory)](#mobile-theory)
+- [Functional Testing](#functional-testing)
+- [Responsive Testing](#responsive-testing)
+- [Performance Considerations and Impact](#performance-considerations-and-impact)
+- [Conclusion](#conclusion)
 
-When running ESLint, several warnings/errors were reported around variable redeclaration inside the `displayAndStoreMetricValues()` function. These primarily related to variables such as:
+# Testing and Validation
 
-- `P`
-- `Q`
-- `P_max`
-- `Q_max`
-- `revenueAtEquilibrium`
-- `revenueAtMax`
-- `welfareLoss`
-- `P_noTax`
-- `Q_noTax`
-- `taxRevenue`
-- `priceReceived`
-- `deadweightLoss`
+This document outlines the testing and validation processes carried out for the **Market Simulator and Pricing Analysis Application**.  
 
-These warnings occur because the function uses `var` declarations inside conditional branches for different demand types and application modes.
+Testing was conducted throughout development to ensure that all components of the application function correctly, remain synchronised across interactions, and meet modern web standards.  
 
-Although ESLint flags this as redeclaration, this does not create a runtime error in this case because `var` is function-scoped in JavaScript. This means that repeated `var` declarations inside separate `if`, `else if`, and `else` blocks are hoisted to the top of the function and treated as a single function-level variable.
+The testing process included:
 
-The structure is intentional because `displayAndStoreMetricValues()` must calculate different values depending on:
+- HTML and CSS validation  
+- JavaScript validation using ESLint  
+- Lighthouse performance, accessibility, and SEO analysis  
+- Functional and responsive testing across the application  
 
-- whether the application is in demand mode or supply mode
-- whether the selected demand type is linear, nonlinear, or income-based
-- whether the displayed metric relates to equilibrium, taxation, revenue maximisation, welfare loss, or deadweight loss
+---
 
-The variables are later used to update the metrics panel and store values inside the `currentMetrics` object. For this reason, they need to remain accessible across the wider function scope after the conditional logic has completed.
+## CSS Validation
 
-The reported redeclaration warnings were reviewed manually and confirmed not to affect application behaviour. The application was tested after these warnings appeared, and the following functionality continued to work as expected:
+CSS validation was conducted using the **W3C CSS Validation Service** to ensure that stylesheets follow current standards and contain no errors.
 
-- demand-side mode calculations
-- supply-side mode calculations
-- linear demand calculations
-- nonlinear demand calculations
-- income-based demand calculations
-- graph rendering
-- revenue graph rendering
-- metrics panel updates
-- dark mode redraw behaviour
-- insights generation
+The application uses two different CSS approaches:
 
-Other ESLint issues, such as genuinely unused variables or undefined references, were treated separately and corrected where appropriate. For example, unused event parameters were removed and destructuring syntax was adjusted where necessary.
+- an **external stylesheet** for the main application (`index.html`)  
+- an **internal stylesheet** for the `theory.html` page  
 
-Therefore, the remaining redeclaration warnings are considered acceptable in this project because they are caused by intentional function-scoped `var` usage rather than broken logic or invalid JavaScript. They do not prevent the application from running correctly and do not affect the accuracy of the economic calculations.
+Both were validated individually.
 
-### HTML Validation Testing
+**CSS Validation Results:**
+- No errors found in either stylesheet  
 
-HTML validation was carried out throughout development to identify structural issues, accessibility concerns, and semantic markup warnings.
+The following image shows validation results for the external stylesheet used in the main simulator page:
 
-Most validation issues were resolved during development. However, some warnings remain intentionally due to the responsive design implementation used for the controls panel.
+![CSS Validation Index](assets/images/testing/css-index.PNG)  
 
-To improve usability on smaller devices, a second controls panel was created specifically for mobile and tablet layouts and positioned beneath the graph using CSS media queries. This resulted in duplicated HTML elements such as sliders, labels, and input containers. Validators therefore report warnings relating to duplicate IDs and repeated form controls.
+The following image shows validation results for the internal stylesheet used in the theory page:
 
-These warnings were reviewed manually and considered acceptable because:
+![CSS Validation Theory](assets/images/testing/css-theory.PNG)  
 
-- the duplicated controls are never visible simultaneously
-- media queries ensure only one controls panel is displayed at a time
-- hidden controls are not interactable
-- functionality remains unaffected across all tested screen sizes
+These results confirm that the styling across both pages is syntactically valid and adheres to CSS Level 3 standards.
 
-This implementation was chosen because it provided a more stable and predictable responsive layout than dynamically repositioning elements with JavaScript or more complex flexbox/grid restructuring.
+---
 
-Additional semantic warnings relating to the graph container were resolved by replacing unnecessary `<section>` elements with `<div>` containers where appropriate, as the graph area did not require its own document heading.
+## HTML Validation
 
-#### HTML Validation Screenshot Placeholder
+HTML validation was carried out using the **W3C Nu HTML Checker**.
 
-The screenshot below shows an example of the type of validation warning produced by the duplicated responsive controls panels. These warnings were expected because two versions of the controls section were intentionally included in the HTML — one for desktop layouts and one for mobile/tablet layouts — with CSS media queries used to selectively hide or display each version depending on screen size.
+Both pages within the application were tested individually:
 
-The duplicated elements are never visible simultaneously and do not affect application functionality, accessibility, or responsiveness during normal use.
+- `index.html` (main simulator)  
+- `theory.html` (supporting theory page)  
 
-> Insert example screenshot of duplicate ID / repeated control validation warning here.
+Each page returned a clean validation result with no errors or warnings.
 
-![Example HTML Validation Warning](path/to/html-warning-example.png)
+The following image shows validation results for the main simulator page (`index.html`):
+
+![HTML Validation Index](assets/images/testing/html-index.PNG)  
+
+The following image shows validation results for the theory page (`theory.html`):
+
+![HTML Validation Theory](assets/images/testing/html-theory.PNG)  
+
+Achieving a clean validation ensures:
+
+- correct semantic structure  
+- improved accessibility  
+- compatibility across modern browsers   
+
+---
+
+## JavaScript Validation
+
+### ESLint Results and Justification
+
+ESLint was used to review the JavaScript codebase and identify potential issues such as syntax errors, unused variables, and redeclarations.
+
+![JavaScript Validation](assets/images/testing/js-validation.PNG)
+
+When running ESLint, several warnings and errors were reported relating to variable redeclaration inside the `displayAndStoreMetricValues()` function. These included variables such as:
+
+- `P`, `Q`, `P_max`, `Q_max`  
+- `revenueAtEquilibrium`, `revenueAtMax`  
+- `welfareLoss`, `taxRevenue`, `deadweightLoss`  
+
+These warnings occur because the function uses `var` declarations within conditional branches to handle different demand types and application modes.
+
+Although flagged by ESLint, these do not produce runtime errors. This is because `var` is function-scoped in JavaScript, meaning redeclarations within separate conditional blocks are hoisted and interpreted as a single variable declaration.
+
+This structure is intentional. The function must calculate different values depending on:
+
+- selected demand model  
+- whether the application is in demand or supply mode  
+- whether taxation is applied  
+
+These variables are later used to update the metrics panel and stored in the central state object, requiring them to remain accessible throughout the function.
+
+The application was tested extensively after these warnings, and all features continued to operate correctly, including:
+
+- dynamic graph rendering  
+- revenue calculations  
+- taxation modelling  
+- insights generation  
+- dark mode redraw behaviour  
+
+Other ESLint issues (such as unused variables or unnecessary parameters) were resolved. The remaining redeclaration warnings are therefore considered acceptable as they reflect intentional design choices rather than faulty logic.
+
+---
+
+## Lighthouse Validation
+
+Lighthouse testing was conducted using **Chrome DevTools** to evaluate:
+
+- Performance  
+- Accessibility  
+- Best Practices  
+- SEO  
+
+Testing was performed in both **desktop and mobile modes** to reflect real-world usage.
+
+---
+
+### Lighthouse Score Reference
+
+| Category | Score Range | Indicator | Explanation |
+|----------|-----------|----------|-------------|
+| Performance | 90–100 | 🟢 | Fast and optimised |
+| Accessibility | 90–100 | 🟢 | Accessible to most users |
+| Best Practices | 90–100 | 🟢 | Follows modern standards |
+| SEO | 90–100 | 🟢 | Good search visibility |
+
+---
+
+## Lighthouse Results Summary
+
+The following sections present the Lighthouse testing results for both the main simulator and the theory page. Testing was conducted in both desktop and mobile modes to reflect real-world conditions and to evaluate performance, accessibility, best practices, and SEO across devices.
+
+---
+
+### Main Simulator Page
+
+The results below summarise the Lighthouse testing outcomes for the interactive simulator, which includes real-time graph rendering and state-driven updates.
+
+#### Desktop
+
+The following results show the Lighthouse analysis for the main simulator when tested in desktop mode.
+
+- Performance: 100  
+- Accessibility: 93  
+- Best Practices: 92  
+- SEO: 90  
+
+![Lighthouse Index Desktop](assets/images/testing/lighthouse-testing-index-desktop.PNG)
+
+The simulator performs strongly on desktop despite its real-time graph rendering and continuous state updates, with only minor reductions in accessibility and best practices due to the use of canvas-based elements.
+
+---
+
+#### Mobile
+
+The following results show the Lighthouse analysis for the main simulator under mobile testing conditions.
+
+- Performance: 98  
+- Accessibility: 93  
+- Best Practices: 92  
+- SEO: 90  
+
+![Lighthouse Index Mobile](assets/images/testing/lighthouse-testing-index-mobile.PNG)
+
+Performance remains consistently high on mobile, with only a small reduction due to simulated device constraints, demonstrating that responsiveness has been implemented effectively.
+
+---
+
+### Theory Page
+
+The results below summarise Lighthouse testing for the theory page, which is primarily content-based and less dependent on complex JavaScript interactions.
+
+#### Desktop
+
+The following results show the Lighthouse analysis for the theory page in desktop mode.
+
+- Performance: 100  
+- Accessibility: 96  
+- Best Practices: 100  
+- SEO: 90  
+
+![Lighthouse Theory Desktop](assets/images/testing/lighthouse-testing-theory-desktop.PNG)
+
+As the theory page is primarily content-based and does not rely on complex JavaScript interactions, it achieves near-perfect scores across all categories.
+
+---
+
+#### Mobile
+
+The following results show the Lighthouse analysis for the theory page under mobile testing conditions.
+
+- Performance: 100  
+- Accessibility: 96  
+- Best Practices: 100  
+- SEO: 90  
+
+![Lighthouse Theory Mobile](assets/images/testing/lighthouse-testing-theory-mobile.PNG)
+
+The results remain unchanged on mobile, confirming that the page maintains strong performance and readability across all device sizes.
+
+## Functional Testing
+
+Functional testing focused on verifying that all interactive components behave correctly across all states of the application.
+
+This included testing:
+
+- parameter adjustments via sliders and inputs  
+- switching between demand types  
+- switching between demand and supply modes  
+- preset behaviour  
+- taxation effects  
+- revenue graph updates  
+- insights generation  
+
+A key aspect of testing involved ensuring that all components remain synchronised, as every interaction triggers a full update cycle across graphs, metrics, and insights.
+
+All tested features behaved as expected, and no functional inconsistencies were observed during testing.
+
+---
+
+## Responsive Testing
+
+Responsive testing was conducted across desktop, tablet, and mobile screen sizes.
+
+Key observations:
+
+- desktop layout supports side-by-side interaction between graph and controls  
+- tablet layout begins transitioning into a vertically stacked structure  
+- mobile layout prioritises the graph with stacked controls and insights  
+
+Special attention was given to:
+
+- correct scaling of canvas elements  
+- usability of sliders on touch devices  
+- stacking behaviour of insights and controls  
+
+The application remained fully functional across all screen sizes, with no loss of interactivity.
+
+---
+
+## Performance Considerations and Impact
+
+Performance testing focused on balancing **real-time interactivity with efficient execution**.
+
+One of the main contributors to runtime complexity is the application’s reactive structure, where every interaction triggers:
+
+- recalculation of economic values  
+- full graph redraw using canvas  
+- metrics and insights updates  
+
+While this increases computational workload, it ensures immediate feedback, which is essential for usability.
+
+Lighthouse performance scores remained high, indicating that the implementation remains efficient despite the complexity of interactions.
+
+It is also important to note that **measured performance does not always reflect perceived performance**. The application prioritises smooth interaction and immediate response over minimising computation.
+
+---
+
+## Conclusion
+
+All validation and testing processes were completed successfully.
+
+- HTML and CSS validated with no errors  
+- JavaScript issues were reviewed and justified  
+- Lighthouse results demonstrate strong performance and accessibility  
+- Functional and responsive testing confirmed consistent behaviour  
+
+Overall, the application meets modern web standards and performs reliably across devices, with all major features operating as intended.
