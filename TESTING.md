@@ -127,25 +127,18 @@ Other ESLint issues (such as unused variables or unnecessary parameters) were re
 
 ## Lighthouse Validation
 
-Lighthouse testing was conducted using **Chrome DevTools** to evaluate:
-
-- Performance  
-- Accessibility  
-- Best Practices  
-- SEO  
-
-Testing was performed in both **desktop and mobile modes** to reflect real-world usage.
-
----
+Performance, Accessibility, Best Practices, and SEO testing was conducted using **Google Lighthouse** within Chrome DevTools. Testing was performed on the deployed site in both **desktop and mobile** modes to reflect real‑world usage.
 
 ### Lighthouse Score Reference
 
 | Category | Score Range | Indicator | Explanation |
-|----------|-----------|----------|-------------|
-| Performance | 90–100 | 🟢 | Fast and optimised |
-| Accessibility | 90–100 | 🟢 | Accessible to most users |
-| Best Practices | 90–100 | 🟢 | Follows modern standards |
-| SEO | 90–100 | 🟢 | Good search visibility |
+|--------|------------|-----------|-------------|
+| Performance | 90–100 | 🟢 | Fast loading and efficient runtime performance |
+| Performance | 50–89 | 🟠 | Moderate performance with room for improvement |
+| Performance | 0–49 | 🔴 | Poor performance, likely due to heavy assets |
+| Accessibility | 90–100 | 🟢 | Content accessible to most users |
+| Best Practices | 90–100 | 🟢 | Follows modern, secure web standards |
+| SEO | 90–100 | 🟢 | Strong search‑engine visibility |
 
 ---
 
