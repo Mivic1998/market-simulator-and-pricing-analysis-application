@@ -358,148 +358,258 @@ function getCanvasTheme() {
 }
 
 function handleMouseMove(event) {
-    const Q = getMouseQ(event);
-    const P = getDemandPrice(Q);
 
-    if (P === null || P < 0 || P > maxP) {
-        drawCurves();
+    const Q = getMouseQ(event); // convert mouse x-position into quantity value
+
+    const P = getDemandPrice(Q); // calculate price on current demand curve
+
+    if (P === null || P < 0 || P > maxP) { // reject invalid graph regions
+
+        drawCurves(); // redraw clean graph without overlay
+
         return;
     }
 
-    const PED = calculatePED(Q, P);
+    const PED = calculatePED(Q, P); // calculate elasticity at hover point
 
-    drawHoverOverlay(Q, P, PED);
+    drawHoverOverlay(Q, P, PED); // redraw graph and add temporary hover graphics
 }
+
+
 
 function handleRevenueMouseMove(event) {
 
-    const Q = getMouseQRevenue(event);
-    const P = getDemandPrice(Q);
+    const Q = getMouseQRevenue(event); // convert mouse position into revenue-graph quantity
 
-    if (!P || P < 0 || P > maxP || state.demandType === 'income') {
-        drawRevenue();
+    const P = getDemandPrice(Q); // calculate demand price at quantity Q
+
+    if (!P || P < 0 || P > maxP || state.demandType === 'income') { // reject invalid hover states
+
+        drawRevenue(); // redraw clean revenue graph
+
         return;
     }
 
-    const TR = P * Q;
+    const TR = P * Q; // calculate total revenue
 
-    // redraw base graph
-    drawRevenue();
+    drawRevenue(); // redraw clean base revenue graph
 
-    // draw hover point on top
-    drawRevenueOverlay(Q, TR);
+    drawRevenueOverlay(Q, TR); // draw temporary hover overlay on top
 }
+
+
 
 function drawRevenueOverlay(Q, TR) {
 
     let points;
 
     if (state.demandType === 'linear') {
-        points = generatePlotPointsRevenueLinear(state.a, state.b);
+
+        points = generatePlotPointsRevenueLinear(state.a, state.b); // generate linear revenue points
+
     } else if (state.demandType === 'nonlinear') {
-        points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+
+        points = generatePlotPointsRevenueNonlinear(
+            state.aNonlinear,
+            state.bNonlinear
+        ); // generate nonlinear revenue points
+
     } else {
-        points = generatePlotPointsRevenueIncome(state.k, state.income);
+
+        points = generatePlotPointsRevenueIncome(
+            state.k,
+            state.income
+        ); // generate income-demand revenue points
     }
 
     let scaleYRevenue;
 
     if (state.demandType === "income") {
-        const maxRevenue = 1100;
-        scaleYRevenue = (canvasRevenue.height - marginBottom) / maxRevenue;
+
+        const maxRevenue = 1100; // fixed scale for income demand
+
+        scaleYRevenue =
+            (canvasRevenue.height - marginBottom)
+            / maxRevenue;
+
     } else {
+
         let maxRevenue = 0;
 
-        for (let point of points) {
+        for (let point of points) { // scan all points to find largest revenue value
+
             if (point.y > maxRevenue) {
+
                 maxRevenue = point.y;
             }
         }
 
-        scaleYRevenue = (canvasRevenue.height - marginBottom) / (maxRevenue * 1.1);
+        scaleYRevenue =
+            (canvasRevenue.height - marginBottom)
+            / (maxRevenue * 1.1); // build y-axis scaling factor
     }
 
-    const x = revenueMarginX + Q * scaleX;
-    const y = (canvasRevenue.height - marginBottom) - TR * scaleYRevenue;
+    const x =
+        revenueMarginX + Q * scaleX; // convert quantity into canvas x-position
 
-    // red dot
-    ctxRevenue.beginPath();
-    ctxRevenue.arc(x, y, 4, 0, Math.PI * 2);
-    ctxRevenue.fillStyle = "red";
-    ctxRevenue.fill();
+    const y =
+        (canvasRevenue.height - marginBottom)
+        - TR * scaleYRevenue; // convert revenue into canvas y-position
 
-    // label
-    ctxRevenue.fillStyle = getCanvasTheme().text;
-    ctxRevenue.font = "12px Arial";
-    ctxRevenue.fillText(`TR: ${TR.toFixed(2)}`, x + 10, y - 10);
+    ctxRevenue.beginPath(); // start new drawing path
+
+    ctxRevenue.arc(
+        x,
+        y,
+        4,
+        0,
+        Math.PI * 2
+    ); // define circular hover dot
+
+    ctxRevenue.fillStyle = "red"; // set hover dot colour
+
+    ctxRevenue.fill(); // render hover dot
+
+    ctxRevenue.fillStyle = getCanvasTheme().text; // use theme-aware text colour
+
+    ctxRevenue.font = "12px Arial"; // configure label font
+
+    ctxRevenue.fillText(
+        `TR: ${TR.toFixed(2)}`,
+        x + 10,
+        y - 10
+    ); // display revenue label beside dot
 }
+
+
 
 function getMouseQ(event) {
-    const rect = canvasMain.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
 
-    const Q = (mouseX - marginX) / scaleX;
+    const rect =
+        canvasMain.getBoundingClientRect(); // get canvas position on page
 
-    return Math.max(0, Math.min(Q, maxQ));
+    const mouseX =
+        event.clientX - rect.left; // calculate mouse x-position inside canvas
+
+    const Q =
+        (mouseX - marginX) / scaleX; // convert pixels into quantity units
+
+    return Math.max(
+        0,
+        Math.min(Q, maxQ)
+    ); // clamp quantity within graph bounds
 }
+
+
 
 function getMouseQRevenue(event) {
-    const rect = canvasRevenue.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
 
-    const Q = (mouseX - revenueMarginX) / scaleX;
+    const rect =
+        canvasRevenue.getBoundingClientRect(); // get revenue canvas position
 
-    return Math.max(0, Math.min(Q, maxQ));
+    const mouseX =
+        event.clientX - rect.left; // calculate mouse position inside revenue canvas
+
+    const Q =
+        (mouseX - revenueMarginX) / scaleX; // convert pixels into quantity units
+
+    return Math.max(
+        0,
+        Math.min(Q, maxQ)
+    ); // clamp quantity within graph bounds
 }
+
+
 
 function getDemandPrice(Q) {
-    if (Q <= 0) return null;
+
+    if (Q <= 0) return null; // reject invalid quantities
 
     if (state.demandType === "linear") {
-        return (state.a - Q) / state.b;
+
+        return (state.a - Q) / state.b; // linear demand equation
+
     } else if (state.demandType === "nonlinear") {
-        return -(1 / state.bNonlinear) * Math.log(Q / state.aNonlinear);
+
+        return -(1 / state.bNonlinear)
+            * Math.log(Q / state.aNonlinear); // nonlinear logarithmic demand
+
     } else {
-        return state.k * state.income / Q;
+
+        return state.k * state.income / Q; // income-based demand equation
     }
 }
+
+
 
 function calculatePED(Q, P) {
-    if (!P || Q <= 0) return null;
+
+    if (!P || Q <= 0) return null; // reject invalid values
 
     if (state.demandType === "linear") {
-        return -state.b * (P / Q);
+
+        return -state.b * (P / Q); // linear elasticity formula
+
     } else if (state.demandType === "nonlinear") {
-        return -state.bNonlinear * P;
+
+        return -state.bNonlinear * P; // nonlinear elasticity formula
+
     } else {
-        return -1;
+
+        return -1; // income demand is unit elastic
     }
 }
 
+
+
 function drawHoverOverlay(Q, P, PED) {
-    drawCurves(); // redraw base graph first
 
-    const { x, y } = toCanvas(Q, P);
+    drawCurves(); // redraw clean base graph before overlaying hover graphics
 
-    // dot
-    ctxMain.beginPath();
-    ctxMain.arc(x, y, 4, 0, Math.PI * 2);
-    ctxMain.fillStyle = getCanvasTheme().text;
-    ctxMain.fill();
+    const { x, y } = toCanvas(Q, P); // convert economic coordinates into canvas coordinates
 
-    // vertical guide
-    ctxMain.beginPath();
-    ctxMain.moveTo(x, canvasHeight - marginBottom);
-    ctxMain.lineTo(x, y);
-    ctxMain.strokeStyle = getCanvasTheme().guide;
-    ctxMain.stroke();
+    ctxMain.beginPath(); // start hover-dot path
 
-    // PED text
-    ctxMain.fillStyle = getCanvasTheme().text;
-    ctxMain.font = "12px Arial";
+    ctxMain.arc(
+        x,
+        y,
+        4,
+        0,
+        Math.PI * 2
+    ); // define circular hover marker
+
+    ctxMain.fillStyle =
+        getCanvasTheme().text; // use theme-aware hover colour
+
+    ctxMain.fill(); // render hover dot
+
+    ctxMain.beginPath(); // start guide-line path
+
+    ctxMain.moveTo(
+        x,
+        canvasHeight - marginBottom
+    ); // begin guide line at x-axis
+
+    ctxMain.lineTo(x, y); // connect guide line to hover point
+
+    ctxMain.strokeStyle =
+        getCanvasTheme().guide; // set guide-line colour
+
+    ctxMain.stroke(); // render guide line
+
+    ctxMain.fillStyle =
+        getCanvasTheme().text; // set PED text colour
+
+    ctxMain.font =
+        "12px Arial"; // configure PED label font
 
     if (PED !== null) {
-        ctxMain.fillText(`PED: ${PED.toFixed(2)}`, x + 10, y - 10);
+
+        ctxMain.fillText(
+            `PED: ${PED.toFixed(2)}`,
+            x + 10,
+            y - 10
+        ); // display elasticity label beside hover point
     }
 }
 
@@ -1053,115 +1163,352 @@ function drawCurves() {
 
 function drawRevenue() {
 
-    const theme = getCanvasTheme();
+    const theme = getCanvasTheme(); // get current light/dark theme colours
 
-    let points;
+    let points; // will store revenue-curve coordinates
+
+
+
+    // ------------------------------------------------------
+    // Generate revenue points based on active demand type
+    // ------------------------------------------------------
 
     if (state.demandType === "linear") {
-        points = generatePlotPointsRevenueLinear(state.a, state.b);
+
+        points =
+            generatePlotPointsRevenueLinear(
+                state.a,
+                state.b
+            ); // generate linear revenue curve points
+
     }
     else if (state.demandType === "nonlinear") {
-        points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
+
+        points =
+            generatePlotPointsRevenueNonlinear(
+                state.aNonlinear,
+                state.bNonlinear
+            ); // generate nonlinear revenue curve points
+
     }
     else {
-        points = generatePlotPointsRevenueIncome(state.k, state.income);
+
+        points =
+            generatePlotPointsRevenueIncome(
+                state.k,
+                state.income
+            ); // generate income-demand revenue points
     }
 
-    ctxRevenue.clearRect(0, 0, canvasRevenue.width, canvasRevenue.height);
 
-    ctxRevenue.fillStyle = theme.background;
-    ctxRevenue.fillRect(0, 0, canvasRevenue.width, canvasRevenue.height);
 
-    drawAxes(ctxRevenue, revenueMarginX);
+    // ------------------------------------------------------
+    // Clear previous graph frame
+    // ------------------------------------------------------
 
-    let scaleYRevenue;
+    ctxRevenue.clearRect(
+        0,
+        0,
+        canvasRevenue.width,
+        canvasRevenue.height
+    ); // erase old graph contents
 
+
+
+    // ------------------------------------------------------
+    // Paint graph background
+    // ------------------------------------------------------
+
+    ctxRevenue.fillStyle =
+        theme.background; // use theme-aware background colour
+
+    ctxRevenue.fillRect(
+        0,
+        0,
+        canvasRevenue.width,
+        canvasRevenue.height
+    ); // redraw graph background
+
+
+
+    // ------------------------------------------------------
+    // Draw graph axes
+    // ------------------------------------------------------
+
+    drawAxes(
+        ctxRevenue,
+        revenueMarginX
+    ); // draw x/y axes with revenue-specific left margin
+
+
+
+    // ------------------------------------------------------
+    // Build vertical revenue scaling system
+    // ------------------------------------------------------
+
+    let scaleYRevenue; // converts revenue values into pixel heights
+
+
+
+    // Income-demand uses fixed revenue scaling
+    //
     if (state.demandType === "income") {
-        const maxRevenue = 1100;
-        scaleYRevenue = (canvasRevenue.height - marginBottom) / maxRevenue;
+
+        const maxRevenue = 1100; // fixed graph ceiling
+
+        scaleYRevenue =
+            (canvasRevenue.height - marginBottom)
+            / maxRevenue;
+
     }
     else {
-        let maxRevenue = 0;
+
+        let maxRevenue = 0; // track largest revenue value
+
+
+
+        // --------------------------------------------------
+        // Find maximum revenue value in point set
+        // --------------------------------------------------
 
         for (let point of points) {
+
             if (point.y > maxRevenue) {
+
                 maxRevenue = point.y;
             }
         }
 
+
+
+        // --------------------------------------------------
+        // Convert revenue values into pixel scale
+        // --------------------------------------------------
+
         scaleYRevenue =
-            (canvasRevenue.height - marginBottom) / (maxRevenue * 1.1);
+            (canvasRevenue.height - marginBottom)
+            / (maxRevenue * 1.1); // extra 10% padding at top
     }
 
-    ctxRevenue.beginPath();
-    ctxRevenue.strokeStyle = "#c084fc";
-    ctxRevenue.lineWidth = 2;
 
-    let first = true;
+
+    // ------------------------------------------------------
+    // Begin revenue-curve drawing path
+    // ------------------------------------------------------
+
+    ctxRevenue.beginPath(); // start new curve path
+
+    ctxRevenue.strokeStyle =
+        "#c084fc"; // set curve colour
+
+    ctxRevenue.lineWidth =
+        2; // make curve thicker
+
+
+
+    let first = true; // tracks first point in curve
+
+
+
+    // ------------------------------------------------------
+    // Trace revenue curve point-by-point
+    // ------------------------------------------------------
 
     for (let point of points) {
-        const x = revenueMarginX + point.x * scaleX;
-        const y = (canvasRevenue.height - marginBottom) - point.y * scaleYRevenue;
 
+        const x =
+            revenueMarginX + point.x * scaleX; // convert quantity into x-position
+
+        const y =
+            (canvasRevenue.height - marginBottom)
+            - point.y * scaleYRevenue; // convert revenue into y-position
+
+
+
+        // First point initializes path
+        //
         if (first) {
-            ctxRevenue.moveTo(x, y);
+
+            ctxRevenue.moveTo(x, y); // move pen without drawing
+
             first = false;
+
         } else {
-            ctxRevenue.lineTo(x, y);
+
+            ctxRevenue.lineTo(x, y); // connect current point to previous point
         }
     }
 
-    ctxRevenue.stroke();
-    ctxRevenue.lineWidth = 1;
 
-    let P_max, Q_max;
+
+    // ------------------------------------------------------
+    // Render revenue curve
+    // ------------------------------------------------------
+
+    ctxRevenue.stroke(); // draw visible curve
+
+    ctxRevenue.lineWidth = 1; // reset line width for later drawing
+
+
+
+    let P_max, Q_max; // will store revenue-maximizing coordinates
+
+
+
+    // ------------------------------------------------------
+    // Calculate revenue-maximizing coordinates
+    // ------------------------------------------------------
 
     if (state.demandType === "linear") {
-        [P_max, Q_max] = calculateRevenueMaximizingCoordinatesLinear(state.a, state.b);
+
+        [P_max, Q_max] =
+            calculateRevenueMaximizingCoordinatesLinear(
+                state.a,
+                state.b
+            ); // calculate linear revenue maximum
+
     }
     else if (state.demandType === "nonlinear") {
-        [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(
-            state.aNonlinear,
-            state.bNonlinear
-        );
+
+        [P_max, Q_max] =
+            calculateRevenueMaximizingCoordinatesNonlinear(
+                state.aNonlinear,
+                state.bNonlinear
+            ); // calculate nonlinear revenue maximum
     }
     else {
-        const R = state.k * state.income;
-        const y = (canvasRevenue.height - marginBottom) - R * scaleYRevenue;
 
-        ctxRevenue.fillStyle = theme.text;
-        ctxRevenue.font = "13px Arial";
-        ctxRevenue.fillText(`TR = ${R.toFixed(2)}`, revenueMarginX + 10, y - 10);
+        // --------------------------------------------------
+        // Income demand handled separately
+        // --------------------------------------------------
 
-        return;
+        const R =
+            state.k * state.income; // calculate constant total revenue
+
+        const y =
+            (canvasRevenue.height - marginBottom)
+            - R * scaleYRevenue; // convert revenue into canvas position
+
+
+
+        ctxRevenue.fillStyle =
+            theme.text; // use theme-aware text colour
+
+        ctxRevenue.font =
+            "13px Arial"; // configure text font
+
+
+
+        ctxRevenue.fillText(
+            `TR = ${R.toFixed(2)}`,
+            revenueMarginX + 10,
+            y - 10
+        ); // display constant revenue label
+
+
+
+        return; // stop because income demand has no unique maximum
     }
 
-    const TR_max = P_max * Q_max;
 
-    const xMax = revenueMarginX + Q_max * scaleX;
-    const yMax = (canvasRevenue.height - marginBottom) - TR_max * scaleYRevenue;
 
-    ctxRevenue.beginPath();
-    ctxRevenue.arc(xMax, yMax, 5, 0, Math.PI * 2);
-    ctxRevenue.fillStyle = "#60a5fa";
-    ctxRevenue.fill();
+    // ------------------------------------------------------
+    // Calculate maximum total revenue
+    // ------------------------------------------------------
 
-    ctxRevenue.fillStyle = theme.text;
-    ctxRevenue.font = "12px Arial";
-    ctxRevenue.fillText(`Max TR = ${TR_max.toFixed(2)}`, xMax + 10, yMax - 10);
+    const TR_max =
+        P_max * Q_max; // economic revenue formula
 
-    drawRevenueGuides(Q_max, TR_max);
 
-    ctxRevenue.fillStyle = theme.text;
-    ctxRevenue.font = "14px Arial";
 
-    ctxRevenue.fillText("Total Revenue (TR)", revenueMarginX - 130, 15);
+    // ------------------------------------------------------
+    // Convert max-revenue point into canvas coordinates
+    // ------------------------------------------------------
+
+    const xMax =
+        revenueMarginX + Q_max * scaleX;
+
+    const yMax =
+        (canvasRevenue.height - marginBottom)
+        - TR_max * scaleYRevenue;
+
+
+
+    // ------------------------------------------------------
+    // Draw maximum-revenue marker
+    // ------------------------------------------------------
+
+    ctxRevenue.beginPath(); // start marker shape
+
+    ctxRevenue.arc(
+        xMax,
+        yMax,
+        5,
+        0,
+        Math.PI * 2
+    ); // create circular marker
+
+    ctxRevenue.fillStyle =
+        "#60a5fa"; // marker colour
+
+    ctxRevenue.fill(); // render marker
+
+
+
+    // ------------------------------------------------------
+    // Draw maximum-revenue label
+    // ------------------------------------------------------
+
+    ctxRevenue.fillStyle =
+        theme.text; // use theme-aware text colour
+
+    ctxRevenue.font =
+        "12px Arial"; // configure label font
+
+    ctxRevenue.fillText(
+        `Max TR = ${TR_max.toFixed(2)}`,
+        xMax + 10,
+        yMax - 10
+    ); // display revenue maximum label
+
+
+
+    // ------------------------------------------------------
+    // Draw guide lines to axes
+    // ------------------------------------------------------
+
+    drawRevenueGuides(
+        Q_max,
+        TR_max
+    ); // add visual guides from max point to axes
+
+
+
+    // ------------------------------------------------------
+    // Draw axis labels
+    // ------------------------------------------------------
+
+    ctxRevenue.fillStyle =
+        theme.text; // axis-label colour
+
+    ctxRevenue.font =
+        "14px Arial"; // axis-label font
+
+
+
+    ctxRevenue.fillText(
+        "Total Revenue (TR)",
+        revenueMarginX - 130,
+        15
+    ); // y-axis label
+
+
 
     ctxRevenue.fillText(
         "Quantity (Q)",
         canvasRevenue.width - 80,
         canvasRevenue.height - marginBottom + 25
-    );
+    ); // x-axis label
 }
 
 function retrievePointsNeededForPlotting(mode, demandType) {
@@ -2037,11 +2384,13 @@ function generateInsights(state, metrics) {
         ];
 
         for (let insight of fallbackInsights) {
-            addInsight(insight);
+
             if (insights.length >= 5) break;
+
+            addInsight(insight);
         }
 
-        return insights.slice(0, 5);
+        return insights;
     }
 
     if (state.mode === "demand") {
