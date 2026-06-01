@@ -501,9 +501,15 @@ However, AI output was rarely used directly. In many cases, suggestions needed t
 
 The collaborative process highlighted the importance of understanding, rather than simply applying, generated solutions. AI often provided a starting point or a direction, but achieving a working implementation required manual refinement and testing. In some cases, suggested approaches did not integrate well with the existing codebase and had to be reworked or discarded entirely.
 
+AI was also particularly useful when implementing dark mode, especially for canvas-based elements. Unlike standard HTML components, canvas content does not automatically adapt to CSS theme changes. AI helped identify the need to manually update drawing styles (such as line colours, gridlines, and text) based on the current theme state. It also assisted in structuring logic to ensure that graphs were fully re-rendered when switching between light and dark mode, maintaining visual consistency and readability across themes.
+
+In addition, AI supported the integration of the weather API, which introduced asynchronous data fetching and external data handling. Guidance was used to structure API requests, process JSON responses, and safely update the UI with live data. As with other areas of the project, the initial implementations required refinement to ensure they aligned with the application’s structure and handled potential errors effectively.
+
 This process was especially valuable in developing an understanding of canvas rendering logic. By working through suggestions, debugging issues, and adapting solutions, it was possible to build a functioning system that accurately represents economic models visually. This represents a significant progression from having no initial experience with canvas to implementing a fully dynamic graphing system.
 
 Overall, AI functioned as a support tool for exploration and debugging rather than a replacement for problem solving. The final application reflects independently implemented logic, with AI contributing primarily to accelerating the learning process and helping navigate unfamiliar technical challenges.
+ 
+ ---
 
 ## Future Improvements
 
