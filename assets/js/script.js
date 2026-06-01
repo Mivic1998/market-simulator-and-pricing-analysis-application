@@ -211,7 +211,7 @@ for (let slider of sliders) {
     });
 
     // when user finishes adjusting (releases the slider), scroll to the graph
-   slider.addEventListener('change', () => {
+    slider.addEventListener('change', () => {
         mainSection.scrollIntoView({ behavior: 'smooth' });
     })
 }
@@ -223,9 +223,19 @@ demandType.addEventListener("change", (e) => {
         for (let input of manualInputs) {
             if (input.id === "aValue") {
                 input.value = state.a;
+                for (let slider of sliders) {
+                    if (slider.id === 'a') {
+                        slider.value = state.a;
+                    }
+                }
             }
             else if (input.id === "bValue") {
                 input.value = state.b;
+                for (let slider of sliders) {
+                    if (slider.id === 'b') {
+                        slider.value = state.b;
+                    }
+                }
             }
         }
     }
@@ -235,9 +245,19 @@ demandType.addEventListener("change", (e) => {
         for (let input of manualInputs) {
             if (input.id === "incomeValue") {
                 input.value = state.income;
+                for (let slider of sliders) {
+                    if (slider.id === 'income') {
+                        slider.value = state.income;
+                    }
+                }
             }
             else if (input.id === "kValue") {
                 input.value = state.k;
+                for (let slider of sliders) {
+                    if (slider.id === 'k') {
+                        slider.value = state.k;
+                    }
+                }
             }
         }
     }
@@ -247,9 +267,19 @@ demandType.addEventListener("change", (e) => {
         for (let input of manualInputs) {
             if (input.id === "aNonlinearValue") {
                 input.value = state.aNonlinear;
+                for (let slider of sliders) {
+                    if (slider.id === 'aNonlinear') {
+                        slider.value = state.aNonlinear;
+                    }
+                }
             }
             else if (input.id === "bNonlinearValue") {
                 input.value = state.bNonlinear;
+                for (let slider of sliders) {
+                    if (slider.id === 'bNonlinear') {
+                        slider.value = state.bNonlinear;
+                    }
+                }
             }
         }
     }
@@ -636,10 +666,10 @@ function drawRevenueGuides(Q, TR, color = "blue") {
 
     if (state.demandType === "linear") {
         points = generatePlotPointsRevenueLinear(state.a, state.b);
-    } 
+    }
     else if (state.demandType === "nonlinear") {
         points = generatePlotPointsRevenueNonlinear(state.aNonlinear, state.bNonlinear);
-    } 
+    }
     else {
         points = generatePlotPointsRevenueIncome(state.k, state.income);
     }
@@ -649,7 +679,7 @@ function drawRevenueGuides(Q, TR, color = "blue") {
     if (state.demandType === "income") {
         const maxRevenue = 1100;
         scaleYRevenue = (canvasRevenue.height - marginBottom) / maxRevenue;
-    } 
+    }
     else {
         let maxRevenue = 0;
 
@@ -750,7 +780,7 @@ function drawCurves() {
         ctxMain.stroke();
         if (state.mode === "demand") {
 
-            // ✅ SUPPLY (always linear)
+            //SUPPLY (always linear)
             if (i === 0) {
                 let offsetX = -10;
                 let offsetY = 30;
@@ -773,7 +803,7 @@ function drawCurves() {
                 labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
             }
 
-            // ✅ DEMAND
+            //DEMAND
             if (i === 1) {
                 if (state.demandType === "linear") {
 
@@ -822,7 +852,7 @@ function drawCurves() {
 
         } else {
 
-            // ✅ SUPPLY (no tax)
+            //SUPPLY (no tax)
             if (i === 0) {
                 let offsetX = -10;
                 let offsetY = 30;
@@ -845,7 +875,7 @@ function drawCurves() {
                 labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
             }
 
-            // ✅ SUPPLY WITH TAX (same slope as supply)
+            //SUPPLY WITH TAX (same slope as supply)
             if (i === 1) {
                 let offsetX = 10;   // start more to the right (text is longer)
                 let offsetY = -10;
@@ -864,14 +894,14 @@ function drawCurves() {
                     offsetX = -10;
                 }
 
-                // ✅ extra correction for large tax (curve shifts left → push label right)
+                //extra correction for large tax (curve shifts left → push label right)
                 if (state.t > 10) {
                     offsetX += 20;
                 }
 
 
 
-                // ✅ edge case: high c (far right → shift back left)
+                //edge case: high c (far right → shift back left)
                 if (state.c > 3) {
                     offsetX = -200;
                     if (state.d < 0.5) {
@@ -896,14 +926,14 @@ function drawCurves() {
                     offsetY = -15;
                 }
 
-                // ✅ compensate for longer label text
+                //compensate for longer label text
                 offsetX += 15;
 
                 labelCurve(points, "Supply with Tax (S + t)", "red", offsetX, offsetY);
 
             }
 
-            // ✅ DEMAND
+            //DEMAND
             if (i === 2) {
                 if (state.demandType === "linear") {
 
@@ -968,7 +998,7 @@ function drawCurves() {
 
     if (state.mode === "supply") {
 
-        // ✅ with tax (already computed)
+        //with tax (already computed)
         drawPointGuides(
             currentMetrics.Q,
             currentMetrics.P,
@@ -977,7 +1007,7 @@ function drawCurves() {
             "red"
         );
 
-        // ✅ one-off no-tax equilibrium ONLY for drawing
+        //one-off no-tax equilibrium ONLY for drawing
         let P0, Q0;
 
         if (state.demandType === "linear") {
@@ -1844,7 +1874,7 @@ function generatePlotPointsSupplyNoTax(c, d) {
 
     const points = [];
 
-    // ✅ handle vertical supply (d ≈ 0)
+    //handle vertical supply (d ≈ 0)
     if (Math.abs(d) < 0.00001) {
         for (let P = 0; P <= maxP; P += 1) {
             points.push({ x: c, y: P });
@@ -1852,11 +1882,11 @@ function generatePlotPointsSupplyNoTax(c, d) {
         return points;
     }
 
-    // ✅ normal case
+    //normal case
     for (let P = 0; P <= maxP; P += 0.5) {
         const Q = c + d * P;
 
-        // ✅ clip to graph bounds
+        //clip to graph bounds
         if (Q >= 0 && Q <= maxQ) {
             points.push({ x: Q, y: P });
         }
@@ -1870,7 +1900,7 @@ function generatePlotPointsSupplyWithTax(c, d, t) {
 
     const points = [];
 
-    // ✅ handle vertical supply (d ≈ 0)
+    //handle vertical supply (d ≈ 0)
     if (Math.abs(d) < 0.00001) {
         for (let P = 0; P <= maxP; P += 1) {
             points.push({ x: c, y: P });
@@ -1878,11 +1908,11 @@ function generatePlotPointsSupplyWithTax(c, d, t) {
         return points;
     }
 
-    // ✅ normal case
+    //normal case
     for (let P = 0; P <= maxP; P += 0.5) {
         const Q = c + d * (P - t);
 
-        // ✅ clip to visible graph area
+        //clip to visible graph area
         if (Q >= 0 && Q <= maxQ) {
             points.push({ x: Q, y: P });
         }
