@@ -328,13 +328,7 @@ function handleRevenueMouseLeave() {
     drawRevenue(); // clears hover dot
 }
 
-
-
-displayAndStoreMetricValues();
 modeButtons[0].click();
-drawCurves();
-drawRevenue();
-renderInsights();
 
 function getCanvasTheme() {
 
