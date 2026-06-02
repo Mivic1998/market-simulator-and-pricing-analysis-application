@@ -75,9 +75,6 @@ const presetButtons = document.querySelectorAll(".preset-btn");
 const darkModeToggle = document.getElementById("darkModeToggle");
 
 document.body.classList.remove("dark-mode");
-localStorage.setItem("theme", "light");
-
-darkModeToggle.textContent = "Dark Mode";
 
 darkModeToggle.addEventListener("click", () => {
 
@@ -85,11 +82,6 @@ darkModeToggle.addEventListener("click", () => {
 
     const isDark =
         document.body.classList.contains("dark-mode");
-
-    localStorage.setItem(
-        "theme",
-        isDark ? "dark" : "light"
-    );
 
     darkModeToggle.textContent =
         isDark ? "Light Mode" : "Dark Mode";
