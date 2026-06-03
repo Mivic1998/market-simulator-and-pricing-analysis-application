@@ -92,35 +92,31 @@ darkModeToggle.addEventListener("click", () => {
     renderInsights();
 });
 
-//e.target.innerText.split("-")[0].toLowerCase()
 for (let button of modeButtons) {
     button.addEventListener("click", (e) => {
         const newMode = e.currentTarget.dataset.mode;
+
         if (state.mode === newMode && modeButtonClicked) {
             return;
-        } else {
-            state.mode = newMode;
-            modeButtonClicked = true;
+        } // if user clicks the already active mode button, do nothing (prevents unnecessary redraws and metric calculations)
 
-            // update active class so CSS shows which button is active
-            for (let b of modeButtons) {
-                b.classList.remove('active');
-            }
-            e.currentTarget.classList.add('active');
+        state.mode = newMode;
+        modeButtonClicked = true;
 
-            displayAndStoreMetricValues();
-            drawCurves();
-            renderInsights();
+        for (let button of modeButtons) {
+            button.classList.remove("active");
         }
+        e.currentTarget.classList.add("active");
 
         if (state.mode === "demand") {
-            state.t = 0;
+            state.t = 0; // reset tax to 0 when switching to demand mode, as tax is not relevant in this mode
             taxSlider.value = state.t;
             taxInput.value = state.t;
-            drawRevenue()
+
             for (let element of supplyOnlyElements) {
                 element.classList.remove("visible");
             }
+
             for (let element of demandOnlyElements) {
                 element.classList.add("visible");
             }
@@ -128,11 +124,16 @@ for (let button of modeButtons) {
             for (let element of demandOnlyElements) {
                 element.classList.remove("visible");
             }
+
             for (let element of supplyOnlyElements) {
                 element.classList.add("visible");
             }
         }
 
+        displayAndStoreMetricValues();
+        drawCurves();
+        drawRevenue();
+        renderInsights();
     });
 }
 
@@ -209,82 +210,58 @@ for (let slider of sliders) {
 }
 
 demandType.addEventListener("change", (e) => {
+
+    // reset the parameters for the demand type being left
     if (previousDemandType === "linear") {
         state.a = demandDefaults.linear.a;
         state.b = demandDefaults.linear.b;
-        for (let input of manualInputs) {
-            if (input.id === "aValue") {
-                input.value = state.a;
-                for (let slider of sliders) {
-                    if (slider.id === 'a') {
-                        slider.value = state.a;
-                    }
-                }
-            }
-            else if (input.id === "bValue") {
-                input.value = state.b;
-                for (let slider of sliders) {
-                    if (slider.id === 'b') {
-                        slider.value = state.b;
-                    }
-                }
-            }
-        }
     }
     else if (previousDemandType === "income") {
         state.income = demandDefaults.income.income;
         state.k = demandDefaults.income.k;
-        for (let input of manualInputs) {
-            if (input.id === "incomeValue") {
-                input.value = state.income;
-                for (let slider of sliders) {
-                    if (slider.id === 'income') {
-                        slider.value = state.income;
-                    }
-                }
-            }
-            else if (input.id === "kValue") {
-                input.value = state.k;
-                for (let slider of sliders) {
-                    if (slider.id === 'k') {
-                        slider.value = state.k;
-                    }
-                }
-            }
-        }
     }
     else {
         state.aNonlinear = demandDefaults.nonlinear.aNonlinear;
         state.bNonlinear = demandDefaults.nonlinear.bNonlinear;
-        for (let input of manualInputs) {
-            if (input.id === "aNonlinearValue") {
-                input.value = state.aNonlinear;
-                for (let slider of sliders) {
-                    if (slider.id === 'aNonlinear') {
-                        slider.value = state.aNonlinear;
-                    }
-                }
-            }
-            else if (input.id === "bNonlinearValue") {
-                input.value = state.bNonlinear;
-                for (let slider of sliders) {
-                    if (slider.id === 'bNonlinear') {
-                        slider.value = state.bNonlinear;
-                    }
-                }
-            }
+    }
+
+    // sync manual inputs with the reset state values
+    for (let input of manualInputs) {
+        const key = input.id.replace("Value", "");
+
+        if (key in state) {
+            input.value = state[key];
         }
     }
+
+    // sync sliders with the reset state values
+    for (let slider of sliders) {
+        if (slider.id in state) {
+            slider.value = state[slider.id];
+        }
+    }
+
+    // update active demand type
     state.demandType = e.target.value;
-    const previousDemandElements = document.querySelectorAll('.demand-' + previousDemandType);
+
+    // hide elements for previous demand type
+    const previousDemandElements =
+        document.querySelectorAll(".demand-" + previousDemandType);
+
     for (let element of previousDemandElements) {
-        element.classList.remove('active');
+        element.classList.remove("active");
     }
-    const currentDemandElements = document.querySelectorAll('.demand-' + state.demandType);
+
+    // show elements for current demand type
+    const currentDemandElements =
+        document.querySelectorAll(".demand-" + state.demandType);
+
     for (let element of currentDemandElements) {
-        element.classList.add('active');
+        element.classList.add("active");
     }
+
     previousDemandType = state.demandType;
+
     displayAndStoreMetricValues();
     drawCurves();
     drawRevenue();
