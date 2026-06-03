@@ -17,28 +17,49 @@ The application therefore serves both as a **technical demonstration of advanced
 ## Table of Contents
 
 - [Overview](#overview)
+
 - [User Experience (UX)](#user-experience-ux)
   - [User Stories](#user-stories)
+    - [First-Time Visitors](#first-time-visitors)
+    - [Returning Users](#returning-users)
+    - [Users Exploring Economic Theory](#users-exploring-economic-theory)
+    - [Users on Different Devices](#users-on-different-devices)
+
 - [Design](#design)
+
 - [Colour Palette](#colour-palette)
   - [Light Mode](#light-mode)
   - [Dark Mode](#dark-mode)
+
 - [Wireframes](#wireframes)
   - [Main Application](#main-application)
   - [Theory Page](#theory-page)
+
 - [Features](#features)
   - [Main Market Graph](#main-market-graph)
   - [Revenue Graph and Presets](#revenue-graph-and-presets)
   - [Metrics and Insights (Responsive Layout)](#metrics-and-insights-responsive-layout)
   - [Taxation and Supply Mode](#taxation-and-supply-mode)
   - [Dark Mode](#dark-mode-1)
-- [Theory Page (Feature Overview)](#theory-page-1)
-- [JavaScript & Application Logic](#javascript--application-logic)
+  - [Theory Page](#theory-page)
+
+- [JavaScript Application Architecture](#javascript-application-architecture)
   - [State Management](#state-management)
-  - [Reactive Rendering System](#reactive-rendering-system)
-  - [Graph Rendering](#graph-rendering)
-  - [Demand Models](#demand-models)
-- [Responsive Design](#responsive-design)
+  - [Mode System](#mode-system)
+  - [Demand Type System](#demand-type-system)
+  - [Dynamic Parameter Mapping](#dynamic-parameter-mapping)
+  - [Preset Visibility System](#preset-visibility-system)
+  - [Economic Calculations](#economic-calculations)
+  - [Main Graph Rendering](#main-graph-rendering)
+  - [Welfare Shading](#welfare-shading)
+  - [Revenue Graph](#revenue-graph)
+  - [Hover System](#hover-system)
+  - [Insight Generation](#insight-generation)
+  - [Preset System](#preset-system)
+  - [Dark Mode Implementation](#dark-mode-implementation)
+  - [Canvas Theme Handling](#canvas-theme-handling)
+  - [Overall Flow](#overall-flow)
+
 - [Challenges Encountered](#challenges-encountered)
   - [Full Application Update Cycle](#full-application-update-cycle)
   - [Managing Multiple Application States](#managing-multiple-application-states)
@@ -46,12 +67,19 @@ The application therefore serves both as a **technical demonstration of advanced
   - [Canvas Rendering and Scaling](#canvas-rendering-and-scaling)
   - [Handling Edge Cases](#handling-edge-cases)
   - [Dark Mode and Canvas Rendering](#dark-mode-and-canvas-rendering)
+
 - [AI Tool Usage and Reflection](#ai-tool-usage-and-reflection)
+
 - [Future Improvements](#future-improvements)
+
 - [Technologies Used](#technologies-used)
+
 - [Accessibility](#accessibility)
+
 - [Testing](#testing)
+
 - [Deployment](#deployment)
+
 - [Credits](#credits)
 
 ---
@@ -623,6 +651,81 @@ This significantly reduces code duplication and makes the application easier to 
 3. Creating a manual input whose id follows the `Value` naming convention.
 
 The existing synchronisation logic will then work automatically without requiring additional update code.
+
+### Preset Visibility System
+
+The application contains six distinct groups of preset buttons.
+
+These arise from the combination of:
+
+- Two application modes
+  - Demand Mode
+  - Supply Mode
+
+and
+
+- Three demand models
+  - Linear Demand
+  - Nonlinear Demand
+  - Income-Based Demand
+
+This creates six possible interface states:
+
+```text
+Demand + Linear
+Demand + Nonlinear
+Demand + Income
+
+Supply + Linear
+Supply + Nonlinear
+Supply + Income
+```
+
+Each state has its own set of preset configurations designed to demonstrate meaningful economic scenarios for that particular combination of mode and demand model.
+
+Rather than manually showing and hiding individual preset buttons through JavaScript, the application uses a nested HTML structure combined with CSS class conventions.
+
+The outer container conditions on the application's overall mode:
+
+```html
+<div class="demand-mode">
+```
+
+or
+
+```html
+<div class="supply-mode">
+```
+
+while an inner container conditions on the currently selected demand type:
+
+```html
+<div class="demand-linear">
+```
+
+```html
+<div class="demand-nonlinear">
+```
+
+```html
+<div class="demand-income">
+```
+
+This creates a hierarchy where visibility depends on both pieces of application state simultaneously.
+
+For example:
+
+```text
+Supply Mode
+↓
+Nonlinear Demand
+↓
+Supply + Nonlinear Presets
+```
+
+When the user switches mode, JavaScript updates which mode containers are active. When the user changes demand type, JavaScript updates which demand-type containers are active.
+
+Because preset groups are nested inside both containers, only the preset group matching the current combination of mode and demand type becomes visible
 
 ### Economic Calculations
 
