@@ -336,74 +336,397 @@ It bridges the gap between the mathematical logic implemented in the application
 
 ---
 
-## JavaScript & Application Logic
+## JavaScript Application Architecture
 
-The application is driven by a **centralised state-based architecture**, implemented entirely in vanilla JavaScript.
+The JavaScript implementation is built around a layered architecture where each level of the application depends on the level above it. Rather than treating graphs, metrics, insights, controls, and presets as separate features, the application uses a central state-driven system where changes propagate through the rest of the application automatically.
+
+At a high level, the application follows this hierarchy:
+
+```text
+Mode
+↓
+Demand Type
+↓
+Parameters
+↓
+Calculations
+↓
+Graphs
+↓
+Metrics
+↓
+Insights
+```
+
+Almost every interaction follows the same update pipeline:
+
+```js
+displayAndStoreMetricValues();
+drawCurves();
+drawRevenue();
+renderInsights();
+```
+
+The order is important. Economic values must be calculated before the graphs can be drawn, and the graphs must be updated before insights can accurately describe the current market state.
 
 ### State Management
 
-All key variables are stored in a single state object, which acts as the authoritative source of truth. This includes parameters such as demand type, supply characteristics, and taxation levels.
+At the centre of the application is the `state` object, which acts as the application's memory.
 
-By centralising state, the application ensures consistency across all components, reducing the risk of desynchronisation between inputs and outputs.
+```js
+const state = {
+    mode: "demand",
+    demandType: "linear",
+    a: 50,
+    b: 1,
+    aNonlinear: 50,
+    bNonlinear: 0.2,
+    income: 500,
+    k: 0.5,
+    c: 0,
+    d: 1,
+    t: 0
+};
+```
 
----
+The state object stores all information required to recreate the current market scenario.
 
-### Reactive Rendering System
+Rather than directly modifying graphs or metrics, event listeners update values inside `state`. The application then recalculates and redraws everything that depends on those values.
 
-The system operates as a manual reactive architecture. Every user interaction follows a defined sequence:
+This ensures every part of the interface remains synchronised.
 
-1. The state is updated  
-2. New values are calculated based on that state  
-3. The graph is cleared and redrawn  
-4. Metrics are recalculated and displayed  
-5. Insights are regenerated  
+### Mode System
 
-This ensures that the entire application remains in sync at all times.
+The first layer of the application is the mode system.
 
----
+The mode buttons use HTML `data-mode` attributes:
 
-### Graph Rendering
+```html
+<button data-mode="demand">
+<button data-mode="supply">
+```
 
-Graph rendering is handled using the Canvas API. This introduces significant complexity, as it requires:
+When a mode button is clicked:
 
-- converting mathematical equations into coordinate points  
-- scaling values dynamically to fit the canvas  
-- handling multiple curve types  
+```js
+const newMode = e.currentTarget.dataset.mode;
+state.mode = newMode;
+```
 
-Unlike using a charting library, this approach required full manual implementation, offering greater flexibility but increasing difficulty.
+This single value changes the behaviour of the entire application.
 
----
+Demand mode focuses on:
 
-### Demand Models
+- Equilibrium
+- Revenue
+- Elasticity
+- Consumer and producer surplus
 
-The application supports three demand models:
+Supply mode focuses on:
 
-- linear demand  
-- nonlinear demand  
-- income-based demand  
+- Taxation
+- Tax incidence
+- Tax revenue
+- Deadweight loss
 
-Each model requires its own calculation and rendering logic, increasing the overall complexity of the system.
+Mode switching also controls visibility throughout the interface.
 
----
+Elements are grouped using classes such as:
 
-## Responsive Design
+```html
+demand-only
+supply-only
+```
 
-Responsive design was implemented using a combination of Bootstrap grid structures and custom media queries, but the process extended far beyond simple layout adjustments.
+JavaScript simply adds or removes a `visible` class, allowing CSS to determine what should be shown on screen.
 
-The primary challenge was maintaining usability across devices **without compromising the functionality of the graphs**, which are the central component of the application.
+Many functions in the JavaScript condition on the demand type, such as functions which retrieve the points needed for plotting after a user has interacted with the interface, as the supply curve with tax is only drawn in supply mode. Similarly, some calculations only run in supply mode, such as any calculations related to tax.
 
-On larger screens, a multi-column layout is used, allowing the graph and controls to be displayed simultaneously. This supports efficient interaction, as users can immediately adjust parameters while observing the graph.
+### Demand Type System
 
-As the screen size decreases, the layout transitions into a vertical structure. The graph is always positioned first, followed by controls and outputs. This ensures that the most important element remains accessible while maintaining logical flow.
+Within each mode, users can select one of three demand models:
 
-Additional considerations included:
-- resizing canvas elements without distorting data  
-- ensuring controls remain usable on touch devices  
-- maintaining visual hierarchy across layouts  
+- Linear Demand
+- Nonlinear Demand
+- Income-Based Demand
 
-These adjustments required extensive testing and refinement, as small layout changes could quickly impact usability.
+The selected demand type is stored in:
 
----
+```js
+state.demandType
+```
+
+This value affects multiple systems simultaneously, including:
+
+- Equilibrium calculations (demand type effects which function must be called to calculate equilibrium)
+- Revenue calculations 
+- Elasticity calculations
+- Welfare calculations
+- Point generation (demand type effects which functions must be called to generate points for the plotting of demand curves as well as revenue curves and to produce the shaded regions seen on the main graph)
+- Insight generation
+
+The application uses class naming conventions such as:
+
+```html
+demand-linear
+demand-nonlinear
+demand-income
+```
+
+to show only the controls relevant to the currently selected demand model. Visibility is once again controlled by CSS and JavaScript, with JavaScript adding an active class to elements with a given demand class when the user switches to the corresponding demand type and removing the active class from the previous demand type that has been switched away from, which is tracked using a variable called previousDemandType.
+
+When switching demand type, the application also resets the parameters belonging to the previous demand model back to their defaults. This prevents users from returning to messy graphs when switching back to a previously used mode.
+
+### Dynamic Parameter Mapping
+
+A recurring implementation pattern throughout the application is dynamic key generation.
+
+Manual inputs follow a naming convention:
+
+```text
+aValue
+bValue
+incomeValue
+kValue
+```
+
+Rather than writing separate logic for every input, the application generates the matching state key automatically:
+
+```js
+const key = input.id.replace("Value", "");
+```
+
+This converts:
+
+```text
+aValue      -> a
+bValue      -> b
+incomeValue -> income
+kValue      -> k
+```
+
+allowing generic update and synchronisation logic to be reused throughout the application.
+
+The same technique is used when updating sliders after presets are selected.
+
+### Economic Calculations
+
+The application's main calculation hub is:
+
+```js
+displayAndStoreMetricValues();
+```
+
+This function calculates all economic values required by the rest of the application and conditions the calculations on the demand type and the mode (demand or supply). This includes:
+
+- Equilibrium price
+- Equilibrium quantity
+- Revenue-maximising price
+- Revenue-maximising quantity
+- Consumer surplus
+- Producer surplus
+- Total revenue
+- Elasticity
+- Tax revenue
+- Deadweight loss
+
+The results are stored in:
+
+```js
+currentMetrics
+```
+
+which acts as a central cache for the graphing and insight systems. For example, the outer edges of the shaded areas are traced by for loops, and depend on metrics such as the equilibrium quantity which varies as the parameters in the control panel are adjusted, making it crucial to store these key metrics even after they have been displayed to the user on the app.
+
+### Main Graph Rendering
+
+The main market graph is rendered through:
+
+```js
+drawCurves();
+```
+
+This function acts as an orchestrator rather than containing all graphing logic itself.
+
+Before any curves are drawn, the application must determine which curves are required:
+
+```js
+retrievePointsNeededForPlotting(
+    state.mode,
+    state.demandType
+);
+```
+
+Depending on the active mode, this may include:
+
+- Demand curve
+- Supply curve
+- Tax-adjusted supply curve
+
+The function then:
+
+1. Clears the canvas.
+2. Draws the axes.
+3. Draws welfare shading.
+4. Draws supply and demand curves.
+5. Draws labels and equilibrium markers.
+
+The graph itself is rendered using the Canvas API, meaning economic coordinates must be converted into screen coordinates before being drawn.
+
+### Welfare Shading
+
+The application separates welfare shading from curve plotting.
+
+In demand mode:
+
+```js
+drawDemandModeShading();
+```
+
+is used.
+
+In supply mode:
+
+```js
+drawSupplyModeShading();
+```
+
+is used.
+
+These functions use values stored in `currentMetrics` to determine the coordinates of:
+
+- Consumer surplus
+- Producer surplus
+- Tax revenue
+- Deadweight loss
+
+The shaded regions are drawn before the curves so that the curves remain clearly visible on top.
+
+### Revenue Graph
+
+The revenue graph is rendered independently of the main market graph and is only implemented when the mode is set to demand.
+
+Different point-generation functions are used depending on the active demand type:
+
+```js
+generatePlotPointsRevenueLinear()
+generatePlotPointsRevenueNonlinear()
+generatePlotPointsRevenueIncome()
+```
+
+Each function calculates revenue values using:
+
+```text
+TR = P × Q
+```
+
+and returns a set of points which can be plotted on the revenue canvas.
+
+The graph also calculates and highlights the revenue-maximising point where appropriate.
+
+### Hover System
+
+The application includes hover functionality on both canvases.
+
+For the main graph:
+
+```js
+handleMouseMove()
+```
+
+calculates:
+
+- Quantity
+- Price
+- Elasticity
+
+before calling:
+
+```js
+drawHoverOverlay()
+```
+
+which redraws the graph and overlays the hover marker and elasticity label.
+
+For the revenue graph:
+
+```js
+handleRevenueMouseMove()
+```
+
+calculates the corresponding revenue value and calls:
+
+```js
+drawRevenueOverlay()
+```
+
+which overlays a marker showing the current total revenue at the selected quantity.
+
+This allows users to explore the model interactively without permanently altering the graphs.
+
+### Insight Generation
+
+The final layer of the application is the insights system.
+
+Insights are generated through:
+
+```js
+renderInsights();
+```
+
+which uses both:
+
+```js
+state
+currentMetrics
+```
+
+to generate explanations of the current market situation.
+
+Rather than simply displaying numbers, the insights interpret those numbers and explain their economic significance.
+
+The system first attempts to generate scenario-specific insights and then fills any remaining spaces using fallback insights to ensure a consistent number of insights are always displayed.
+
+### Preset System
+
+The preset system allows multiple parameters to be changed simultaneously.
+
+When a preset button is clicked:
+
+```js
+changeParametersPreset(preset);
+```
+
+updates the relevant state values.
+
+The application then synchronises all sliders and manual inputs with the updated state:
+
+```js
+const key = input.id.replace("Value", "");
+input.value = state[key];
+```
+
+This ensures the controls always reflect the underlying model configuration after a preset has been applied.
+
+### Overall Flow
+
+Every user interaction ultimately follows the same dependency chain:
+
+```text
+User Interaction
+↓
+State Update
+↓
+Metric Calculations
+↓
+Graph Rendering
+↓
+Metric Display
+↓
+Insight Generation
+```
+
+This architecture ensures that all components of the application remain synchronised and accurately reflect the current market scenario, regardless of which control the user interacts with.
 
 ## Challenges Encountered
 
