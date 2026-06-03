@@ -468,7 +468,7 @@ supply-only
 
 JavaScript simply adds or removes a `visible` class, allowing CSS to determine what should be shown on screen.
 
-Many functions in the JavaScript also condition on the active mode, such as functions which retrieve the points needed for plotting after a user has interacted with the interface, as the supply curve with tax is only drawn in supply mode. Similarly, some calculations only run in supply mode, such as any calculations related to tax.
+Many functions in the JavaScript also condition on the active mode, such as functions which retrieve the points needed for plotting after a user has interacted with the interface. For example the supply curve with tax is only drawn in supply mode. Similarly, some calculations only run and display in supply mode, such as any calculations related to tax.
 
 ### Demand Type System
 
@@ -842,7 +842,7 @@ TR = P × Q
 
 and returns a set of points which can be plotted on the revenue canvas.
 
-For linear and nonlinear demand, separate functions are also used to calculate the revenue-maximising quantity and revenue-maximising revenue level, which are then highlighted on the graph.
+For linear and nonlinear demand, separate functions are also used to calculate the revenue-maximising quantity and revenue-maximising revenue level (revenue is constant in the income case so such a point does not exist), which are then highlighted on the graph.
 
 ### Hover System
 
