@@ -725,7 +725,9 @@ Supply + Nonlinear Presets
 
 When the user switches mode, JavaScript updates which mode containers are active. When the user changes demand type, JavaScript updates which demand-type containers are active.
 
-Because preset groups are nested inside both containers, only the preset group matching the current combination of mode and demand type becomes visible
+Because preset groups are nested inside both containers, only the preset group matching the current combination of mode and demand type becomes visible.
+
+This approach keeps the JavaScript simple while allowing the interface to adapt automatically to the application's current state.
 
 ### Economic Calculations
 
