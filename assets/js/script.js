@@ -30,6 +30,11 @@ const demandDefaults = {
     }
 };
 
+const supplyDefaults = {
+    c: 0,
+    d: 1
+};
+
 let currentMetrics = {};
 let previousDemandType = state.demandType;
 let modeButtonClicked = false;
@@ -121,6 +126,8 @@ for (let button of modeButtons) {
                 element.classList.add("visible");
             }
         } else {
+            state.c = supplyDefaults.c;
+            state.d = supplyDefaults.d;
             for (let element of demandOnlyElements) {
                 element.classList.remove("visible");
             }
@@ -210,7 +217,6 @@ for (let slider of sliders) {
 }
 
 demandType.addEventListener("change", (e) => {
-
     // reset the parameters for the demand type being left
     if (previousDemandType === "linear") {
         state.a = demandDefaults.linear.a;
