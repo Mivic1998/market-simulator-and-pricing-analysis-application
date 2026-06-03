@@ -108,8 +108,10 @@
             </p>
 
             <p>
-                As the user adjusts the controls, the simulator recalculates the market outcome automatically. This means
-                the curves move, the equilibrium point changes, the shaded welfare areas update, the metrics refresh, and
+                As the user adjusts the controls, the simulator recalculates the market outcome automatically. This
+                means
+                the curves move, the equilibrium point changes, the shaded welfare areas update, the metrics refresh,
+                and
                 the written insights explain what is happening.
             </p>
 
@@ -119,7 +121,8 @@
 
             <ul>
                 <li><strong>Demand Mode</strong>, which focuses on demand, pricing, elasticity, and revenue.</li>
-                <li><strong>Supply Mode</strong>, which focuses on taxation, welfare, tax revenue, and deadweight loss.</li>
+                <li><strong>Supply Mode</strong>, which focuses on taxation, welfare, tax revenue, and deadweight loss.
+                </li>
             </ul>
 
             <p>
@@ -173,7 +176,8 @@
             </p>
 
             <p>
-                As the price falls, more consumers decide that the product is worth buying. This is why quantity demanded
+                As the price falls, more consumers decide that the product is worth buying. This is why quantity
+                demanded
                 usually increases when price decreases.
             </p>
 
@@ -181,7 +185,8 @@
 
             <p>
                 Supply can be understood through producer costs. Some firms can produce cheaply and are willing to sell
-                even at low prices. Other firms face higher costs and only enter the market when the price is high enough
+                even at low prices. Other firms face higher costs and only enter the market when the price is high
+                enough
                 to cover those costs.
             </p>
 
@@ -209,8 +214,10 @@
             </p>
 
             <ul>
-                <li><strong>a</strong> represents the maximum willingness to pay i.e. the price level below which consumers begin participating in the market and the vertical intercept of the demand curve.</li>
-                <li><strong>b</strong> measures how sensitive consumers are to price changes i.e. the slope of the demand curve.</li>
+                <li><strong>a</strong> represents the maximum willingness to pay i.e. the price level below which
+                    consumers begin participating in the market and the vertical intercept of the demand curve.</li>
+                <li><strong>b</strong> measures how sensitive consumers are to price changes i.e. the slope of the
+                    demand curve.</li>
             </ul>
 
             <p>
@@ -221,13 +228,88 @@
             <h3>Nonlinear Demand</h3>
 
             <p>
-                Nonlinear demand introduces curvature into the demand relationship. This allows the simulator to model
-                situations where consumers become more or less sensitive to price changes at different price levels.
+                The nonlinear demand model is designed to represent markets where consumer behaviour cannot be
+                accurately
+                described by a straight line.
             </p>
 
             <p>
-                In the simulator, nonlinear curves make the shaded welfare areas more complex because the areas are no
-                longer simple triangles. The app approximates these curved areas visually on the graph.
+                In the linear demand model, every increase in price reduces demand by the same amount. While this makes
+                the mathematics simple, real markets often behave differently. Consumers may react very strongly to
+                price
+                changes in some situations and much less strongly in others.
+            </p>
+
+            <p>
+                To capture this behaviour, the simulator includes an exponential demand model:
+            </p>
+
+            <p class="equation">
+                Q = ae<sup>-bP</sup>
+            </p>
+
+            <p>
+                Unlike the linear model, this produces a curved demand curve rather than a straight line.
+            </p>
+
+            <p>
+                The curve falls rapidly at some prices and more gradually at others, allowing consumer responsiveness to
+                vary across different parts of the market.
+            </p>
+
+            <ul>
+                <li>
+                    <strong>a</strong> controls the overall size of the market and acts as the quantity intercept of the
+                    demand curve.
+                </li>
+
+                <li>
+                    <strong>b</strong> controls how quickly demand falls as prices increase.
+                </li>
+            </ul>
+
+            <p>
+                Increasing <strong>a</strong> shifts the demand curve outward, increasing demand at every price level.
+                This can represent a larger market, greater consumer interest, or stronger overall demand for the
+                product.
+            </p>
+
+            <p>
+                Increasing <strong>b</strong> makes consumers more sensitive to price changes. Demand falls more rapidly
+                as price increases, resulting in a steeper curve and lower quantities demanded at higher prices.
+            </p>
+
+            <p>
+                One important consequence of the nonlinear model is that the shape of the demand curve changes across
+                different price levels.
+            </p>
+
+            <p>
+                In some parts of the curve, quantity demanded falls very quickly as price rises. In other parts of the
+                curve, quantity demanded changes more gradually.
+            </p>
+
+            <p>
+                This behaviour can often provide a more realistic representation of consumer decision-making than a
+                simple
+                straight-line demand curve.
+            </p>
+
+            <p>
+                The nonlinear demand model can therefore produce different equilibrium outcomes from the linear model,
+                even when the overall size of the market appears similar.
+            </p>
+
+            <p>
+                It also changes the shape of the welfare areas displayed on the graph. Because the demand curve is
+                curved
+                rather than straight, consumer surplus is no longer represented by a simple triangle. The simulator
+                therefore approximates the area beneath the curve when calculating welfare outcomes.
+            </p>
+
+            <p>
+                Comparing the nonlinear and linear demand models helps demonstrate how different assumptions about
+                consumer behaviour can lead to different market outcomes.
             </p>
 
             <h3>Income-Based Demand</h3>
@@ -252,11 +334,18 @@
                 x = kI/P
             </p>
 
+            <p>
+                where k and I are constants that can be adjusted by the user. The demand curve is hyperbolic, meaning it
+                becomes flatter as quantity increases.
+            </p>
+
             <ul>
-                <li><strong>x</strong> represents consumption of the good in the simulator.</li>
-                <li><strong>I</strong> represents consumer income.</li>
-                <li><strong>k</strong> represents the proportion of income consumers choose to spend on the good.</li>
-                <li><strong>P</strong> represents price.</li>
+                <li><strong>x</strong> represents consumption of the good in the simulator (measured on the horizontal
+                    axis).</li>
+                <li><strong>I</strong> represents consumer income (a constant to be adjusted by the user).</li>
+                <li><strong>k</strong> represents the proportion of income consumers choose to spend on the good (a
+                    constant to be adjusted by the user).</li>
+                <li><strong>P</strong> represents price (measured on the vertical axis).</li>
             </ul>
 
             <p>
@@ -292,13 +381,16 @@
 
             <p>
                 The simulator automatically calculates this point and displays the corresponding price and quantity in
-                the metrics panel. In a competitive market, market forces will always push towards this equilibrium outcome. The following two sections explain how a competitive market is self-correcting when prices deviate from equilibrium.
+                the metrics panel. In a competitive market, market forces will always push towards this equilibrium
+                outcome. The following two sections explain how a competitive market is self-correcting when prices
+                deviate from equilibrium.
             </p>
 
             <h3>What Happens Above Equilibrium?</h3>
 
             <p>
-                If the market price is above equilibrium, firms want to sell more than consumers want to buy. This creates
+                If the market price is above equilibrium, firms want to sell more than consumers want to buy. This
+                creates
                 excess supply, meaning producers have unsold goods.
             </p>
 
@@ -310,12 +402,14 @@
             <h3>What Happens Below Equilibrium?</h3>
 
             <p>
-                If the market price is below equilibrium, consumers want to buy more than firms are willing to sell. This
+                If the market price is below equilibrium, consumers want to buy more than firms are willing to sell.
+                This
                 creates excess demand, or a shortage.
             </p>
 
             <p>
-                Consumers compete for the limited supply available, which puts upward pressure on prices. As prices rise,
+                Consumers compete for the limited supply available, which puts upward pressure on prices. As prices
+                rise,
                 demand falls and supply increases until the market returns to equilibrium.
             </p>
         </section>
@@ -380,6 +474,105 @@
         </section>
 
         <section>
+            <h2>Total Revenue</h2>
+
+            <p>
+                In Demand Mode, the simulator displays a second graph showing total revenue. While the main graph shows
+                the relationship between price and quantity, the revenue graph shows the total income generated from
+                sales
+                at different points along the demand curve.
+            </p>
+
+            <p class="equation">
+                TR = P × Q
+            </p>
+
+            <p>
+                Total revenue is calculated by multiplying the price of the good by the quantity sold.
+            </p>
+
+            <p>
+                The key idea is that the revenue graph is not separate from the demand curve. It is generated directly
+                from the demand curve.
+            </p>
+
+            <p>
+                Every point on the demand curve gives one possible combination of price and quantity. For each point:
+            </p>
+
+            <ol>
+                <li>The demand curve determines the price consumers are willing to pay at that quantity.</li>
+                <li>The simulator calculates revenue using <strong>Price × Quantity</strong>.</li>
+                <li>That revenue value is plotted on the revenue graph.</li>
+            </ol>
+
+            <p>
+                This means that when the demand curve changes, the revenue curve also changes.
+            </p>
+
+            <p>
+                For example, a high price may generate little revenue if very few units are sold. A low price may also
+                generate little revenue if each unit earns very little. The highest revenue usually occurs somewhere
+                between these extremes.
+            </p>
+
+            <p>
+                For linear and nonlinear demand, the simulator highlights the revenue-maximising point on the revenue
+                graph. This shows the price and quantity combination that produces the greatest total revenue.
+            </p>
+
+            <p>
+                The hover system also helps connect the two graphs. As users move along the demand curve, the simulator
+                can calculate the corresponding revenue and display it on the revenue graph.
+            </p>
+        </section>
+
+        <section>
+            <h2>Elasticity</h2>
+
+            <p>
+                Not all consumers respond to price changes in the same way. Some products experience large changes in
+                demand when prices change, while others experience very little change.
+            </p>
+
+            <p>
+                Price elasticity of demand measures how responsive consumers are to changes in price.
+            </p>
+
+            <ul>
+                <li><strong>Elastic demand:</strong> quantity demanded changes significantly when price changes.</li>
+                <li><strong>Inelastic demand:</strong> quantity demanded changes only slightly when price changes.</li>
+            </ul>
+
+            <p>
+                For example, consumers may respond strongly to price changes for restaurant meals, entertainment, or
+                subscription services. These goods often have more elastic demand because consumers can cut back or find
+                alternatives.
+            </p>
+
+            <p>
+                In contrast, consumers may continue buying necessities such as fuel or medicine even when prices rise.
+                These goods often have more inelastic demand.
+            </p>
+
+            <p>
+                Elasticity helps explain:
+            </p>
+
+            <ul>
+                <li>how consumers respond to price changes,</li>
+                <li>why some firms can raise prices more successfully than others,</li>
+                <li>how taxation affects markets,</li>
+                <li>and why revenue changes differently in different markets.</li>
+            </ul>
+
+            <p>
+                The simulator calculates elasticity dynamically when users hover over the demand curve, allowing
+                responsiveness to be explored visually across different parts of the market.
+            </p>
+        </section>
+
+        <section>
             <h2>Taxation and Deadweight Loss</h2>
 
             <p>
@@ -388,7 +581,8 @@
 
             <p>
                 A tax increases the effective cost of supplying goods. Even if firms produce in the same way as before,
-                the government now takes part of the revenue from each unit sold. As a result, producers require a higher
+                the government now takes part of the revenue from each unit sold. As a result, producers require a
+                higher
                 market price before they are willing to supply the same quantity.
             </p>
 
@@ -461,97 +655,6 @@
         </section>
 
         <section>
-            <h2>Total Revenue</h2>
-
-            <p>
-                In demand mode, the second graph displays total revenue.
-            </p>
-
-            <p class="equation">
-                TR = P &times; Q
-            </p>
-
-            <p>
-                Total revenue is calculated by multiplying price by quantity.
-            </p>
-
-            <p>
-                The key idea is that the revenue graph is not separate from the demand curve. It is generated directly
-                from the demand curve.
-            </p>
-
-            <p>
-                Every point on the demand curve gives one possible combination of price and quantity. For each point:
-            </p>
-
-            <ol>
-                <li>The demand curve determines the price consumers are willing to pay at that quantity.</li>
-                <li>The simulator calculates revenue using <strong>Price × Quantity</strong>.</li>
-                <li>That revenue value is plotted on the revenue graph.</li>
-            </ol>
-
-            <p>
-                This means that when the demand curve changes, the revenue curve also changes.
-            </p>
-
-            <p>
-                For example, a high price may generate little revenue if very few units are sold. A low price may also
-                generate little revenue if each unit earns very little. The highest revenue usually occurs somewhere
-                between these extremes.
-            </p>
-
-            <p>
-                For linear and nonlinear demand, the simulator highlights the revenue-maximising point on the revenue
-                graph. This shows the price and quantity combination that produces the greatest total revenue.
-            </p>
-
-            <p>
-                The hover system also helps connect the two graphs. As users move along the demand curve, the simulator
-                can calculate the corresponding revenue and display it on the revenue graph.
-            </p>
-        </section>
-
-        <section>
-            <h2>Elasticity</h2>
-
-            <p>
-                Price elasticity of demand measures how responsive consumers are to changes in price.
-            </p>
-
-            <ul>
-                <li><strong>Elastic demand:</strong> quantity demanded changes significantly when price changes.</li>
-                <li><strong>Inelastic demand:</strong> quantity demanded changes only slightly when price changes.</li>
-            </ul>
-
-            <p>
-                For example, consumers may respond strongly to price changes for restaurant meals, entertainment, or
-                subscription services. These goods often have more elastic demand because consumers can cut back or find
-                alternatives.
-            </p>
-
-            <p>
-                In contrast, consumers may continue buying necessities such as fuel or medicine even when prices rise.
-                These goods often have more inelastic demand.
-            </p>
-
-            <p>
-                Elasticity helps explain:
-            </p>
-
-            <ul>
-                <li>how consumers respond to price changes,</li>
-                <li>why some firms can raise prices more successfully than others,</li>
-                <li>how taxation affects markets,</li>
-                <li>and why revenue changes differently in different markets.</li>
-            </ul>
-
-            <p>
-                The simulator calculates elasticity dynamically when users hover over the demand curve, allowing
-                responsiveness to be explored visually across different parts of the market.
-            </p>
-        </section>
-
-        <section>
             <h2>How to Use the Simulator</h2>
 
             <ol>
@@ -566,7 +669,8 @@
 
             <p>
                 The simulator is designed as an interactive economics laboratory. Instead of only reading definitions or
-                looking at static diagrams, users can immediately see how markets respond when assumptions and conditions
+                looking at static diagrams, users can immediately see how markets respond when assumptions and
+                conditions
                 change.
             </p>
         </section>
