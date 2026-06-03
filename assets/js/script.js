@@ -78,6 +78,10 @@ const insightsContainer = document.querySelector(".insights-content");
 const insightsKeyContainer = document.querySelector('.insights-key');
 const presetButtons = document.querySelectorAll(".preset-btn");
 const darkModeToggle = document.getElementById("darkModeToggle");
+const supplySliderC = document.getElementById("c");
+const supplyInputC = document.getElementById("cValue");
+const supplySliderD = document.getElementById("d");
+const supplyInputD = document.getElementById("dValue");
 
 document.body.classList.remove("dark-mode");
 
@@ -117,6 +121,12 @@ for (let button of modeButtons) {
             state.t = 0; // reset tax to 0 when switching to demand mode, as tax is not relevant in this mode
             taxSlider.value = state.t;
             taxInput.value = state.t;
+            state.c = supplyDefaults.c;
+            state.d = supplyDefaults.d;
+            supplySliderC.value = state.c;
+            supplyInputC.value = state.c;
+            supplySliderD.value = state.d;
+            supplyInputD.value = state.d;
 
             for (let element of supplyOnlyElements) {
                 element.classList.remove("visible");
@@ -128,6 +138,10 @@ for (let button of modeButtons) {
         } else {
             state.c = supplyDefaults.c;
             state.d = supplyDefaults.d;
+            supplySliderC.value = state.c;
+            supplyInputC.value = state.c;
+            supplySliderD.value = state.d;
+            supplyInputD.value = state.d;
             for (let element of demandOnlyElements) {
                 element.classList.remove("visible");
             }
