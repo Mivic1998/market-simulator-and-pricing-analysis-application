@@ -7,6 +7,7 @@
     <title>Market Simulator Theory Guide</title>
     <link rel="icon" type="image/png" href="assets/images/favicon/favicon.png">
     <link rel="apple-touch-icon" href="assets/images/favicon/favicon.png">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,36 +48,37 @@
 
         .equation {
             font-size: 1.2rem;
-
             text-align: center;
-
             margin: 20px 0;
-
             font-style: italic;
-
             font-family: "Times New Roman", serif;
         }
 
-        ul {
+        ul,
+        ol {
             padding-left: 22px;
         }
 
         .back-link {
             display: inline-block;
-
             margin-bottom: 30px;
-
             color: #2563eb;
             text-decoration: none;
-
             font-weight: 600;
             font-size: 0.95rem;
-
             transition: opacity 0.2s ease;
         }
 
         .back-link:hover {
             opacity: 0.75;
+        }
+
+        .note-box {
+            background: #eef2ff;
+            border-left: 4px solid #4f46e5;
+            padding: 16px 18px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -95,15 +97,101 @@
             <h2>Overview</h2>
 
             <p>
-                This simulator demonstrates how supply and demand interact in a market economy.
-                It allows users to explore equilibrium, taxation, revenue maximisation,
-                consumer surplus, producer surplus, and deadweight loss.
-
+                This simulator is designed to help users understand how markets work by allowing them to experiment
+                with supply, demand, taxation, revenue, elasticity, and welfare outcomes in real time.
             </p>
 
             <p>
-                The application includes multiple demand curve types to represent different
-                economic assumptions and consumer behaviours.
+                At the centre of the simulator are two graphs. The main market graph shows the interaction between
+                buyers and sellers using supply and demand curves. In demand mode, a second graph shows total revenue,
+                which helps explain how pricing decisions affect the amount of money received by firms.
+            </p>
+
+            <p>
+                As the user adjusts the controls, the simulator recalculates the market outcome automatically. This means
+                the curves move, the equilibrium point changes, the shaded welfare areas update, the metrics refresh, and
+                the written insights explain what is happening.
+            </p>
+
+            <p>
+                The simulator contains two main modes:
+            </p>
+
+            <ul>
+                <li><strong>Demand Mode</strong>, which focuses on demand, pricing, elasticity, and revenue.</li>
+                <li><strong>Supply Mode</strong>, which focuses on taxation, welfare, tax revenue, and deadweight loss.</li>
+            </ul>
+
+            <p>
+                Within each mode, users can switch between three different demand models:
+            </p>
+
+            <ul>
+                <li><strong>Linear demand</strong></li>
+                <li><strong>Nonlinear demand</strong></li>
+                <li><strong>Income-based demand</strong></li>
+            </ul>
+
+            <p>
+                The purpose of the simulator is not to predict one specific real-world market. Instead, it provides a
+                visual demonstration of the basic economic principles that help explain how competitive markets behave.
+            </p>
+        </section>
+
+        <section>
+            <h2>Understanding Supply and Demand</h2>
+
+            <p>
+                Every market consists of buyers and sellers.
+            </p>
+
+            <p>
+                Buyers create demand. Demand measures how much of a product consumers are willing and able to purchase
+                at different prices.
+            </p>
+
+            <p>
+                Sellers create supply. Supply measures how much of a product producers are willing and able to sell at
+                different prices.
+            </p>
+
+            <p>
+                The simulator displays these relationships using two curves:
+            </p>
+
+            <ul>
+                <li>The <strong>demand curve</strong>, which usually slopes downward.</li>
+                <li>The <strong>supply curve</strong>, which usually slopes upward.</li>
+            </ul>
+
+            <h3>Why Demand Slopes Downward</h3>
+
+            <p>
+                A useful way to understand demand is through consumer valuation. Different consumers place different
+                values on a product. Some people value a product highly and are willing to pay a high price. Others only
+                value it enough to buy it when the price is low.
+            </p>
+
+            <p>
+                As the price falls, more consumers decide that the product is worth buying. This is why quantity demanded
+                usually increases when price decreases.
+            </p>
+
+            <h3>Why Supply Slopes Upward</h3>
+
+            <p>
+                Supply can be understood through producer costs. Some firms can produce cheaply and are willing to sell
+                even at low prices. Other firms face higher costs and only enter the market when the price is high enough
+                to cover those costs.
+            </p>
+
+            <p>
+                As the price rises, production becomes more profitable, so more firms are willing to sell and existing
+                firms may produce more.
+            </p>
+
+            <p>
+                These two forces together determine the outcome of the market.
             </p>
         </section>
 
@@ -116,44 +204,40 @@
                 The linear demand curve follows the equation:
             </p>
 
-            <p>
-            <span class="equation">
+            <p class="equation">
                 P = a - bQ
-            </span>
             </p>
 
             <ul>
-                <li><strong>a</strong> represents the vertical intercept or maximum willingness to pay.</li>
-                <li><strong>b</strong> measures price sensitivity.</li>
+                <li><strong>a</strong> represents the maximum willingness to pay.</li>
+                <li><strong>b</strong> measures how sensitive consumers are to price changes.</li>
             </ul>
 
             <p>
-                Linear demand is commonly used because it is simple and allows clear visualisation
-                of equilibrium, taxation, and elasticity effects.
+                Linear demand is useful because it is simple to understand and makes the relationship between price,
+                quantity, revenue, and welfare easy to visualise.
             </p>
 
             <h3>Nonlinear Demand</h3>
 
             <p>
-                Nonlinear demand introduces curvature into the demand relationship.
-                This allows the simulator to model markets where consumer responsiveness changes
-                at different price levels.
+                Nonlinear demand introduces curvature into the demand relationship. This allows the simulator to model
+                situations where consumers become more or less sensitive to price changes at different price levels.
             </p>
 
             <p>
-                Unlike linear demand, nonlinear demand can represent situations where consumers
-                become much more sensitive to price changes as prices rise.
+                In the simulator, nonlinear curves make the shaded welfare areas more complex because the areas are no
+                longer simple triangles. The app approximates these curved areas visually on the graph.
             </p>
 
             <h3>Income-Based Demand</h3>
 
             <p>
-                The income-based demand curve is derived from a
-                <strong>Cobb–Douglas utility function</strong>.
+                The income-based demand model links consumer demand directly to income.
             </p>
 
             <p>
-                The underlying utility function is:
+                The model is derived from a Cobb-Douglas utility function:
             </p>
 
             <p class="equation">
@@ -161,48 +245,38 @@
             </p>
 
             <p>
-                where:
-            </p>
-
-            <ul>
-                <li><strong>x</strong> represents consumption of the good in the simulator.</li>
-                <li><strong>y</strong> represents all other goods.</li>
-                <li><strong>k</strong> represents the consumer's preference share for the good.</li>
-            </ul>
-
-            <p>
-                When consumers maximise this utility subject to their budget constraint,
-                the resulting demand function becomes:
+                The resulting demand function is:
             </p>
 
             <p class="equation">
                 x = kI/P
             </p>
 
-            <p>
-                where:
-            </p>
-
             <ul>
-                <li><strong>I</strong> is consumer income.</li>
-                <li><strong>P</strong> is price.</li>
+                <li><strong>x</strong> represents consumption of the good in the simulator.</li>
+                <li><strong>I</strong> represents consumer income.</li>
+                <li><strong>k</strong> represents the proportion of income consumers choose to spend on the good.</li>
+                <li><strong>P</strong> represents price.</li>
             </ul>
 
             <p>
-                This means demand increases with income and decreases with price.
-                The model is useful because it connects demand directly to microeconomic utility theory.
+                This means demand increases as income rises and decreases as price rises.
             </p>
-
         </section>
 
         <section>
             <h2>Market Equilibrium</h2>
 
             <p>
-                Market equilibrium occurs where quantity demanded equals quantity supplied (
-            <span class="equation">
+                Market equilibrium occurs where quantity demanded equals quantity supplied.
+            </p>
+
+            <p class="equation">
                 Q<sub>d</sub> = Q<sub>s</sub>
-            </span>).
+            </p>
+
+            <p>
+                On the main graph, this is the point where the supply and demand curves intersect.
             </p>
 
             <p>
@@ -210,16 +284,40 @@
             </p>
 
             <ul>
-                <li>there is no excess demand,</li>
-                <li>there is no excess supply,</li>
-                <li>the market clears efficiently.</li>
+                <li>Every unit produced can be sold.</li>
+                <li>Every consumer willing to pay the market price can buy.</li>
+                <li>There is no excess demand.</li>
+                <li>There is no excess supply.</li>
             </ul>
 
             <p>
-                The simulator calculates equilibrium automatically by finding the intersection
-                between the supply and demand curves.
+                The simulator automatically calculates this point and displays the corresponding price and quantity in
+                the metrics panel.
             </p>
 
+            <h3>What Happens Above Equilibrium?</h3>
+
+            <p>
+                If the market price is above equilibrium, firms want to sell more than consumers want to buy. This creates
+                excess supply, meaning producers have unsold goods.
+            </p>
+
+            <p>
+                To avoid being left with stock they cannot sell, firms reduce prices. As prices fall, demand increases
+                and supply decreases until the market moves back towards equilibrium.
+            </p>
+
+            <h3>What Happens Below Equilibrium?</h3>
+
+            <p>
+                If the market price is below equilibrium, consumers want to buy more than firms are willing to sell. This
+                creates excess demand, or a shortage.
+            </p>
+
+            <p>
+                Consumers compete for the limited supply available, which puts upward pressure on prices. As prices rise,
+                demand falls and supply increases until the market returns to equilibrium.
+            </p>
         </section>
 
         <section>
@@ -228,88 +326,249 @@
             <h3>Consumer Surplus</h3>
 
             <p>
-                Consumer surplus measures the difference between what consumers are willing
-                to pay and what they actually pay.
+                Consumer surplus measures the benefit consumers receive from participating in the market.
             </p>
 
             <p>
-                Graphically, it is the area below the demand curve and above the market price.
+                Imagine a consumer who would have been willing to pay £20 for a product but only has to pay the market
+                price of £10. That consumer receives a benefit of £10 because the product is worth more to them than the
+                price they actually pay.
+            </p>
+
+            <p>
+                Many consumers experience similar gains. Consumer surplus is the total of these benefits across the
+                whole market.
+            </p>
+
+            <p>
+                In the simulator, consumer surplus is represented by the <strong>blue shaded area</strong> between the
+                demand curve and the market price.
             </p>
 
             <h3>Producer Surplus</h3>
 
             <p>
-                Producer surplus measures the difference between the market price and the
-                minimum price producers are willing to accept.
+                Producer surplus measures the benefit producers receive from participating in the market.
             </p>
 
             <p>
-                Graphically, it is the area above the supply curve and below the market price.
+                Imagine a producer who would have been willing to sell a product for £5 but receives the market price of
+                £10. That producer receives a benefit of £5 because they receive more than the minimum amount needed to
+                make the sale worthwhile.
             </p>
 
+            <p>
+                Producer surplus is the total of these benefits across all producers.
+            </p>
+
+            <p>
+                In the simulator, producer surplus is represented by the <strong>green shaded area</strong> between the
+                supply curve and the market price.
+            </p>
+
+            <h3>Total Welfare</h3>
+
+            <p>
+                Consumer surplus and producer surplus together form total welfare. Welfare represents the total gains
+                created by voluntary trade in the market.
+            </p>
+
+            <p>
+                When a competitive market operates efficiently, welfare is maximised because goods are traded between
+                consumers who value them and producers who can supply them efficiently.
+            </p>
         </section>
 
         <section>
             <h2>Taxation and Deadweight Loss</h2>
 
             <p>
-                A per-unit tax shifts the effective supply curve upward.
-                Consumers pay a higher price while producers receive a lower price.
+                In supply mode, the simulator introduces a per-unit tax on producers.
             </p>
 
             <p>
-                The tax creates:
+                A tax increases the effective cost of supplying goods. Even if firms produce in the same way as before,
+                the government now takes part of the revenue from each unit sold. As a result, producers require a higher
+                market price before they are willing to supply the same quantity.
+            </p>
+
+            <p>
+                This can be visualised as an upward shift in the supply curve.
+            </p>
+
+            <p>
+                When the tax is introduced:
             </p>
 
             <ul>
-                <li>government revenue,</li>
-                <li>a reduction in quantity traded,</li>
-                <li>deadweight loss.</li>
+                <li>Consumers pay a higher price.</li>
+                <li>Producers receive a lower price after tax.</li>
+                <li>Fewer units are bought and sold.</li>
+                <li>Market output falls.</li>
             </ul>
 
             <p>
-                Deadweight loss represents the lost gains from trade caused by market distortion.
-                It appears as the triangular welfare loss area between supply and demand.
+                The fall in output is important because some mutually beneficial trades no longer happen.
             </p>
 
+            <p>
+                Before the tax, there were consumers who valued the good more than it cost producers to supply it. These
+                trades created value for both buyers and sellers.
+            </p>
+
+            <p>
+                After the tax, some of these trades disappear because the tax creates a gap between the price consumers
+                pay and the price producers receive.
+            </p>
+
+            <p>
+                As a result:
+            </p>
+
+            <ul>
+                <li>Consumers lose some consumer surplus because they pay more and buy fewer units.</li>
+                <li>Producers lose some producer surplus because they receive less after tax and sell fewer units.</li>
+                <li>The government collects tax revenue.</li>
+            </ul>
+
+            <p>
+                However, not all of the lost consumer and producer surplus becomes government revenue. Some of it
+                disappears entirely.
+            </p>
+
+            <p>
+                This lost value is called <strong>deadweight loss</strong>.
+            </p>
+
+            <p>
+                Deadweight loss represents trades that would have benefited both buyers and sellers but no longer occur
+                because of the tax.
+            </p>
+
+            <div class="note-box">
+                <strong>In the simulator:</strong>
+                <ul>
+                    <li>The orange area represents tax revenue collected by the government.</li>
+                    <li>The red area represents deadweight loss.</li>
+                    <li>The smaller output level shows that fewer trades now take place.</li>
+                </ul>
+            </div>
+
+            <p>
+                As the tax slider increases, quantity traded falls further and deadweight loss usually grows. This shows
+                the trade-off between raising tax revenue and reducing market efficiency.
+            </p>
         </section>
 
         <section>
             <h2>Total Revenue</h2>
 
             <p>
-                Total revenue is calculated as:
+                In demand mode, the second graph displays total revenue.
             </p>
 
-            <p>
-            <span class="equation">
+            <p class="equation">
                 TR = P &times; Q
-            </span>
             </p>
 
             <p>
-                The simulator also identifies the revenue-maximising point on the demand curve.
-                For linear demand, this occurs where marginal revenue equals zero.
+                Total revenue is calculated by multiplying price by quantity.
             </p>
 
+            <p>
+                The key idea is that the revenue graph is not separate from the demand curve. It is generated directly
+                from the demand curve.
+            </p>
+
+            <p>
+                Every point on the demand curve gives one possible combination of price and quantity. For each point:
+            </p>
+
+            <ol>
+                <li>The demand curve determines the price consumers are willing to pay at that quantity.</li>
+                <li>The simulator calculates revenue using <strong>Price × Quantity</strong>.</li>
+                <li>That revenue value is plotted on the revenue graph.</li>
+            </ol>
+
+            <p>
+                This means that when the demand curve changes, the revenue curve also changes.
+            </p>
+
+            <p>
+                For example, a high price may generate little revenue if very few units are sold. A low price may also
+                generate little revenue if each unit earns very little. The highest revenue usually occurs somewhere
+                between these extremes.
+            </p>
+
+            <p>
+                For linear and nonlinear demand, the simulator highlights the revenue-maximising point on the revenue
+                graph. This shows the price and quantity combination that produces the greatest total revenue.
+            </p>
+
+            <p>
+                The hover system also helps connect the two graphs. As users move along the demand curve, the simulator
+                can calculate the corresponding revenue and display it on the revenue graph.
+            </p>
         </section>
 
         <section>
             <h2>Elasticity</h2>
 
             <p>
-                Elasticity measures how responsive quantity demanded is to changes in price.
+                Price elasticity of demand measures how responsive consumers are to changes in price.
             </p>
 
             <ul>
-                <li><strong>Elastic demand:</strong> quantity changes strongly when price changes.</li>
-                <li><strong>Inelastic demand:</strong> quantity changes only slightly when price changes.</li>
+                <li><strong>Elastic demand:</strong> quantity demanded changes significantly when price changes.</li>
+                <li><strong>Inelastic demand:</strong> quantity demanded changes only slightly when price changes.</li>
             </ul>
 
             <p>
-                Elasticity affects tax incidence, revenue generation, and welfare loss.
+                For example, consumers may respond strongly to price changes for restaurant meals, entertainment, or
+                subscription services. These goods often have more elastic demand because consumers can cut back or find
+                alternatives.
             </p>
 
+            <p>
+                In contrast, consumers may continue buying necessities such as fuel or medicine even when prices rise.
+                These goods often have more inelastic demand.
+            </p>
+
+            <p>
+                Elasticity helps explain:
+            </p>
+
+            <ul>
+                <li>how consumers respond to price changes,</li>
+                <li>why some firms can raise prices more successfully than others,</li>
+                <li>how taxation affects markets,</li>
+                <li>and why revenue changes differently in different markets.</li>
+            </ul>
+
+            <p>
+                The simulator calculates elasticity dynamically when users hover over the demand curve, allowing
+                responsiveness to be explored visually across different parts of the market.
+            </p>
+        </section>
+
+        <section>
+            <h2>How to Use the Simulator</h2>
+
+            <ol>
+                <li>Select either Demand Mode or Supply Mode.</li>
+                <li>Choose a demand model.</li>
+                <li>Adjust parameters using the sliders or manual inputs.</li>
+                <li>Observe how the curves, equilibrium point, shaded areas, and metrics change.</li>
+                <li>Use the hover features to explore elasticity and revenue interactively.</li>
+                <li>Review the insights panel to understand the meaning of the current market outcome.</li>
+                <li>Experiment with presets to compare different market scenarios quickly.</li>
+            </ol>
+
+            <p>
+                The simulator is designed as an interactive economics laboratory. Instead of only reading definitions or
+                looking at static diagrams, users can immediately see how markets respond when assumptions and conditions
+                change.
+            </p>
         </section>
 
     </div>
