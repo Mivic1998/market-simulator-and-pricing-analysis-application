@@ -2163,7 +2163,7 @@ function calculateWelfareLossNonlinearRevenueMax(a, b, c, d) {
 
 
 function calculatePriceReceived(P, t) {
-    return P - t;
+    return Math.max(0, P - t);
 }
 
 function calculateTaxRevenue(t, Q) {
