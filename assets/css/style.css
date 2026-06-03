@@ -344,7 +344,7 @@ header {
     align-items: flex-end;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
 
     header {
         padding-top: 140px;
