@@ -264,7 +264,7 @@ The revenue graph (which is displayed only in demand mode) adds a second layer o
 
 ![Responsive View of the Revenue Graph](assets/images/readme/main-responsive-view-five-demand-mode.PNG)
 
-The shape of the revenue curve depends on the selected demand model. Under linear demand, the curve follows a parabolic shape, increasing to a maximum before declining. For nonlinear demand, the curve adjusts according to the exponential relationship, while income-based demand produces constant revenue due to unit elasticity. This ensures the graph remains consistent with the underlying economic model.
+The revenue graph is generated directly from the active demand curve. For each quantity value, the corresponding price is calculated using the demand model before revenue is computed using TR = P × Q. Under linear demand, the curve follows a parabolic shape, increasing to a maximum before declining. For nonlinear demand, the curve adjusts according to the exponential relationship, while income-based demand produces constant revenue due to unit elasticity. This ensures the graph remains consistent with the underlying economic model.
 
 The preset system is closely integrated with this graph and allows users to quickly switch between meaningful parameter configurations. Rather than manually adjusting multiple inputs, presets apply predefined values to the central state, instantly updating both the market and revenue graphs.
 
@@ -351,14 +351,14 @@ Parameters
 ↓
 Calculations
 ↓
-Graphs
-↓
 Metrics
+↓
+Graphs
 ↓
 Insights
 ```
 
-Almost every interaction follows the same update pipeline:
+Almost every interaction follows the same update pipeline (with drawRevenue() only called if the app is in demand mode):
 
 ```js
 displayAndStoreMetricValues();
@@ -367,7 +367,7 @@ drawRevenue();
 renderInsights();
 ```
 
-The order is important. Economic values must be calculated before the graphs can be drawn, and the graphs must be updated before insights can accurately describe the current market state.
+The order is important. `displayAndStoreMetricValues()` must run first because it calculates and stores the market metrics used throughout the application. Both the graphing system and the insight generation system depend on these values being up to date.
 
 ### State Management
 
@@ -440,7 +440,7 @@ supply-only
 
 JavaScript simply adds or removes a `visible` class, allowing CSS to determine what should be shown on screen.
 
-Many functions in the JavaScript condition on the demand type, such as functions which retrieve the points needed for plotting after a user has interacted with the interface, as the supply curve with tax is only drawn in supply mode. Similarly, some calculations only run in supply mode, such as any calculations related to tax.
+Many functions in the JavaScript also condition on the active mode, such as functions which retrieve the points needed for plotting after a user has interacted with the interface, as the supply curve with tax is only drawn in supply mode. Similarly, some calculations only run in supply mode, such as any calculations related to tax.
 
 ### Demand Type System
 
@@ -458,12 +458,12 @@ state.demandType
 
 This value affects multiple systems simultaneously, including:
 
-- Equilibrium calculations (demand type effects which function must be called to calculate equilibrium)
+- Equilibrium calculations (the selected demand type determines which equilibrium function is called using if statements)
 - Revenue calculations 
-- Elasticity calculations
+- Elasticity calculations 
 - Welfare calculations
-- Point generation (demand type effects which functions must be called to generate points for the plotting of demand curves as well as revenue curves and to produce the shaded regions seen on the main graph)
-- Insight generation
+- Point generation (the selected demand type determines which functions generate the points used to plot demand curves, revenue curves, and welfare shading using if statements)
+- Insight generation (rendered dynamically based not only on the demand type but also on the overall mode and other parameter values)
 
 The application uses class naming conventions such as:
 
@@ -479,35 +479,150 @@ When switching demand type, the application also resets the parameters belonging
 
 ### Dynamic Parameter Mapping
 
-A recurring implementation pattern throughout the application is dynamic key generation.
+One recurring challenge throughout the application is keeping multiple interfaces synchronised with the same underlying value.
 
-Manual inputs follow a naming convention:
+For example, the linear demand parameter `a` can be modified through:
+
+- a slider (`id="a"`)
+- a manual input (`id="aValue"`)
+- preset buttons
+
+All three controls ultimately modify the same variable:
+
+```js
+state.a
+```
+
+A naïve implementation would require separate update logic for every parameter:
+
+```js
+if (input.id === "aValue") {
+    state.a = value;
+}
+else if (input.id === "bValue") {
+    state.b = value;
+}
+else if (input.id === "incomeValue") {
+    state.income = value;
+}
+else if (input.id === "kValue") {
+    state.k = value;
+}
+```
+
+As the application grew to support multiple demand models and additional parameters, this approach would have become increasingly repetitive and difficult to maintain.
+
+Instead, the application uses a naming convention which closely mirrors the structure of the central state object.
+
+The state contains properties such as:
+
+```js
+state.a
+state.b
+state.income
+state.k
+state.aNonlinear
+state.bNonlinear
+```
+
+The manual inputs are then deliberately named:
 
 ```text
 aValue
 bValue
 incomeValue
 kValue
+aNonlinearValue
+bNonlinearValue
 ```
 
-Rather than writing separate logic for every input, the application generates the matching state key automatically:
+while the sliders are named:
+
+```text
+a
+b
+income
+k
+aNonlinear
+bNonlinear
+```
+
+This allows JavaScript to determine which state property should be updated without needing parameter-specific logic.
+
+For manual inputs, the application generates the correct state key dynamically:
 
 ```js
 const key = input.id.replace("Value", "");
 ```
 
-This converts:
+For example:
 
 ```text
-aValue      -> a
-bValue      -> b
-incomeValue -> income
-kValue      -> k
+aValue           → a
+bValue           → b
+incomeValue      → income
+kValue           → k
+aNonlinearValue  → aNonlinear
+bNonlinearValue  → bNonlinear
 ```
 
-allowing generic update and synchronisation logic to be reused throughout the application.
+The generated key can then be used directly:
 
-The same technique is used when updating sliders after presets are selected.
+```js
+state[key] = value;
+```
+
+This means a single event handler can update every manual input in the application regardless of which demand model is currently active.
+
+The sliders use an even simpler convention. Their ids are intentionally identical to the corresponding state properties:
+
+```html
+<input id="a">
+<input id="b">
+<input id="income">
+<input id="k">
+```
+
+This means no key generation is required when synchronising sliders.
+
+For example:
+
+```js
+slider.value = state[slider.id];
+```
+
+works because:
+
+```text
+slider.id = "a"
+state["a"] = state.a
+
+slider.id = "income"
+state["income"] = state.income
+```
+
+The slider id can therefore be used directly as the state key.
+
+This same pattern is reused throughout the application when synchronising controls after preset changes.
+
+After a preset updates the state object, the application can refresh all controls generically:
+
+```js
+const key = input.id.replace("Value", "");
+input.value = state[key];
+
+slider.value = state[slider.id];
+```
+
+without needing separate logic for every parameter.
+
+This significantly reduces code duplication and makes the application easier to extend. Adding a new parameter generally requires only:
+
+1. Adding a property to the state object.
+2. Creating a slider whose id matches that property.
+3. Creating a manual input whose id follows the `Value` naming convention.
+
+The existing synchronisation logic will then work automatically without requiring additional update code.
 
 ### Economic Calculations
 
@@ -536,7 +651,7 @@ The results are stored in:
 currentMetrics
 ```
 
-which acts as a central cache for the graphing and insight systems. For example, the outer edges of the shaded areas are traced by for loops, and depend on metrics such as the equilibrium quantity which varies as the parameters in the control panel are adjusted, making it crucial to store these key metrics even after they have been displayed to the user on the app.
+which acts as a central cache for the graphing and insight systems. For example, the welfare shading functions trace the outer boundaries of surplus regions using loops. These boundaries depend on values such as equilibrium quantity and equilibrium price, which change whenever the user adjusts parameters. Storing these values in `currentMetrics` allows the graphing and shading systems to reuse them without recalculating them repeatedly.
 
 ### Main Graph Rendering
 
@@ -622,7 +737,7 @@ TR = P × Q
 
 and returns a set of points which can be plotted on the revenue canvas.
 
-The graph also calculates and highlights the revenue-maximising point where appropriate.
+For linear and nonlinear demand, separate functions are also used to calculate the revenue-maximising quantity and revenue-maximising revenue level, which are then highlighted on the graph.
 
 ### Hover System
 
@@ -634,13 +749,7 @@ For the main graph:
 handleMouseMove()
 ```
 
-calculates:
-
-- Quantity
-- Price
-- Elasticity
-
-before calling:
+works by using helper functions to convert the mouse's pixel position back into an economic quantity triggered by a mousemove event on the relevant canvas. This quantity is then used to calculate the corresponding price, elasticity, or revenue before a temporary overlay is drawn onto the canvas using:
 
 ```js
 drawHoverOverlay()
@@ -654,7 +763,7 @@ For the revenue graph:
 handleRevenueMouseMove()
 ```
 
-calculates the corresponding revenue value and calls:
+implements a similar pipeline, calculating the revenue value corresponding to the mouse position and calls:
 
 ```js
 drawRevenueOverlay()
@@ -708,6 +817,87 @@ input.value = state[key];
 
 This ensures the controls always reflect the underlying model configuration after a preset has been applied.
 
+### Dark Mode Implementation
+
+The application includes a dark mode which is implemented using class-based theme switching.
+
+Rather than individually applying dark mode styles to every element through JavaScript, the application toggles a single class on the document body:
+
+```js
+document.body.classList.toggle("dark-mode");
+```
+
+This approach allows JavaScript to remain simple while CSS handles the visual styling.
+
+For example, when the `dark-mode` class is present on the body element:
+
+```css
+body.dark-mode .card {
+    background-color: #1f2937;
+}
+
+body.dark-mode .controls-container {
+    background-color: #111827;
+}
+```
+
+All descendant elements automatically inherit the appropriate dark mode styling through CSS selectors.
+
+This means JavaScript only needs to add or remove a single class regardless of how many elements require theme-specific styling.
+
+The theme toggle also updates the button text to indicate the currently available mode:
+
+```js
+darkModeToggle.textContent =
+    isDark ? "Light Mode" : "Dark Mode";
+```
+where isDark is a boolean which checks if the body element currently contains a dark mode class. If it does then the app is in dark mode, the boolean takes a true value which changes the text content on the button to "Light Mode" and vice versa when the app is in its default "Light Mode". 
+
+This implementation separates behaviour from presentation, with JavaScript controlling application state and CSS controlling visual appearance.
+
+### Canvas Theme Handling
+
+The Canvas API differs from standard HTML elements because canvases do not automatically respond to CSS theme changes once content has been drawn.
+
+As a result, the graph canvases require separate theme handling.
+
+The application uses a helper function:
+
+```js
+getCanvasTheme()
+```
+
+which determines the appropriate colours for the current theme.
+
+This function returns values such as:
+
+- axis colours
+- text colours
+- grid colours
+- curve colours
+- shading colours
+
+in an object data structure. The graph rendering functions then retrieve these colours before drawing:
+
+```js
+const theme = getCanvasTheme();
+```
+
+Because canvas graphics are drawn directly as pixels, changing theme requires the canvases to be completely redrawn using the new colour palette.
+
+For this reason, switching theme triggers:
+
+```js
+displayAndStoreMetricValues();
+drawCurves();
+drawRevenue();
+renderInsights();
+```
+
+This ensures both canvases are regenerated using the correct dark mode or light mode styling.
+
+The combination of body-level CSS theming and canvas-specific theme generation allows the application to maintain a consistent appearance across both standard HTML elements and dynamically rendered graphics.
+
 ### Overall Flow
 
 Every user interaction ultimately follows the same dependency chain:
@@ -717,13 +907,33 @@ User Interaction
 ↓
 State Update
 ↓
-Metric Calculations
+displayAndStoreMetricValues() runs
+
+(calculates the relevant economic metrics by conditioning on
+the current state and calling helper functions, then updates
+the metric displays)
+
 ↓
-Graph Rendering
+currentMetrics is updated inside the displayAndStoreMetricVales() function
+
+(stores the latest calculated values for reuse throughout
+the application)
+
 ↓
-Metric Display
-↓
-Insight Generation
+drawCurves() runs
+
+(draws the required curves which are retrieved using helper functions and welfare shading based on the current state and metrics)
+
+drawRevenue() runs if state.mode === "demand"
+
+(generates and plots the revenue curve)
+
+renderInsights() runs
+
+(generates insights based on the current state and metrics)
+
+(All three functions depend on the state object and
+currentMetrics being up to date.)
 ```
 
 This architecture ensures that all components of the application remain synchronised and accurately reflect the current market scenario, regardless of which control the user interacts with.
