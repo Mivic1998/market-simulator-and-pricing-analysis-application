@@ -628,7 +628,8 @@ function displayAndStoreMetricValues() {
         Q_max,
         Q_noTax,
         welfareLoss,
-        deadweightLoss
+        deadweightLoss,
+        priceReceived
     };
 
     setMetric(equilibriumPriceElement, P, state.mode === "demand");
@@ -1108,6 +1109,26 @@ function drawCurves() {
             drawPointGuides(Q0, P0, "P₀", "Q₀", "black");
         }
     }
+
+    const priceReceived = currentMetrics;
+
+    if (state.mode === "supply") {
+    const priceReceived = currentMetrics.priceReceived;
+    const taxQuantity = currentMetrics.Q;
+
+    if (
+        typeof priceReceived === "number" &&
+        typeof taxQuantity === "number"
+    ) {
+        drawPointGuides(
+            taxQuantity,
+            priceReceived,
+            "Pₚ",
+            "",
+            "red"
+        );
+    }
+}
 
     ctxMain.fillStyle = getCanvasTheme().text;
     ctxMain.font = "14px Arial";
@@ -2702,25 +2723,36 @@ function changeParametersPreset(preset) {
         state.t = 2;
     }
     else if (preset === "supplyModeNonlinearOne") {
-        state.aNonlinear = 60;
-        state.bNonlinear = 1;
+        // Price-Sensitive Demand: producers absorb more of the tax
+        state.aNonlinear = 100;
+        state.bNonlinear = 0.15;
+        state.c = 30;
+        state.d = 1;
         state.t = 15;
     }
     else if (preset === "supplyModeNonlinearTwo") {
-        state.aNonlinear = 60;
-        state.bNonlinear = 0.3;
+        // Price-Insensitive Demand: consumers absorb more of the tax
+        state.aNonlinear = 100;
+        state.bNonlinear = 0.01;
+        state.c = 0;
+        state.d = 1;
         state.t = 15;
     }
     else if (preset === "supplyModeNonlinearThree") {
-        state.aNonlinear = 100;
-        state.bNonlinear = 1;
-        state.t = 12;
+        // Elastic Supply: tax is passed more easily to consumers
+        state.aNonlinear = 80;
+        state.bNonlinear = 0.06;
+        state.c = 0;
+        state.d = 5;
+        state.t = 15;
     }
     else if (preset === "supplyModeNonlinearFour") {
-        state.aNonlinear = 60;
-        state.bNonlinear = 1;
+        // Inelastic Supply: producers absorb more of the tax
+        state.aNonlinear = 80;
+        state.bNonlinear = 0.06;
+        state.c = 0;
         state.d = 0.3;
-        state.t = 10;
+        state.t = 15;
     }
     else if (preset === "supplyModeIncomeOne") {
         state.income = 30;
