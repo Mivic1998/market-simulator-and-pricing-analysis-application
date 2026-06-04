@@ -899,19 +899,19 @@ to generate explanations of the current market situation.
 
 Rather than simply displaying numbers, the insights interpret those numbers and explain their economic significance.
 
-The system first attempts to generate scenario-specific insights and then fills any remaining spaces using fallback insights to ensure a consistent number of insights are always displayed.
+The system first attempts to generate scenario-specific insights and then fills any remaining spaces using fallback insights to ensure a consistent number of insights (five) are always displayed.
 
 ### Preset System
 
 The preset system allows multiple parameters to be changed simultaneously.
 
-When a preset button is clicked:
+Each preset button has a data attribute. When a preset button is clicked:
 
 ```js
 changeParametersPreset(preset);
 ```
 
-updates the relevant state values.
+the function reads this attribute and updates the relevant state values accordingly.
 
 The application then synchronises all sliders and manual inputs with the updated state:
 
