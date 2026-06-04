@@ -2392,10 +2392,10 @@ function generateInsights(state, metrics) {
             if (welfareLoss < 50 && state.b > 2) {
                 addInsight(`Elastic demand (b = ${state.b.toFixed(2)}) limits welfare loss (${welfareLoss.toFixed(2)}) as consumers are more responsive to price increases, limiting revenue potential from price hikes.`);
             }
-            if(welfareLoss > 100 && state.d > 3) {
+            if (welfareLoss > 100 && state.d > 3) {
                 addInsight(`Producers can supply additional units at relatively low cost, resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (${welfareLoss.toFixed(2)}).`);
             }
-            if(P_max === P) {
+            if (P_max === P) {
                 addInsight(`The revenue maximising price is equal to the market equilibrium price.`);
             }
         }
@@ -2415,6 +2415,56 @@ function generateInsights(state, metrics) {
 
             if (welfareLoss > 5) {
                 addInsight(`Nonlinear demand creates welfare loss of ${welfareLoss.toFixed(2)} when output is restricted.`);
+            }
+            if (state.aNonlinear >= 90 && state.bNonlinear <= 0.05) {
+                addInsight(`Due to low price sensitivity (b = ${state.bNonlinear.toFixed(2)}) and strong underlying demand (a = ${state.aNonlinear.toFixed(2)}), a large number of consumers remain willing to buy across a wide range of prices, resulting in substantial gains from trade. Consumers continue to derive value from the product even as prices increase, leading to large consumer and producer surplus areas at competitive equilibrium.`);
+                if (welfareLoss > 100) {
+                    addInsight(`A significant welfare loss (${welfareLoss.toFixed(2)}) is present because output is restricted substantially below the competitive equilibrium level. Consumers continue to value the product even at higher prices, while efficient production allows firms to supply large quantities at relatively low cost. As a result, the competitive equilibrium generates substantial gains from trade, many of which are lost when output is restricted.`);
+                }
+            }
+            if (state.aNonlinear >= 95 && state.bNonlinear >= 0.1) {
+                addInsight(
+                    "Demand is strong when prices are low, resulting in a large potential market. However, consumers are highly sensitive to price changes, causing quantity demanded to fall rapidly as prices increase. This limits firms' ability to sustain sales at higher prices."
+                );
+
+                if (currentMetrics.welfareLoss > 0) {
+                    addInsight(
+                        "A welfare loss is present because the supply curve intersects the horizontal axis, allowing the competitive equilibrium quantity to exceed the revenue-maximising quantity. Even though demand falls quickly as prices rise, efficient enough supply means that additional trades would still create value in a competitive market."
+                    );
+                }
+            }
+            if (state.aNonlinear <= 25 && state.bNonlinear <= 0.03) {
+                addInsight(
+                    `This market has a small potential customer base (a = ${state.aNonlinear.toFixed(2)}), but the consumers who remain are relatively insensitive to price changes (b = ${state.bNonlinear.toFixed(2)}). Demand is limited in scale, yet it declines slowly as prices rise, resembling a niche product with loyal or high-value buyers.`
+                );
+
+                if (currentMetrics.welfareLoss > 0) {
+                    addInsight(
+                        `A welfare loss (${currentMetrics.welfareLoss.toFixed(2)}) is present because the revenue-maximising output is below the competitive equilibrium quantity due to the relatively inelastic demand. Even though the market is small, consumers remain willing to pay relatively high prices, so restricting output still prevents mutually beneficial trades from taking place.`
+                    );
+                }
+            }
+            if (state.c > 30) {
+                addInsight(
+                    `The supply curve is shifted rightward due to the high intercept (c = ${state.c.toFixed(2)}), allowing producers to supply more units at any given price. This increases the competitive equilibrium quantity and creates additional opportunities for mutually beneficial trade.`
+                );
+
+                if (currentMetrics.welfareLoss > 0) {
+                    addInsight(
+                        `The higher level of supply causes the competitive equilibrium quantity to exceed the revenue-maximising quantity by a larger margin. As a result, restricting output prevents many mutually beneficial trades from taking place, generating a significant welfare loss (${currentMetrics.welfareLoss.toFixed(2)}).`
+                    );
+                }
+            }
+            if (state.d >= 4) {
+                addInsight(
+                    `Supply is highly responsive in this scenario (d = ${state.d.toFixed(2)}), meaning producers can supply additional units at relatively low cost. This increases the competitive equilibrium quantity and allows more mutually beneficial trades to take place.`
+                );
+
+                if (currentMetrics.welfareLoss > 0) {
+                    addInsight(
+                        `Because supply is efficient, the competitive equilibrium quantity is higher than the revenue-maximising quantity. Restricting output therefore eliminates many trades that would have created value for both consumers and producers, resulting in a significant welfare loss (${currentMetrics.welfareLoss.toFixed(2)}).`
+                    );
+                }
             }
 
             addInsight(`Demand sensitivity varies across the nonlinear demand curve.`);
@@ -2587,20 +2637,32 @@ function changeParametersPreset(preset) {
         state.b = 1;
     }
     else if (preset === "demandModeNonlinearOne") {
-        state.aNonlinear = 60;
-        state.bNonlinear = 2;
+        // Strong Initial Demand
+        state.aNonlinear = 100;
+        state.bNonlinear = 0.03;
+        state.c = 0;
+        state.d = 3;
     }
     else if (preset === "demandModeNonlinearTwo") {
-        state.aNonlinear = 60;
-        state.bNonlinear = 0.3;
+        // Rapid Demand Decay
+        state.aNonlinear = 100;
+        state.bNonlinear = 0.15;
+        state.c = 0;
+        state.d = 1;
     }
     else if (preset === "demandModeNonlinearThree") {
-        state.aNonlinear = 100;
-        state.bNonlinear = 1.8;
+        // Niche Premium Market
+        state.aNonlinear = 15;
+        state.bNonlinear = 0.02;
+        state.c = 0;
+        state.d = 1;
     }
     else if (preset === "demandModeNonlinearFour") {
-        state.aNonlinear = 100;
-        state.bNonlinear = 0.4;
+        // Efficient Production / Large Welfare Loss
+        state.aNonlinear = 80;
+        state.bNonlinear = 0.05;
+        state.c = 0;
+        state.d = 5;
     }
     else if (preset === "demandModeIncomeOne") {
         state.income = 200;

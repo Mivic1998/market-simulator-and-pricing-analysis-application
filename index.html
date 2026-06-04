@@ -135,10 +135,10 @@
                                                 <label for="bNonlinear">Price Sensitivity (b):</label>
                                                 <p class="param-desc">Controls curvature; higher values increase
                                                     sensitivity in nonlinear demand.</p>
-                                                <input type="range" id="bNonlinear" min="0" max="1" step="0.05"
+                                                <input type="range" id="bNonlinear" min="0" max="1" step="0.01"
                                                     value="0.2">
                                                 <input type="number" id="bNonlinearValue" class="value-input" min="0"
-                                                    max="1" step="0.05" value="0.2">
+                                                    max="1" step="0.01" value="0.2">
                                             </div>
                                         </div>
                                     </div>
@@ -229,11 +229,10 @@
                         <button class="preset-btn" data-preset="demandModeLinearFour">Balanced Market</button>
                     </div>
                     <div class="demand-nonlinear">
-                        <button class="preset-btn" data-preset="demandModeNonlinearOne">High Sensitivity</button>
-                        <button class="preset-btn" data-preset="demandModeNonlinearTwo">Low Sensitivity</button>
-                        <button class="preset-btn" data-preset="demandModeNonlinearThree">Sensitive Large
-                            Market</button>
-                        <button class="preset-btn" data-preset="demandModeNonlinearFour">Stable Large Market</button>
+                        <button class="preset-btn" data-preset="demandModeNonlinearOne">Popular Consumer Product</button>
+                        <button class="preset-btn" data-preset="demandModeNonlinearTwo">Price-Sensitive Market</button>
+                        <button class="preset-btn" data-preset="demandModeNonlinearThree">Niche Premium Market</button>
+                        <button class="preset-btn" data-preset="demandModeNonlinearFour">Efficient Production</button>
                     </div>
                     <div class="demand-income">
                         <button class="preset-btn" data-preset="demandModeIncomeOne">High Income and Preference</button>
