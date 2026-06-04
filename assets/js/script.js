@@ -620,7 +620,7 @@ function displayAndStoreMetricValues() {
             var [P_max, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(state.aNonlinear, state.bNonlinear);
             var revenueAtEquilibrium = calculateTotalRevenue(P, Q);
             var revenueAtMax = calculateTotalRevenue(P_max, Q_max);
-            var welfareLoss = calculateWelfareLossNonlinearRevenueMax(state.aNonlinear, state.bNonlinear, state.c, state.d);
+            var welfareLoss = calculateWelfareLossNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d);
         }
         else {
             var [P_noTax, Q_noTax] = approximateEquilibriumNonlinear(state.aNonlinear, state.bNonlinear, state.c, state.d, 0);
@@ -2139,13 +2139,18 @@ function calculateTotalRevenue(P, Q) {
 function calculateWelfareLossLinear(a, b, c, d, P_eq, Q_eq) {
     const [, Q_max] = calculateRevenueMaximizingCoordinatesLinear(a, b);
 
-    const Pd_eq = a - b * P_eq === Q_eq ? P_eq : (a - Q_eq) / b;
-    const MC_eq = (Q_eq - c) / d;
+    const P_d_at_Qmax = (a - Q_max) / b;
+    const P_s_at_Qmax = (Q_max - c) / d;
 
-    return 0.5 * (Q_max - Q_eq) * (Pd_eq - MC_eq);
+    const base = Q_eq - Q_max;
+    const height = P_d_at_Qmax - P_s_at_Qmax;
+
+    if (base <= 0 || height <= 0) return 0;
+
+    return 0.5 * base * height;
 }
 
-function calculateWelfareLossNonlinearRevenueMax(a, b, c, d) {
+function calculateWelfareLossNonlinear(a, b, c, d) {
 
     const [, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
 
@@ -2382,11 +2387,7 @@ function generateInsights(state, metrics) {
                 addInsight(`Strong and elastic demand (b = ${state.b.toFixed(2)}, a = ${state.a.toFixed(2)}) leads to high revenue potential but large sensitivity to price changes.`);
             }
 
-            if (state.b > 2 && state.a < 40) {
-                addInsight(`Weak and inelastic demand (b = ${state.b.toFixed(2)}, a = ${state.a.toFixed(2)}) results in low quantity and limited response to pricing.`);
-            }
-
-            if (typeof P_max === "number") {
+            if (typeof P_max === "number" && P_max - P > 0) {
                 addInsight(`Revenue maximisation occurs at a higher price (${P_max.toFixed(2)}) and lower quantity (${Q_max.toFixed(2)}) than equilibrium (P = ${P.toFixed(2)}, Q = ${Q.toFixed(2)}).`);
             }
 
@@ -2394,12 +2395,18 @@ function generateInsights(state, metrics) {
                 addInsight(`Revenue maximisation significantly reduces output from ${Q.toFixed(2)} to ${Q_max.toFixed(2)}, indicating underproduction.`);
             }
 
-            if (welfareLoss > 5 && state.b < 0.7) {
-                addInsight(`Elastic demand amplifies welfare loss (${welfareLoss.toFixed(2)}) from restricting output.`);
+            if (welfareLoss > 100 && state.b < 0.7) {
+                addInsight(`Inelastic demand amplifies welfare loss (${welfareLoss.toFixed(2)}) as low price sensitivity means price increases lead to small quantity changes and high revenue gains.`);
             }
 
-            if (welfareLoss < 2 && state.b > 2) {
-                addInsight(`Inelastic demand limits welfare loss (${welfareLoss.toFixed(2)}).`);
+            if (welfareLoss < 50 && state.b > 2) {
+                addInsight(`Elastic demand (b = ${state.b.toFixed(2)}) limits welfare loss (${welfareLoss.toFixed(2)}) as consumers are more responsive to price increases, limiting revenue potential from price hikes.`);
+            }
+            if(welfareLoss > 100 && state.d > 3) {
+                addInsight(`Producers can supply additional units at relatively low cost, resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (${welfareLoss.toFixed(2)}).`);
+            }
+            if(P_max === P) {
+                addInsight(`The revenue maximising price is equal to the market equilibrium price.`);
             }
         }
 
@@ -2566,6 +2573,12 @@ function changeParametersPreset(preset) {
     state.c = 0;
     state.d = 1;
     state.t = 0;
+    state.b = 1;
+    state.a = 50;
+    state.aNonlinear = 50;
+    state.bNonlinear = 1;
+    state.income = 100;
+    state.k = 0.5;
 
     if (preset === "demandModeLinearOne") {
         state.a = 80;
@@ -2576,11 +2589,11 @@ function changeParametersPreset(preset) {
         state.b = 3;
     }
     else if (preset === "demandModeLinearThree") {
-        state.a = 50;
-        state.b = 1;
+        state.a = 70;
+        state.d = 5;
     }
     else if (preset === "demandModeLinearFour") {
-        state.a = 100;
+        state.a = 70;
         state.b = 1;
     }
     else if (preset === "demandModeNonlinearOne") {
