@@ -159,22 +159,6 @@ for (let button of modeButtons) {
 }
 
 for (let input of manualInputs) {
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            const raw = e.target.value.trim();
-            const value = Number(raw);
-            if (raw === "" || isNaN(value)) {
-                return;
-            }
-            for (let slider of sliders) {
-                if (slider.id === e.target.id.replace("Value", "")) {
-                    slider.value = value;
-                    slider.dispatchEvent(new Event("input"));
-                }
-            }
-        }
-    });
-
     // apply value when clicking away (blur) as well
     input.addEventListener('blur', (e) => {
         const raw = e.target.value.trim();
@@ -188,17 +172,9 @@ for (let input of manualInputs) {
             }
         }
     });
-
-    // respond to quick adjustments (arrow keys / spinner clicks) - update live without scrolling
-    input.addEventListener('input', (e) => {
-        const raw = e.target.value.trim();
-        const value = Number(raw);
-        if (raw === "" || isNaN(value)) return;
-        for (let slider of sliders) {
-            if (slider.id === e.target.id.replace("Value", "")) {
-                slider.value = value;
-                slider.dispatchEvent(new Event('input'));
-            }
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.target.blur(); // remove focus from input after pressing Enter
         }
     });
 }
@@ -2151,19 +2127,33 @@ function calculateWelfareLossLinear(a, b, c, d, P_eq, Q_eq) {
 }
 
 function calculateWelfareLossNonlinear(a, b, c, d) {
-
     const [, Q_eq] = approximateEquilibriumNonlinear(a, b, c, d, 0);
-
     const [, Q_max] = calculateRevenueMaximizingCoordinatesNonlinear(a, b);
 
-    const demand_eq = Q_eq * Math.log(Q_eq) - Q_eq - Q_eq * Math.log(a);
-    const demand_max = Q_max * Math.log(Q_max) - Q_max - Q_max * Math.log(a);
+    // No welfare loss if revenue-maximising output is not below equilibrium output
+    if (Q_max >= Q_eq) {
+        return 0;
+    }
 
-    const term1 = -(1 / b) * (demand_eq - demand_max);
+    // Inverse nonlinear demand: P = (ln(a) - ln(Q)) / b
+    function demandIntegral(Q) {
+        return (1 / b) * (Q * Math.log(a) - Q * Math.log(Q) + Q);
+    }
 
-    const term2 = (1 / d) * ((Q_eq * Q_eq - Q_max * Q_max) / 2 - c * (Q_eq - Q_max));
+    // Supply / marginal cost: P = (Q - c) / d
+    function supplyIntegral(Q) {
+        return (1 / d) * ((Q * Q) / 2 - c * Q);
+    }
 
-    return term1 - term2;
+    const demandArea =
+        demandIntegral(Q_eq) - demandIntegral(Q_max);
+
+    const supplyArea =
+        supplyIntegral(Q_eq) - supplyIntegral(Q_max);
+
+    const welfareLoss = demandArea - supplyArea;
+
+    return Math.max(0, welfareLoss);
 }
 
 
@@ -2651,7 +2641,7 @@ function changeParametersPreset(preset) {
     }
     else if (preset === "supplyModeNonlinearOne") {
         state.aNonlinear = 60;
-        state.bNonlinear = 2;
+        state.bNonlinear = 1;
         state.t = 15;
     }
     else if (preset === "supplyModeNonlinearTwo") {
