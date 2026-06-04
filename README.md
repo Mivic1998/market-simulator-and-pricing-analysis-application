@@ -1101,7 +1101,7 @@ Rendering graphs using the Canvas API introduced significant complexity, as all 
 - scaling values to fit within the canvas  
 - redrawing curves dynamically as parameters change  
 
-Unlike using a charting library, there was no abstraction layer to handle these tasks automatically. Small errors in scaling or coordinate mapping could lead to visibly incorrect graphs, making this one of the most technically demanding aspects of the project.
+Unlike using a charting library, there was no abstraction layer to handle these tasks automatically. Small errors in scaling or coordinate mapping could lead to visibly incorrect graphs, making this one of the most technically demanding aspects of the project. A pre-built graphing package could have been chosen to make implementation easier but the smoothness of transition between states may have been compromised and the canvas API which gives the user control over every pixel allowed greater flexibility for complex plots even if it required a lot of technically demanding manual work.
 
 ---
 
