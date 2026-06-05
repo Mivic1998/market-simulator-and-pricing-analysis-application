@@ -2765,7 +2765,7 @@ function changeParametersPreset(preset) {
         state.t = 15;
     }
     else if (preset === "supplyModeLinearTwo") {
-        state.a = 60;
+        state.a = 100;
         state.b = 3;
         state.t = 15;
     }
@@ -2773,12 +2773,13 @@ function changeParametersPreset(preset) {
         state.a = 60;
         state.b = 1;
         state.d = 0.3;
-        state.t = 12;
+        state.t = 15;
     }
     else if (preset === "supplyModeLinearFour") {
-        state.a = 50;
+        state.a = 60;
         state.b = 1;
-        state.t = 2;
+        state.d = 5;
+        state.t = 15;
     }
     else if (preset === "supplyModeNonlinearOne") {
         // Price-Sensitive Demand: producers absorb more of the tax
