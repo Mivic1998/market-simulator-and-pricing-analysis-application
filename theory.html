@@ -132,9 +132,9 @@
             </p>
 
             <ul>
-                <li><strong>Linear demand</strong></li>
-                <li><strong>Nonlinear demand</strong></li>
-                <li><strong>Income-based demand</strong></li>
+                <li><strong>Linear Demand</strong></li>
+                <li><strong>Non-Linear Demand</strong></li>
+                <li><strong>Income-Based Demand</strong></li>
             </ul>
 
             <p>
@@ -291,8 +291,8 @@
                 </li>
 
                 <li>
-                    <strong>b</strong> is the slope of the demand curve and measures how sensitive consumers are to
-                    changes in price.
+                    <strong>b</strong> determines how strongly quantity demanded responds to changes in price (price
+                    sensitivity).
                 </li>
             </ul>
 
@@ -331,10 +331,10 @@
                 affect equilibrium outcomes, revenue, elasticity, and welfare.
             </p>
 
-            <h3>Nonlinear Demand</h3>
+            <h3>Non-Linear Demand</h3>
 
             <p>
-                The nonlinear demand model is designed to represent markets where consumer behaviour cannot be
+                The non-linear demand model is designed to represent markets where consumer behaviour cannot be
                 accurately
                 described by a straight line.
             </p>
@@ -387,7 +387,7 @@
             </p>
 
             <p>
-                One important consequence of the nonlinear model is that the shape of the demand curve changes across
+                One important consequence of the non-linear model is that the shape of the demand curve changes across
                 different price levels.
             </p>
 
@@ -403,7 +403,7 @@
             </p>
 
             <p>
-                The nonlinear demand model can therefore produce different equilibrium outcomes from the linear model,
+                The non-linear demand model can therefore produce different equilibrium outcomes from the linear model,
                 even when the overall size of the market appears similar.
             </p>
 
@@ -416,7 +416,7 @@
             </p>
 
             <p>
-                Comparing the nonlinear and linear demand models helps demonstrate how different assumptions about
+                Comparing the non-linear and linear demand models helps demonstrate how different assumptions about
                 consumer behaviour can lead to different market outcomes.
             </p>
 
@@ -467,6 +467,7 @@
             <p>
                 This means demand increases as income rises and decreases as price rises.
             </p>
+
         </section>
 
         <section>
@@ -491,8 +492,8 @@
 
             <ul>
                 <li><strong>c</strong> represents the quantity/horizontal intercept of the supply curve.</li>
-                <li><strong>d</strong> represents the slope of the supply curve and determines how responsive producers
-                    are to changes in price.</li>
+                <li><strong>d</strong> determines how strongly quantity supplied responds to changes in price (supply
+                    responsiveness).</li>
             </ul>
 
             <p>
@@ -519,6 +520,67 @@
             </p>
         </section>
 
+        <section>
+            <h2>Alternative Curve Representation</h2>
+
+            <p>
+                In standard economic theory, demand and supply curves are often written in inverse form,
+                where price is expressed as a function of quantity (<span class="equation">P = f(Q)</span>).
+            </p>
+
+            <p>
+                In this form:
+            </p>
+
+            <ul>
+                <li>The demand curve shows the maximum price consumers are willing to pay for each unit.</li>
+                <li>The supply curve shows the minimum price producers are willing to accept for each unit.</li>
+            </ul>
+
+            <p>
+                However, in this simulator, both demand and supply are written as functions of price:
+            </p>
+
+            <p class="equation">
+                Q = a − bP
+            </p>
+
+            <p class="equation">
+                Q = c + dP
+            </p>
+
+            <p>
+                This formulation is used because it simplifies computation within the model. Many of the simulator’s
+                interactive features—such as calculating equilibrium, revenue, taxation effects, and dynamically
+                updating
+                graphs—require repeatedly evaluating quantities at different prices. Writing the equations in this form
+                allows these calculations to be carried out more directly and efficiently.
+            </p>
+
+            <p>
+                Despite this, the standard economic interpretation can still be recovered by rearranging the equations.
+            </p>
+
+            <p class="equation">
+                Demand: P = (a − Q) / b
+            </p>
+
+            <p class="equation">
+                Supply: P = (Q − c) / d
+            </p>
+
+            <p>
+                In these rearranged forms, the demand curve represents willingness to pay and the supply curve
+                represents
+                the minimum cost of production. These interpretations are used when analysing concepts such as consumer
+                surplus, producer surplus, and total welfare.
+            </p>
+
+            <p>
+                This means that although the simulator uses <span class="equation">Q = f(P)</span> for modelling and computation, it remains fully
+                consistent with standard economic theory.
+            </p>
+        </section>
 
         <section>
             <h2>Consumer and Producer Surplus</h2>
@@ -532,15 +594,19 @@
             <p>
                 Imagine a consumer who would have been willing to pay £20 for a product but only has to pay the market
                 price of £10. That consumer receives a benefit of £10 because the product is worth more to them than the
-                price they actually pay. 
+                price they actually pay.
             </p>
 
             <p>
-                Many consumers experience similar gains. The demand curve represents the maximum price consumers are willing to pay for each quantity, so (under certain simplifying assumptions), by summing over all bought units, the area between the demand curve and the market price gives us consumer surplus. This is the total of these benefits across all consumers.
+                Many consumers experience similar gains. The demand curve represents the maximum price consumers are
+                willing to pay for each quantity, so (under certain simplifying assumptions), by summing over all bought
+                units, the area between the demand curve and the market price gives us consumer surplus. This is the
+                total of these benefits across all consumers.
             </p>
 
             <p>
-                In the simulator, consumer surplus is therefore represented by the <strong>blue shaded area</strong> between the
+                In the simulator, consumer surplus is therefore represented by the <strong>blue shaded area</strong>
+                between the
                 demand curve and the market price.
             </p>
 
@@ -557,11 +623,15 @@
             </p>
 
             <p>
-                Many producers experience similar gains. The supply curve represents the minimum price at which producers are willing to sell each quantity, so (under certain simplifying assumptions), by summing over all sold units, the area between the supply curve and the market price gives us producer surplus. This is the total of these benefits across all producers.
+                Many producers experience similar gains. The supply curve represents the minimum price at which
+                producers are willing to sell each quantity, so (under certain simplifying assumptions), by summing over
+                all sold units, the area between the supply curve and the market price gives us producer surplus. This
+                is the total of these benefits across all producers.
             </p>
 
             <p>
-                In the simulator, producer surplus is therefore represented by the <strong>green shaded area</strong> between the
+                In the simulator, producer surplus is therefore represented by the <strong>green shaded area</strong>
+                between the
                 supply curve and the market price.
             </p>
 
@@ -623,7 +693,8 @@
             </p>
 
             <p>
-                In Demand Mode, this welfare loss (the sum of lost consumer and producer surplus due to output reduction) is represented by the red triangular shaded area between the equilibrium quantity
+                In Demand Mode, this welfare loss (the sum of lost consumer and producer surplus due to output
+                reduction) is represented by the red triangular shaded area between the equilibrium quantity
                 and the revenue-maximising quantity as the sliders are adjusted.
             </p>
 
@@ -677,13 +748,14 @@
             </p>
 
             <p>
-                For linear and nonlinear demand, the simulator highlights the revenue-maximising point on the revenue
+                For linear and non-linear demand, the simulator highlights the revenue-maximising point on the revenue
                 graph. This shows the price and quantity combination that produces the greatest total revenue.
             </p>
 
             <p>
                 The revenue graph also has a hover system, which allows users to explore how revenue changes at
-                different output levels.
+                different output levels. Since revenue is constant in the income-demand case, this feature is omitted in
+                this scenario to avoid confusion.
             </p>
         </section>
 
@@ -770,13 +842,15 @@
 
             <p>
                 Deadweight loss represents the welfare that would have been generated by trades that no longer occur
-                because of the tax, or the sum of lost consumer and producer surplus resulting from the fall in quantity caused by the tax.
+                because of the tax, or the sum of lost consumer and producer surplus resulting from the fall in quantity
+                caused by the tax.
             </p>
 
             <div class="note-box">
                 <strong>In the simulator:</strong>
                 <ul>
-                    <li>The orange rectangular area represents tax revenue collected by the government (calculated as the per unit tax multiplied by the quantity sold at the new output level).</li>
+                    <li>The orange rectangular area represents tax revenue collected by the government (calculated as
+                        the per unit tax multiplied by the quantity sold at the new output level).</li>
                     <li>The red triangular area represents deadweight loss.</li>
                     <li>The reduction in quantity traded shows that fewer mutually beneficial trades take place.</li>
                     <li>The larger the tax, the greater the distortion to the market.</li>
@@ -863,7 +937,8 @@
 
             <p>
                 The simulator calculates elasticity dynamically when users hover over the demand curve, allowing this
-                variation to be explored visually across different parts of the market.
+                variation to be explored visually across different parts of the market. Since elasticity is constant in
+                the income-demand case, this feature is omitted in this scenario to avoid confusion.
             </p>
         </section>
 
