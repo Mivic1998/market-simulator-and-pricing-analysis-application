@@ -286,8 +286,16 @@ for (let button of presetButtons) {
     });
 }
 
-canvasMain.addEventListener("mousemove", handleMouseMove);
-canvasMain.addEventListener("mouseleave", handleMouseLeave);
+canvasMain.addEventListener("mousemove", (e) => {
+    if (state.demandType !== 'income') {
+        handleMouseMove(e);
+    }
+});
+canvasMain.addEventListener("mouseleave", (e) => {
+    if (state.demandType !== 'income') {
+        handleMouseLeave();
+    }
+});
 
 canvasRevenue.addEventListener("mousemove", handleRevenueMouseMove);
 canvasRevenue.addEventListener("mouseleave", handleRevenueMouseLeave);
@@ -434,7 +442,7 @@ function drawRevenueOverlay(Q, TR) {
     ctxRevenue.font = "12px Arial"; // configure label font
 
     ctxRevenue.fillText(
-        `TR: ${TR.toFixed(2)}`,
+        `TR: £${TR.toFixed(2)}`,
         x + 10,
         y - 10
     ); // display revenue label beside dot
@@ -656,7 +664,12 @@ function formatValue(value) {
 }
 
 function setMetric(element, value, condition) {
-    element.textContent = condition ? formatValue(value) : "";
+    if(element.classList.contains("price")) {
+        element.textContent = condition ? `£${formatValue(value)}` : "";
+    }
+    else {
+        element.textContent = condition ? `${formatValue(value)} units`  : "";  
+    }
 }
 
 function drawAxes(ctx, axisMarginX = marginX) {
@@ -1381,7 +1394,7 @@ function drawRevenue() {
 
 
         ctxRevenue.fillText(
-            `TR = ${R.toFixed(2)}`,
+            `TR = £${R.toFixed(2)}`,
             revenueMarginX + 10,
             y - 10
         ); // display constant revenue label
@@ -1447,7 +1460,7 @@ function drawRevenue() {
         "12px Arial"; // configure label font
 
     ctxRevenue.fillText(
-        `Max TR = ${TR_max.toFixed(2)}`,
+        `Max TR = £${TR_max.toFixed(2)}`,
         xMax + 10,
         yMax - 10
     ); // display revenue maximum label
@@ -2358,7 +2371,7 @@ function generateInsights(state, metrics) {
     const {
         P, Q,
         P_max, Q_max,
-        Q_noTax,
+        Q_noTax, P_noTax, priceReceived,
         welfareLoss,
         deadweightLoss
     } = metrics;
@@ -2374,10 +2387,10 @@ function generateInsights(state, metrics) {
 
     function finishInsights() {
         const fallbackInsights = [
-            `Equilibrium is currently P = ${formatValue(P)} and Q = ${formatValue(Q)}.`,
+            `Equilibrium is currently P = £${formatValue(P)} and Q = ${formatValue(Q)} units.`,
             `The selected demand type is ${state.demandType}.`,
-            `Supply parameter c = ${formatValue(state.c)} affects the supply curve position.`,
-            `Supply parameter d = ${formatValue(state.d)} affects supply responsiveness.`,
+            `Supply parameter c = ${formatValue(state.c)} represents the horizontal intercept of the supply curve.`,
+            `Supply parameter d = ${formatValue(state.d)} represents the slope of the supply curve and determines supply responsiveness.`,
             state.mode === "demand"
                 ? "Demand-side mode focuses on pricing, revenue, and welfare."
                 : "Supply-side mode focuses on tax incidence, revenue, and efficiency."
@@ -2400,15 +2413,15 @@ function generateInsights(state, metrics) {
             }
 
             if (typeof P_max === "number" && P_max - P > 0) {
-                addInsight(`Revenue maximisation occurs at a higher price (${P_max.toFixed(2)}) and lower quantity (${Q_max.toFixed(2)}) than equilibrium (P = ${P.toFixed(2)}, Q = ${Q.toFixed(2)}).`);
+                addInsight(`Revenue maximisation occurs at a higher price (£${P_max.toFixed(2)}) and lower quantity (${Q_max.toFixed(2)} units) than equilibrium (P = £${P.toFixed(2)}, Q = ${Q.toFixed(2)} units).`);
             }
 
             if (typeof P_max === "number" && (Q - Q_max) > 10) {
-                addInsight(`Revenue maximisation significantly reduces output from ${Q.toFixed(2)} to ${Q_max.toFixed(2)}, indicating underproduction.`);
+                addInsight(`Revenue maximisation significantly reduces output from ${Q.toFixed(2)} units to ${Q_max.toFixed(2)} units, indicating underproduction.`);
             }
 
             if (welfareLoss > 100 && state.b < 0.7) {
-                addInsight(`Inelastic demand amplifies welfare loss (${welfareLoss.toFixed(2)}) as low price sensitivity means price increases lead to small quantity changes and high revenue gains.`);
+                addInsight(`Inelastic demand amplifies welfare loss (£${welfareLoss.toFixed(2)}) as low price sensitivity means price increases lead to small quantity changes and high revenue gains.`);
             }
 
             if (welfareLoss < 50 && state.b > 2) {
@@ -2432,16 +2445,16 @@ function generateInsights(state, metrics) {
             }
 
             if (typeof P_max === "number" && (Q - Q_max) > 10) {
-                addInsight(`Revenue maximisation reduces quantity from ${Q.toFixed(2)} to ${Q_max.toFixed(2)} under nonlinear demand.`);
+                addInsight(`Revenue maximisation reduces quantity from ${Q.toFixed(2)} units to ${Q_max.toFixed(2)} units under non-linear demand.`);
             }
 
             if (welfareLoss > 5) {
-                addInsight(`Nonlinear demand creates welfare loss of ${welfareLoss.toFixed(2)} when output is restricted.`);
+                addInsight(`Nonlinear demand creates welfare loss of £${welfareLoss.toFixed(2)} when output is restricted.`);
             }
             if (state.aNonlinear >= 90 && state.bNonlinear <= 0.05) {
                 addInsight(`Due to low price sensitivity (b = ${state.bNonlinear.toFixed(2)}) and strong underlying demand (a = ${state.aNonlinear.toFixed(2)}), a large number of consumers remain willing to buy across a wide range of prices, resulting in substantial gains from trade. Consumers continue to derive value from the product even as prices increase, leading to large consumer and producer surplus areas at competitive equilibrium.`);
                 if (welfareLoss > 100) {
-                    addInsight(`A significant welfare loss (${welfareLoss.toFixed(2)}) is present because output is restricted substantially below the competitive equilibrium level. Consumers continue to value the product even at higher prices, while efficient production allows firms to supply large quantities at relatively low cost. As a result, the competitive equilibrium generates substantial gains from trade, many of which are lost when output is restricted.`);
+                    addInsight(`A significant welfare loss (£${welfareLoss.toFixed(2)}) is present because output is restricted substantially below the competitive equilibrium level. Consumers continue to value the product even at higher prices, while efficient production allows firms to supply large quantities at relatively low cost. As a result, the competitive equilibrium generates substantial gains from trade, many of which are lost when output is restricted.`);
                 }
             }
             if (state.aNonlinear >= 95 && state.bNonlinear >= 0.1) {
@@ -2449,7 +2462,7 @@ function generateInsights(state, metrics) {
                     "Demand is strong when prices are low, resulting in a large potential market. However, consumers are highly sensitive to price changes, causing quantity demanded to fall rapidly as prices increase. This limits firms' ability to sustain sales at higher prices."
                 );
 
-                if (currentMetrics.welfareLoss > 0) {
+                if (welfareLoss > 0) {
                     addInsight(
                         "A welfare loss is present because the supply curve intersects the horizontal axis, allowing the competitive equilibrium quantity to exceed the revenue-maximising quantity. Even though demand falls quickly as prices rise, efficient enough supply means that additional trades would still create value in a competitive market."
                     );
@@ -2460,9 +2473,9 @@ function generateInsights(state, metrics) {
                     `This market has a small potential customer base (a = ${state.aNonlinear.toFixed(2)}), but the consumers who remain are relatively insensitive to price changes (b = ${state.bNonlinear.toFixed(2)}). Demand is limited in scale, yet it declines slowly as prices rise, resembling a niche product with loyal or high-value buyers.`
                 );
 
-                if (currentMetrics.welfareLoss > 0) {
+                if (welfareLoss > 0) {
                     addInsight(
-                        `A welfare loss (${currentMetrics.welfareLoss.toFixed(2)}) is present because the revenue-maximising output is below the competitive equilibrium quantity due to the relatively inelastic demand. Even though the market is small, consumers remain willing to pay relatively high prices, so restricting output still prevents mutually beneficial trades from taking place.`
+                        `A welfare loss (£${welfareLoss.toFixed(2)}) is present because the revenue-maximising output is below the competitive equilibrium quantity due to the relatively inelastic demand. Even though the market is small, consumers remain willing to pay relatively high prices, so restricting output still prevents mutually beneficial trades from taking place.`
                     );
                 }
             }
@@ -2471,9 +2484,9 @@ function generateInsights(state, metrics) {
                     `The supply curve is shifted rightward due to the high intercept (c = ${state.c.toFixed(2)}), allowing producers to supply more units at any given price. This increases the competitive equilibrium quantity and creates additional opportunities for mutually beneficial trade.`
                 );
 
-                if (currentMetrics.welfareLoss > 0) {
+                if (welfareLoss > 0) {
                     addInsight(
-                        `The higher level of supply causes the competitive equilibrium quantity to exceed the revenue-maximising quantity by a larger margin. As a result, restricting output prevents many mutually beneficial trades from taking place, generating a significant welfare loss (${currentMetrics.welfareLoss.toFixed(2)}).`
+                        `The higher level of supply causes the competitive equilibrium quantity to exceed the revenue-maximising quantity by a larger margin. As a result, restricting output prevents many mutually beneficial trades from taking place, generating a significant welfare loss (${welfareLoss.toFixed(2)}).`
                     );
                 }
             }
@@ -2482,27 +2495,52 @@ function generateInsights(state, metrics) {
                     `Supply is highly responsive in this scenario (d = ${state.d.toFixed(2)}), meaning producers can supply additional units at relatively low cost. This increases the competitive equilibrium quantity and allows more mutually beneficial trades to take place.`
                 );
 
-                if (currentMetrics.welfareLoss > 0) {
+                if (welfareLoss > 0) {
                     addInsight(
-                        `Because supply is efficient, the competitive equilibrium quantity is higher than the revenue-maximising quantity. Restricting output therefore eliminates many trades that would have created value for both consumers and producers, resulting in a significant welfare loss (${currentMetrics.welfareLoss.toFixed(2)}).`
+                        `Because supply is efficient, the competitive equilibrium quantity is higher than the revenue-maximising quantity. Restricting output therefore eliminates many trades that would have created value for both consumers and producers, resulting in a significant welfare loss (£${welfareLoss.toFixed(2)}).`
                     );
                 }
             }
 
-            addInsight(`Demand sensitivity varies across the nonlinear demand curve.`);
+            addInsight(`Demand sensitivity varies across the non-linear demand curve.`);
         }
 
         else {
-            addInsight(`Revenue is constant across prices due to fixed expenditure share.`);
-            addInsight(`No unique revenue-maximising price exists under this demand structure.`);
-            addInsight(`There is no welfare loss from pricing decisions.`);
+            if (state.income >= 700) {
+                addInsight(
+                    `High income (Income = £${state.income.toFixed(2)}) gives consumers strong purchasing power. Demand is higher at each price level, increasing equilibrium output and the total gains from trade.`
+                );
+            }
+
+            if (state.income <= 300) {
+                addInsight(
+                    `Low income (Income = £${state.income.toFixed(2)}) limits consumers' purchasing power. Even if consumers value the good, their budget restricts the quantity they are able to buy.`
+                );
+            }
+
+            if (state.k >= 0.7) {
+                addInsight(
+                    `Consumers allocate a large share of their income to this good (k = ${state.k.toFixed(2)}), suggesting it is highly prioritised or essential. This increases demand and supports higher trade, although lower income may still limit output in the market.`
+                );
+            }
+
+            if (state.k <= 0.3) {
+                addInsight(
+                    `Consumers allocate only a small share of income to this good (k = ${state.k.toFixed(2)}), suggesting it is less essential or lower priority. Demand remains limited even when income is available.`
+                );
+            }
+
+            addInsight(
+                `Revenue is constant in this demand model because total revenue equals k × income. As a result, there is no unique revenue-maximising price or quantity.`
+            );
+            addInsight(`There is no welfare loss from pricing decisions as a revenue maximising price does not exist.`);
             addInsight(`Income and preference share jointly determine quantity demanded.`);
         }
     }
 
     else {
         if (isVerticalSupply) {
-            addInsight(`Supply is vertical, so quantity is fixed at Q = ${formatValue(Q)}.`);
+            addInsight(`Supply is vertical, so quantity is fixed at Q = ${formatValue(Q)} units.`);
             addInsight(`The tax does not reduce quantity when supply is perfectly inelastic.`);
             addInsight(`There is no deadweight loss from the tax because output does not fall.`);
             addInsight(`The tax burden falls on producers through a lower price received.`);
@@ -2510,50 +2548,45 @@ function generateInsights(state, metrics) {
 
             return finishInsights();
         }
-        const consumerBurden = currentMetrics.P - currentMetrics.P_noTax;
-        const producerBurden = currentMetrics.P_noTax - currentMetrics.priceReceived;
+        const consumerBurden = P - P_noTax;
+        const producerBurden = P_noTax - priceReceived;
         if (consumerBurden > producerBurden) {
-            addInsight(`Consumers bear a larger share of the tax burden (${consumerBurden.toFixed(2)}) than producers (${producerBurden.toFixed(2)}).`);
+            addInsight(`Consumers bear a larger share of the tax burden (£${consumerBurden.toFixed(2)}) than producers (£${producerBurden.toFixed(2)}).`);
         }
         else if (producerBurden > consumerBurden) {
-            addInsight(`Producers bear a larger share of the tax burden (${producerBurden.toFixed(2)}) than consumers (${consumerBurden.toFixed(2)}).`);
+            addInsight(`Producers bear a larger share of the tax burden (£${producerBurden.toFixed(2)}) than consumers (£${consumerBurden.toFixed(2)}).`);
         }
         if (state.demandType === "linear") {
             if (state.t > 10 && state.b < 0.5) {
                 addInsight(`High tax with elastic demand sharply reduces quantity.`);
             }
-
-            if (state.t > 10 && state.b > 2) {
-                addInsight(`With inelastic demand, a high tax causes a smaller quantity reduction.`);
-            }
-
             if (deadweightLoss > 10 && state.b < 0.7) {
-                addInsight(`Elastic demand amplifies deadweight loss (${deadweightLoss.toFixed(2)}).`);
+                addInsight(`Elastic demand amplifies deadweight loss (£${deadweightLoss.toFixed(2)}).`);
             }
 
             if ((Q_noTax - Q) > 10 && state.t > 5) {
-                addInsight(`Tax reduces quantity from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
+                addInsight(`Tax reduces quantity from ${Q_noTax.toFixed(2)} units to ${Q.toFixed(2)} units.`);
             }
             if (state.t) {
                 addInsight(`Tax creates a wedge between consumer and producer prices.`);
             }
-            if(state.b < 0.9 && state.t && consumerBurden > producerBurden) {
-                addInsight(`Because demand is relatively elastic (b = ${state.b.toFixed(2)}), consumers are less responsive to changes in price, meaning producers can pass more of the tax onto the consumer without losing as many sales. As a result, consumers bear a larger share of the tax burden through higher prices (${consumerBurden.toFixed(2)}), while producers bear a smaller share through lower after-tax prices (${producerBurden.toFixed(2)}).`);
+            if (state.b < 0.9 && state.t && consumerBurden > producerBurden) {
+                addInsight(`Because demand is relatively elastic (b = ${state.b.toFixed(2)}), consumers are less responsive to changes in price, meaning producers can pass more of the tax onto the consumer without losing as many sales. As a result, consumers bear a larger share of the tax burden through higher prices (£${consumerBurden.toFixed(2)}), while producers bear a smaller share through lower after-tax prices (£${producerBurden.toFixed(2)}).`);
             }
-            if(state.b > 1.5 && state.t && producerBurden > consumerBurden) {
-                addInsight(`Because demand is relatively inelastic (b = ${state.b.toFixed(2)}), consumers are more responsive to changes in price, meaning producers cannot pass much of the tax onto the consumer without losing a significant number of sales. As a result, producers bear a larger share of the tax burden through lower after-tax prices (${producerBurden.toFixed(2)}), while consumers bear a smaller share through higher prices (${consumerBurden.toFixed(2)}).`);
+            if (state.b > 1.5 && state.t && producerBurden > consumerBurden) {
+                addInsight(`Because demand is relatively inelastic (b = ${state.b.toFixed(2)}), consumers are more responsive to changes in price, meaning producers cannot pass much of the tax onto the consumer without losing a significant number of sales. As a result, producers bear a larger share of the tax burden through lower after-tax prices (£${producerBurden.toFixed(2)}), while consumers bear a smaller share through higher prices (£${consumerBurden.toFixed(2)}).`);
             }
-            if(state.d < 0.8 && state.t && producerBurden > consumerBurden) {
-                addInsight(`Because supply is relatively inelastic (d = ${state.d.toFixed(2)}), producers cannot easily reduce quantity supplied in response to the tax, meaning they bear a larger share of the tax burden through lower after-tax prices (${producerBurden.toFixed(2)}). Consumers bear a smaller share through higher prices (${consumerBurden.toFixed(2)}).`);
+            if (state.d < 0.8 && state.t && producerBurden > consumerBurden) {
+                addInsight(`Because supply is relatively inelastic (d = ${state.d.toFixed(2)}), producers cannot easily reduce quantity supplied in response to the tax, meaning they bear a larger share of the tax burden through lower after-tax prices (£${producerBurden.toFixed(2)}). Consumers bear a smaller share through higher prices (£${consumerBurden.toFixed(2)}).`);
             }
-            if(state.d > 2 && state.t && consumerBurden > producerBurden) {
-                addInsight(`Because supply is relatively elastic (d = ${state.d.toFixed(2)}), producers can easily reduce quantity supplied in response to the tax, meaning consumers bear a larger share of the tax burden through higher prices (${consumerBurden.toFixed(2)}). Producers bear a smaller share through lower after-tax prices (${producerBurden.toFixed(2)}).`);
+            if (state.d > 2 && state.t && consumerBurden > producerBurden) {
+                addInsight(`Because supply is relatively elastic (d = ${state.d.toFixed(2)}), producers can easily reduce quantity supplied in response to the tax, meaning consumers bear a larger share of the tax burden through higher prices (£${consumerBurden.toFixed(2)}). Producers bear a smaller share through lower after-tax prices (£${producerBurden.toFixed(2)}).`);
             }
         }
 
         else if (state.demandType === "nonlinear") {
             if (state.t > 10 && state.bNonlinear > 1.5) {
-                addInsight(`High tax (t = ${state.t.toFixed(2)}) and strong sensitivity (b = ${state.bNonlinear.toFixed(2)}) cause a large drop in quantity.`);
+                addInsight(`High tax (t = £${state.t.toFixed(2)}) and strong sensitivity (b = ${state.bNonlinear.toFixed(2)}) cause a large drop in quantity.`);
             }
 
             if (state.t > 10 && state.bNonlinear < 0.5) {
@@ -2561,70 +2594,51 @@ function generateInsights(state, metrics) {
             }
 
             if (deadweightLoss > 10) {
-                addInsight(`Taxation creates deadweight loss of ${deadweightLoss.toFixed(2)}.`);
+                addInsight(`Taxation creates deadweight loss of £${deadweightLoss.toFixed(2)}.`);
             }
 
             if ((Q_noTax - Q) > 10 && state.t > 5) {
-                addInsight(`Tax reduces output from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)} under nonlinear demand.`);
+                addInsight(`Tax reduces output from ${Q_noTax.toFixed(2)} units to ${Q.toFixed(2)} units under nonlinear demand.`);
             }
 
             if (state.bNonlinear >= 0.1 && state.t) {
                 addInsight(
-                    `Demand is high at low prices but falls rapidly as price increases. Because consumers are highly price-sensitive, firms cannot pass much of the tax onto buyers without losing sales. Consumers absorb ${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb ${producerBurden.toFixed(2)} through a lower after-tax price.`
+                    `Demand is high at low prices but falls rapidly as price increases. Because consumers are highly price-sensitive, firms cannot pass much of the tax onto buyers without losing sales. Consumers absorb £${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb £${producerBurden.toFixed(2)} through a lower after-tax price.`
                 );
             }
 
             if (state.bNonlinear <= 0.05 && state.t) {
                 addInsight(
-                    `Demand remains strong even when prices rise. Because consumers are less price-sensitive, firms can pass more of the tax onto buyers without causing as large a fall in quantity demanded. Consumers absorb ${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb ${producerBurden.toFixed(2)} through a lower after-tax price.`
+                    `Demand remains strong even when prices rise. Because consumers are less price-sensitive, firms can pass more of the tax onto buyers without causing as large a fall in quantity demanded. Consumers absorb £${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb £${producerBurden.toFixed(2)} through a lower after-tax price.`
                 );
             }
 
-            addInsight(`Taxation effects vary across the nonlinear demand curve.`);
+            addInsight(`Taxation effects vary across the non-linear demand curve.`);
         }
 
         else {
-            if (state.t > 10 && state.income < 50) {
+            if (state.t > 20 && state.income < 150 && state.k < 0.3) {
                 addInsight(`Low income and high tax sharply reduce consumption.`);
             }
 
-            if (state.t > 10 && state.income > 500) {
-                addInsight(`High income cushions the effect of tax.`);
-            }
-
-            if (state.k > 0.5 && state.t > 10) {
-                addInsight(`Strong preference maintains consumption despite taxation.`);
+            if (state.k > 0.5 && state.income > 500 && state.t < 20) {
+                addInsight(`Strong preference (k = ${state.k.toFixed(2)}) and high income (income = ${state.income.toFixed(2)}) maintains consumption despite taxation.`);
             }
 
             if ((Q_noTax - Q) > 10) {
                 addInsight(`Consumption falls significantly from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
             }
-            if (
-                state.income <= 120
-            ) {
-                addInsight(
-                    `Low income (${state.income.toFixed(2)}) limits consumers' purchasing power, even though they allocate a meaningful share of income to the good. The tax reduces quantity traded by ${quantityReduction.toFixed(2)}, showing how taxation can further restrict trade in an already budget-constrained market.`
-                );
-            }
-
+            
             if (
                 state.income >= 900
             ) {
                 addInsight(
-                    `High income (${state.income.toFixed(2)}) gives consumers strong purchasing power, allowing the market to support a large volume of trade even after taxation. Consumers absorb ${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb ${producerBurden.toFixed(2)} through a lower after-tax price.`
+                    `High income (£${state.income.toFixed(2)}) gives consumers strong purchasing power, allowing the market to support a large volume of trade even after taxation. Consumers absorb £${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb £${producerBurden.toFixed(2)} through a lower after-tax price.`
                 );
             }
 
             if (
-                state.k >= 0.9
-            ) {
-                addInsight(
-                    `Consumers allocate an extremely large share of income to this good (k = ${state.k.toFixed(2)}), suggesting it is highly prioritised or essential. Demand remains strong despite the tax, but the tax still creates a wedge between the consumer price and the producer price.`
-                );
-            }
-
-            if (
-                state.d >= 3
+                state.d >= 3 && state.t
             ) {
                 addInsight(
                     `Supply is highly responsive (d = ${state.d.toFixed(2)}), meaning producers can supply additional units at relatively low cost. This raises the no-tax equilibrium quantity, so taxation can eliminate a larger number of mutually beneficial trades and increase deadweight loss.`
@@ -2637,7 +2651,29 @@ function generateInsights(state, metrics) {
                 );
             }
 
-            addInsight(`Demand depends on income, so tax affects purchasing power.`);
+            if (state.income <= 150) {
+                addInsight(
+                    `Low income (£${state.income.toFixed(2)}) means the market starts from a smaller quantity of trade. The tax reduces output by ${quantityReduction.toFixed(2)} units, further restricting an already budget-constrained market.`
+                );
+            }
+
+            if (state.income >= 800) {
+                addInsight(
+                    `High income (£${state.income.toFixed(2)}) creates a larger tax base because more units are traded. Even after the tax, the market supports relatively strong demand and higher tax revenue.`
+                );
+            }
+
+            if (state.k >= 0.8) {
+                addInsight(
+                    `Consumers place a high priority on this good (k = ${state.k.toFixed(2)}), so the market supports a larger volume of trade. The tax reduces quantity, but the high spending share means demand remains relatively strong.`
+                );
+            }
+
+            if (state.k <= 0.25) {
+                addInsight(
+                    `Because consumers allocate only a small share of income (k = ${state.k.toFixed(2)}) to this good, the market is smaller before the tax is applied. This limits both quantity traded and potential tax revenue.`
+                );
+            }
         }
     }
 
@@ -2646,6 +2682,18 @@ function generateInsights(state, metrics) {
 
 function renderInsights() {
     const insights = generateInsights(state, currentMetrics);
+    if(insights.length > 5) {
+        for(let i = 0; i < insights.length; i++) {
+            hasNumericalInfo = insights[i].split("(").length > 1 || insights[i].split("=").length > 1
+            if(!hasNumericalInfo) {
+                insights.splice(i, 1);
+                i--;
+            }
+            if(insights.length <= 5) {
+                break;
+        }
+    }
+} //ensures that insights with specific numerical values are prioritised for display, while more general insights are deprioritised if there are too many insights (more than 5) to show.
     insightsContainer.innerHTML = insights.map(insight => `<p>${insight}</p>`).join("");
 
     // build conditional key / legend showing shaded areas and short explanations
