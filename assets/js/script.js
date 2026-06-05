@@ -2426,10 +2426,16 @@ function generateInsights(state, metrics) {
                 addInsight(`Elastic demand (b = ${state.b.toFixed(2)}) limits welfare loss (£${welfareLoss.toFixed(2)}) as consumers are more responsive to price increases, limiting revenue potential from price hikes.`);
             }
             if (welfareLoss > 100 && state.d > 3) {
-                addInsight(`Producers can supply additional units at relatively low cost, resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (£${welfareLoss.toFixed(2)}).`);
+                addInsight(`Producers can produce additional units at a low marginal cost (d = ${state.d.toFixed(2)}), resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (£${welfareLoss.toFixed(2)}).`);
+            }
+            if(Q > 70 && welfareLoss > 150) {
+                addInsight(`High output (${Q.toFixed(2)} units) resulting from strong demand and efficient production creates the potential for large welfare losses (£${welfareLoss.toFixed(2)}) as revenue maximisation reduces quantity and drives many consumers and producers out of the market.`);
             }
             if (P_max === P) {
-                addInsight(`The revenue maximising price is equal to the market equilibrium price.`);
+                addInsight(`The revenue-maximising price is equal to the market equilibrium price.`);
+            }
+            if(P_max < P) {
+                addInsight(`The revenue-maximising price (£${P_max.toFixed(2)}) is below the market equilibrium price (£${P.toFixed(2)}), suggesting that equilibrium output is low due to inelastic demand and/or inefficient production.`);
             }
         }
 
@@ -2690,9 +2696,9 @@ function renderInsights() {
             }
             if(insights.length <= 5) {
                 break;
+            }
         }
     }
-} //ensures that insights with specific numerical values are prioritised for display, while more general insights are deprioritised if there are too many insights (more than 5) to show.
     insightsContainer.innerHTML = insights.map(insight => `<p>${insight}</p>`).join("");
 
     // build conditional key / legend showing shaded areas and short explanations
