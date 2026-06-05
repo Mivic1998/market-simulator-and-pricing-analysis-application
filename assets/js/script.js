@@ -2537,6 +2537,18 @@ function generateInsights(state, metrics) {
             if (state.t) {
                 addInsight(`Tax creates a wedge between consumer and producer prices.`);
             }
+            if(state.b < 0.9 && state.t && consumerBurden > producerBurden) {
+                addInsight(`Because demand is relatively elastic (b = ${state.b.toFixed(2)}), consumers are less responsive to changes in price, meaning producers can pass more of the tax onto the consumer without losing as many sales. As a result, consumers bear a larger share of the tax burden through higher prices (${consumerBurden.toFixed(2)}), while producers bear a smaller share through lower after-tax prices (${producerBurden.toFixed(2)}).`);
+            }
+            if(state.b > 1.5 && state.t && producerBurden > consumerBurden) {
+                addInsight(`Because demand is relatively inelastic (b = ${state.b.toFixed(2)}), consumers are more responsive to changes in price, meaning producers cannot pass much of the tax onto the consumer without losing a significant number of sales. As a result, producers bear a larger share of the tax burden through lower after-tax prices (${producerBurden.toFixed(2)}), while consumers bear a smaller share through higher prices (${consumerBurden.toFixed(2)}).`);
+            }
+            if(state.d < 0.8 && state.t && producerBurden > consumerBurden) {
+                addInsight(`Because supply is relatively inelastic (d = ${state.d.toFixed(2)}), producers cannot easily reduce quantity supplied in response to the tax, meaning they bear a larger share of the tax burden through lower after-tax prices (${producerBurden.toFixed(2)}). Consumers bear a smaller share through higher prices (${consumerBurden.toFixed(2)}).`);
+            }
+            if(state.d > 2 && state.t && consumerBurden > producerBurden) {
+                addInsight(`Because supply is relatively elastic (d = ${state.d.toFixed(2)}), producers can easily reduce quantity supplied in response to the tax, meaning consumers bear a larger share of the tax burden through higher prices (${consumerBurden.toFixed(2)}). Producers bear a smaller share through lower after-tax prices (${producerBurden.toFixed(2)}).`);
+            }
         }
 
         else if (state.demandType === "nonlinear") {
@@ -2576,7 +2588,7 @@ function generateInsights(state, metrics) {
                 addInsight(`Low income and high tax sharply reduce consumption.`);
             }
 
-            if (state.t > 10 && state.income > 100) {
+            if (state.t > 10 && state.income > 500) {
                 addInsight(`High income cushions the effect of tax.`);
             }
 
@@ -2648,16 +2660,22 @@ function renderInsights() {
         desc: 'Net benefit received by buyers: area under demand and above price, interpreted as the aggregate difference over all units purchased between the maximum amount the consumer is willing to pay and the actual price paid, approximated through integration.'
     });
 
+    const P = currentMetrics.P;
+
     // Producer surplus (green)
-    items.push({
-        color: 'rgba(0,255,0,0.8)',
-        label: 'Producer Surplus',
-        desc: 'Net benefit received by buyers: area above supply and below price, interpreted as the aggregate difference over all units sold between minimum amount the producer is willing to sell for and the actual price received, approximated through integration.'
-    });
+    if (P > 0) {
+        items.push({
+            color: 'rgba(0,255,0,0.8)',
+            label: 'Producer Surplus',
+            desc: 'Net benefit received by buyers: area above supply and below price, interpreted as the aggregate difference over all units sold between minimum amount the producer is willing to sell for and the actual price received, approximated through integration.'
+        });
+    }
+
+    const lostSurplus = state.mode === 'demand' ? currentMetrics.welfareLoss : currentMetrics.deadweightLoss;
 
     // Welfare loss / deadweight loss (red) - shown when relevant
-    const showWelfare = (typeof currentMetrics.welfareLoss === 'number' && currentMetrics.welfareLoss > 0.0001) || state.mode === 'demand' || state.mode === 'supply';
-    if (showWelfare) {
+    const showSurplusLoss = typeof lostSurplus === 'number' && lostSurplus > 0.0001;
+    if (showSurplusLoss) {
         items.push({
             color: 'rgba(255,0,0,0.8)',
             label: 'Welfare / Deadweight Loss',
@@ -2744,20 +2762,20 @@ function changeParametersPreset(preset) {
         state.d = 5;
     }
     else if (preset === "demandModeIncomeOne") {
-        state.income = 200;
-        state.k = 0.7;
+        state.income = 1000;
+        state.k = 0.9;
     }
     else if (preset === "demandModeIncomeTwo") {
-        state.income = 40;
-        state.k = 0.2;
+        state.income = 150;
+        state.k = 0.1;
     }
     else if (preset === "demandModeIncomeThree") {
-        state.income = 200;
-        state.k = 0.3;
+        state.income = 1000;
+        state.k = 0.1;
     }
     else if (preset === "demandModeIncomeFour") {
-        state.income = 100;
-        state.k = 0.5;
+        state.income = 150;
+        state.k = 0.9;
     }
     else if (preset === "supplyModeLinearOne") {
         state.a = 60;
