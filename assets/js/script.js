@@ -660,14 +660,14 @@ function displayAndStoreMetricValues() {
 }
 
 function formatValue(value, element) {
-    if(element.classList.contains("price")) {
+    if (element.classList.contains("price")) {
         return typeof value === "number" ? `£${value.toFixed(2)}` : value;
     }
     return typeof value === "number" ? `${value.toFixed(2)} units` : value;
 }
 
 function setMetric(element, value, condition) {
-        element.textContent = condition ? formatValue(value, element) : "";
+    element.textContent = condition ? formatValue(value, element) : "";
 }
 
 function drawAxes(ctx, axisMarginX = marginX) {
@@ -2428,13 +2428,13 @@ function generateInsights(state, metrics) {
             if (welfareLoss > 100 && state.d > 3) {
                 addInsight(`Producers can produce additional units at a low marginal cost (d = ${state.d.toFixed(2)}), resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (£${welfareLoss.toFixed(2)}).`);
             }
-            if(Q > 70 && welfareLoss > 150) {
+            if (Q > 70 && welfareLoss > 150) {
                 addInsight(`High output (${Q.toFixed(2)} units) resulting from strong demand and efficient production creates the potential for large welfare losses (£${welfareLoss.toFixed(2)}) as revenue maximisation reduces quantity and drives many consumers and producers out of the market.`);
             }
             if (P_max === P) {
                 addInsight(`The revenue-maximising price is equal to the market equilibrium price.`);
             }
-            if(P_max < P) {
+            if (P_max < P) {
                 addInsight(`The revenue-maximising price (£${P_max.toFixed(2)}) is below the market equilibrium price (£${P.toFixed(2)}), suggesting that equilibrium output is low due to inelastic demand and/or inefficient production.`);
             }
         }
@@ -2632,18 +2632,14 @@ function generateInsights(state, metrics) {
             if ((Q_noTax - Q) > 10) {
                 addInsight(`Consumption falls significantly from ${Q_noTax.toFixed(2)} units to ${Q.toFixed(2)} units.`);
             }
-            
-            if (
-                state.income >= 900
-            ) {
+
+            if (state.income >= 900) {
                 addInsight(
                     `High income (£${state.income.toFixed(2)}) gives consumers strong purchasing power, allowing the market to support a large volume of trade even after taxation. Consumers absorb £${consumerBurden.toFixed(2)} of the tax through a higher price, while producers absorb £${producerBurden.toFixed(2)} through a lower after-tax price.`
                 );
             }
 
-            if (
-                state.d >= 3 && state.t
-            ) {
+            if (state.d >= 3 && state.t) {
                 addInsight(
                     `Supply is highly responsive (d = ${state.d.toFixed(2)}), meaning producers can supply additional units at relatively low cost. This raises the no-tax equilibrium quantity, so taxation can eliminate a larger number of mutually beneficial trades and increase deadweight loss.`
                 );
@@ -2686,15 +2682,15 @@ function generateInsights(state, metrics) {
 
 function renderInsights() {
     const insights = generateInsights(state, currentMetrics);
-    if(insights.length > 5) {
+    if (insights.length > 5) {
         let hasNumericalInfo
-        for(let i = 0; i < insights.length; i++) {
+        for (let i = 0; i < insights.length; i++) {
             hasNumericalInfo = insights[i].split("(").length > 1 || insights[i].split("=").length > 1
-            if(!hasNumericalInfo) {
+            if (!hasNumericalInfo) {
                 insights.splice(i, 1);
                 i--;
             }
-            if(insights.length <= 5) {
+            if (insights.length <= 5) {
                 break;
             }
         }
