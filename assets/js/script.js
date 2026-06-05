@@ -659,17 +659,15 @@ function displayAndStoreMetricValues() {
     setMetric(deadweightLossElement, deadweightLoss, state.mode === "supply");
 }
 
-function formatValue(value) {
-    return typeof value === "number" ? value.toFixed(2) : value;
+function formatValue(value, element) {
+    if(element.classList.contains("price")) {
+        return typeof value === "number" ? `£${value.toFixed(2)}` : value;
+    }
+    return typeof value === "number" ? `${value.toFixed(2)} units` : value;
 }
 
 function setMetric(element, value, condition) {
-    if(element.classList.contains("price")) {
-        element.textContent = condition ? `£${formatValue(value)}` : "";
-    }
-    else {
-        element.textContent = condition ? `${formatValue(value)} units`  : "";  
-    }
+        element.textContent = condition ? formatValue(value, element) : "";
 }
 
 function drawAxes(ctx, axisMarginX = marginX) {
@@ -2387,10 +2385,10 @@ function generateInsights(state, metrics) {
 
     function finishInsights() {
         const fallbackInsights = [
-            `Equilibrium is currently P = £${formatValue(P)} and Q = ${formatValue(Q)} units.`,
+            `Equilibrium is currently P = £${P.toFixed(2)} and Q = ${Q.toFixed(2)} units.`,
             `The selected demand type is ${state.demandType}.`,
-            `Supply parameter c = ${formatValue(state.c)} represents the horizontal intercept of the supply curve.`,
-            `Supply parameter d = ${formatValue(state.d)} represents the slope of the supply curve and determines supply responsiveness.`,
+            `Supply parameter c = ${state.c.toFixed(2)} represents the horizontal intercept of the supply curve.`,
+            `Supply parameter d = ${state.d.toFixed(2)} represents the slope of the supply curve and determines supply responsiveness.`,
             state.mode === "demand"
                 ? "Demand-side mode focuses on pricing, revenue, and welfare."
                 : "Supply-side mode focuses on tax incidence, revenue, and efficiency."
@@ -2425,10 +2423,10 @@ function generateInsights(state, metrics) {
             }
 
             if (welfareLoss < 50 && state.b > 2) {
-                addInsight(`Elastic demand (b = ${state.b.toFixed(2)}) limits welfare loss (${welfareLoss.toFixed(2)}) as consumers are more responsive to price increases, limiting revenue potential from price hikes.`);
+                addInsight(`Elastic demand (b = ${state.b.toFixed(2)}) limits welfare loss (£${welfareLoss.toFixed(2)}) as consumers are more responsive to price increases, limiting revenue potential from price hikes.`);
             }
             if (welfareLoss > 100 && state.d > 3) {
-                addInsight(`Producers can supply additional units at relatively low cost, resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (${welfareLoss.toFixed(2)}).`);
+                addInsight(`Producers can supply additional units at relatively low cost, resulting in a large competitive equilibrium quantity. Because the revenue-maximising quantity is substantially lower than the welfare-maximising quantity, output restriction creates a significant welfare loss (£${welfareLoss.toFixed(2)}).`);
             }
             if (P_max === P) {
                 addInsight(`The revenue maximising price is equal to the market equilibrium price.`);
@@ -2486,7 +2484,7 @@ function generateInsights(state, metrics) {
 
                 if (welfareLoss > 0) {
                     addInsight(
-                        `The higher level of supply causes the competitive equilibrium quantity to exceed the revenue-maximising quantity by a larger margin. As a result, restricting output prevents many mutually beneficial trades from taking place, generating a significant welfare loss (${welfareLoss.toFixed(2)}).`
+                        `The higher level of supply causes the competitive equilibrium quantity to exceed the revenue-maximising quantity by a larger margin. As a result, restricting output prevents many mutually beneficial trades from taking place, generating a significant welfare loss (£${welfareLoss.toFixed(2)}).`
                     );
                 }
             }
@@ -2508,13 +2506,13 @@ function generateInsights(state, metrics) {
         else {
             if (state.income >= 700) {
                 addInsight(
-                    `High income (Income = £${state.income.toFixed(2)}) gives consumers strong purchasing power. Demand is higher at each price level, increasing equilibrium output and the total gains from trade.`
+                    `High income (£${state.income.toFixed(2)}) gives consumers strong purchasing power. Demand is higher at each price level, increasing equilibrium output and the total gains from trade.`
                 );
             }
 
             if (state.income <= 300) {
                 addInsight(
-                    `Low income (Income = £${state.income.toFixed(2)}) limits consumers' purchasing power. Even if consumers value the good, their budget restricts the quantity they are able to buy.`
+                    `Low income (£${state.income.toFixed(2)}) limits consumers' purchasing power. Even if consumers value the good, their budget restricts the quantity they are able to buy.`
                 );
             }
 
@@ -2618,15 +2616,15 @@ function generateInsights(state, metrics) {
 
         else {
             if (state.t > 20 && state.income < 150 && state.k < 0.3) {
-                addInsight(`Low income and high tax sharply reduce consumption.`);
+                addInsight(`Low income (£${state.income.toFixed(2)}) and high tax (t = £${state.t.toFixed(2)}) sharply reduce consumption.`);
             }
 
             if (state.k > 0.5 && state.income > 500 && state.t < 20) {
-                addInsight(`Strong preference (k = ${state.k.toFixed(2)}) and high income (income = ${state.income.toFixed(2)}) maintains consumption despite taxation.`);
+                addInsight(`Strong preference (k = ${state.k.toFixed(2)}) and high income (£${state.income.toFixed(2)}) maintains consumption despite taxation.`);
             }
 
             if ((Q_noTax - Q) > 10) {
-                addInsight(`Consumption falls significantly from ${Q_noTax.toFixed(2)} to ${Q.toFixed(2)}.`);
+                addInsight(`Consumption falls significantly from ${Q_noTax.toFixed(2)} units to ${Q.toFixed(2)} units.`);
             }
             
             if (
@@ -2683,6 +2681,7 @@ function generateInsights(state, metrics) {
 function renderInsights() {
     const insights = generateInsights(state, currentMetrics);
     if(insights.length > 5) {
+        let hasNumericalInfo
         for(let i = 0; i < insights.length; i++) {
             hasNumericalInfo = insights[i].split("(").length > 1 || insights[i].split("=").length > 1
             if(!hasNumericalInfo) {
