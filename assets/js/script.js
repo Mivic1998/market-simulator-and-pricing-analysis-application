@@ -2695,7 +2695,7 @@ function changeParametersPreset(preset) {
     state.b = 1;
     state.a = 50;
     state.aNonlinear = 50;
-    state.bNonlinear = 1;
+    state.bNonlinear = 0.2;
     state.income = 100;
     state.k = 0.5;
 
@@ -2814,7 +2814,7 @@ function changeParametersPreset(preset) {
     }
     else if (preset === "supplyModeIncomeOne") {
         // Low Income, High Tax
-        state.income = 100;
+        state.income = 150;
         state.k = 0.5;
         state.c = 0;
         state.d = 1;
