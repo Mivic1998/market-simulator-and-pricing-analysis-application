@@ -1197,4 +1197,5 @@ The project was deployed using **GitHub Pages** from the main branch.
 - Color palette generated using Coolors 
 - Wireframes generated manually using Balsamiq  
 - Open-Meteo API was used to retrieve real-time weather data via geolocation 
-- Microsoft Copilot Chat was used as a supporting development tool for debugging and exploring solutions 
+- Microsoft Copilot Chat was used as a supporting development tool for debugging and exploring solutions
+- Visual Studio Code was used as the primary development environment
