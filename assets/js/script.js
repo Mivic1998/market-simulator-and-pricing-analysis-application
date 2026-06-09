@@ -714,7 +714,7 @@ function drawAxes(ctx, axisMarginX = marginX) {
     ctx.fillText("0", axisMarginX - 10, canvasHeight - marginBottom + 15);
 }
 
-function drawPointGuides(Q, P, labelP, labelQ, color = "gray") {
+function drawPointGuides(Q, P, labelP, labelQ, color = "white") {
 
     const { x, y } = toCanvas(Q, P);
 
@@ -884,9 +884,14 @@ function drawCurves() {
                 if (state.c > 64) {
                     offsetX = -70;
                 }
-
-                labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
+                if (document.body.classList.contains("dark-mode")) {
+                    labelCurve(points, "Supply (S)", "#66ff99", offsetX, offsetY);
+                }
+                else {
+                    labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
+                }
             }
+
 
             //DEMAND
             if (i === 1) {
@@ -926,12 +931,21 @@ function drawCurves() {
                     }
 
 
-
-                    labelCurve(points, "Demand (D)", "blue", offsetX, offsetY);
+                    if (document.body.classList.contains("dark-mode")) {
+                        labelCurve(points, "Demand (D)", "#60a5fa", offsetX, offsetY);
+                    }
+                    else {
+                        labelCurve(points, "Demand (D)", "blue", offsetX, offsetY);
+                    }
 
                 } else {
                     // fallback for nonlinear/income
-                    labelCurve(points, "Demand (D)", "blue", 25, 0);
+                    if (document.body.classList.contains("dark-mode")) {
+                        labelCurve(points, "Demand (D)", "#60a5fa", 25, 0);
+                    }
+                    else {
+                        labelCurve(points, "Demand (D)", "blue", 25, 0);
+                    }
                 }
             }
 
@@ -956,8 +970,12 @@ function drawCurves() {
                 if (state.c > 64) {
                     offsetX = -70;
                 }
-
-                labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
+                if (document.body.classList.contains("dark-mode")) {
+                    labelCurve(points, "Supply (S)", "#66ff99", offsetX, offsetY);
+                }
+                else {
+                    labelCurve(points, "Supply (S)", "green", offsetX, offsetY);
+                }
             }
 
             //SUPPLY WITH TAX (same slope as supply)
@@ -1013,8 +1031,12 @@ function drawCurves() {
 
                 //compensate for longer label text
                 offsetX += 15;
-
-                labelCurve(points, "Supply with Tax (S + t)", "red", offsetX, offsetY);
+                if (document.body.classList.contains("dark-mode")) {
+                    labelCurve(points, "Supply with Tax (S + t)", "#ff8080", offsetX, offsetY);
+                }
+                else {
+                    labelCurve(points, "Supply with Tax (S + t)", "red", offsetX, offsetY);
+                }
 
             }
 
@@ -1054,11 +1076,20 @@ function drawCurves() {
                         offsetX = 10
                         offsetY = -15
                     }
-
-                    labelCurve(points, "Demand (D)", "blue", offsetX, offsetY);
+                    if (document.body.classList.contains("dark-mode")) {
+                        labelCurve(points, "Demand (D)", "#60a5fa", offsetX, offsetY);
+                    }
+                    else {
+                        labelCurve(points, "Demand (D)", "blue", offsetX, offsetY);
+                    }
 
                 } else {
-                    labelCurve(points, "Demand (D)", "blue", 5, 5);
+                    if (document.body.classList.contains("dark-mode")) {
+                        labelCurve(points, "Demand (D)", "#60a5fa", 5, 5);
+                    }
+                    else {
+                        labelCurve(points, "Demand (D)", "blue", 5, 5);
+                    }
                 }
             }
         }
@@ -1068,7 +1099,12 @@ function drawCurves() {
     const { P, Q } = currentMetrics;
 
     if (P !== null && Q !== null) {
-        drawPointGuides(Q, P, "P*", "Q*");
+        if (document.body.classList.contains("dark-mode")) {
+            drawPointGuides(Q, P, "P*", "Q*");
+        }
+        else {
+            drawPointGuides(Q, P, "P*", "Q*", "grey");
+        }
     }
 
     const { P_max, Q_max } = currentMetrics;
@@ -1078,19 +1114,21 @@ function drawCurves() {
         typeof P_max === "number" &&
         typeof Q_max === "number"
     ) {
-        drawPointGuides(Q_max, P_max, "Pᵣ", "Qᵣ", "red");
+        if (document.body.classList.contains("dark-mode")) {
+            drawPointGuides(Q_max, P_max, "Pᵣ", "Qᵣ", "#ff8080");
+        }
+        else {
+            drawPointGuides(Q_max, P_max, "Pᵣ", "Qᵣ", "red");
+        }
     }
 
     if (state.mode === "supply") {
-
-        //with tax (already computed)
-        drawPointGuides(
-            currentMetrics.Q,
-            currentMetrics.P,
-            "Pₜ",
-            "Qₜ",
-            "red"
-        );
+        if (document.body.classList.contains("dark-mode")) {
+            drawPointGuides(Q, P, "P*", "Q*", "#ff8080");
+        }
+        else {
+            drawPointGuides(Q, P, "P*", "Q*", "red");
+        }
 
         //one-off no-tax equilibrium ONLY for drawing
         let P0, Q0;
@@ -1121,7 +1159,12 @@ function drawCurves() {
 
         //draw it
         if (P0 !== null && Q0 !== null) {
-            drawPointGuides(Q0, P0, "P₀", "Q₀", "black");
+            if (document.body.classList.contains("dark-mode")) {
+                drawPointGuides(Q0, P0, "P₀", "Q₀");
+            }
+            else {
+                drawPointGuides(Q0, P0, "P₀", "Q₀", "grey");
+            }
         }
     }
 
@@ -1135,13 +1178,24 @@ function drawCurves() {
             typeof priceReceived === "number" &&
             typeof taxQuantity === "number"
         ) {
-            drawPointGuides(
-                taxQuantity,
-                priceReceived,
-                "Pₚ",
-                "",
-                "red"
-            );
+            if (document.body.classList.contains("dark-mode")) {
+                drawPointGuides(
+                    taxQuantity,
+                    priceReceived,
+                    "Pₚ",
+                    "",
+                    "#ff8080"
+                );
+            }
+            else {
+                drawPointGuides(
+                    taxQuantity,
+                    priceReceived,
+                    "Pₚ",
+                    "",
+                    "red"
+                );
+            }
         }
     }
 
