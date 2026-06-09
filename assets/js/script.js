@@ -320,7 +320,10 @@ function getCanvasTheme() {
         background: dark ? "#020617" : "#ffffff",
         axis: dark ? "#f8fafc" : "#000000",
         text: dark ? "#f8fafc" : "#000000",
-        guide: dark ? "#94a3b8" : "gray"
+        guide: dark ? "#94a3b8" : "gray",
+        demand: dark ? "#60a5fa" : "blue",
+        supply: dark ? "#66ff99" : "green",
+        tax: dark ? "#ff8080" : "red"
     };
 }
 
@@ -837,7 +840,7 @@ function drawCurves() {
 
     const pointsList = retrievePointsNeededForPlotting(state.mode, state.demandType);
 
-    const colors = (state.mode === "demand") ? ["green", "blue"] : ["green", "red", "blue"];
+    const colors = (state.mode === "demand") ? [theme.supply, theme.demand] : [theme.supply, theme.tax, theme.demand];
 
     for (let i = 0; i < pointsList.length; i++) {
         const points = pointsList[i];
