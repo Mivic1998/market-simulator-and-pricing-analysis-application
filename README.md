@@ -503,7 +503,9 @@ demand-income
 
 to show only the controls relevant to the currently selected demand model. Visibility is once again controlled by CSS and JavaScript, with JavaScript adding an active class to elements with a given demand class when the user switches to the corresponding demand type and removing the active class from the previous demand type that has been switched away from, which is tracked using a variable called previousDemandType.
 
-When switching demand type, the application also resets the parameters belonging to the previous demand model back to their defaults. This prevents users from returning to messy graphs when switching back to a previously used mode.
+When switching demand type, the application also resets the parameters belonging to the previous demand model back to their defaults. This prevents users from returning to cluttered or unintended graph configurations when revisiting a demand model and ensures that each model begins from a predictable baseline.
+
+A slightly different approach is used when switching between demand mode and supply mode. In this case, demand-side parameters are preserved, while supply-side parameters (including taxation) are reset to their default values. This design allows users to compare the same demand conditions across both modes without needing to re-enter demand parameters, while ensuring that taxes or supply adjustments from a previous supply-mode scenario do not unintentionally affect subsequent analysis.
 
 ### Dynamic Parameter Mapping
 

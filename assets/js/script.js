@@ -2939,7 +2939,7 @@ function changeParametersPreset(preset) {
     }
     else if (preset === "supplyModeIncomeOne") {
         // Low Income, High Tax
-        state.income = 150;
+        state.income = 200;
         state.k = 0.5;
         state.c = 0;
         state.d = 1;
