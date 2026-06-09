@@ -336,7 +336,7 @@ A fully integrated dark mode is included to improve usability in low-light envir
 
 ![Dark Mode View](assets/images/readme/dark-mode.PNG)
 
-Special consideration was required for graph rendering, as canvas elements do not automatically inherit CSS styling. As a result, colours for curves, labels, and shading were dynamically adjusted to ensure visibility across both light and dark themes, while preserving consistent meaning (e.g. demand, supply, and revenue colours). In particular, the standard darker colour palette for the demand and supply curves and their labels in light mode was brightened significantly to increase contrast with the dark canvas background in dark mode, while the point guides used to indicate key prices and quantities was also given a brighter tone along with the axes and their labels.
+Special consideration was required for graph rendering, as canvas elements do not automatically inherit CSS styling. As a result, colours for curves, labels, and shading were dynamically adjusted to ensure visibility across both light and dark themes, while preserving consistent meaning. In particular, the standard light mode colour palette for the demand, supply and revenue curves and their labels was brightened significantly to increase contrast with the dark canvas background in dark mode, while the point guides used to indicate key prices and quantities was also given a brighter tone along with the axes and their labels.
 
 ### Theory Page
 
