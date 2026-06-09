@@ -201,9 +201,9 @@ for (let slider of sliders) {
     });
 
     // when user finishes adjusting (releases the slider), scroll to the graph
-    slider.addEventListener('change', () => {
-        mainSection.scrollIntoView({ behavior: 'smooth' });
-    })
+    //slider.addEventListener('change', () => {
+    //    mainSection.scrollIntoView({ behavior: 'smooth' });
+    //})
 }
 
 demandType.addEventListener("change", (e) => {
