@@ -201,9 +201,9 @@ for (let slider of sliders) {
     });
 
     // when user finishes adjusting (releases the slider), scroll to the graph
-    //slider.addEventListener('change', () => {
-    //    mainSection.scrollIntoView({ behavior: 'smooth' });
-    //})
+    slider.addEventListener('change', () => {
+        mainSection.scrollIntoView({ behavior: 'smooth' });
+    })
 }
 
 demandType.addEventListener("change", (e) => {
@@ -1103,7 +1103,7 @@ function drawCurves() {
             drawPointGuides(Q, P, "P*", "Q*");
         }
         else {
-            drawPointGuides(Q, P, "P*", "Q*", "grey");
+            drawPointGuides(Q, P, "P*", "Q*", "#414A4C");
         }
     }
 
@@ -1163,7 +1163,7 @@ function drawCurves() {
                 drawPointGuides(Q0, P0, "P₀", "Q₀");
             }
             else {
-                drawPointGuides(Q0, P0, "P₀", "Q₀", "grey");
+                drawPointGuides(Q0, P0, "P₀", "Q₀", "#414A4C");
             }
         }
     }
