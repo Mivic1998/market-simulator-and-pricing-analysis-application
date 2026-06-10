@@ -89,13 +89,15 @@
                                         <div class="demand-linear active">
                                             <div class="slider-group">
                                                 <label for="a">a:</label>
-                                                <p class="param-desc">Market size — maximum quantity demanded at a price of zero.</p>
+                                                <p class="param-desc">Market size — maximum quantity demanded at a price
+                                                    of zero.</p>
                                                 <input type="range" id="a" min="0" max="100" value="50">
                                                 <input type="number" id="aValue" value="50">
                                             </div>
                                             <div class="slider-group">
                                                 <label for="b">b: </label>
-                                                <p class="param-desc">Price sensitivity — higher values mean demand falls faster as price rises.</p>
+                                                <p class="param-desc">Price sensitivity — higher values mean demand
+                                                    falls faster as price rises.</p>
                                                 <input type="range" id="b" min="0" max="10" step="0.1" value="1">
                                                 <input type="number" id="bValue" value="1">
                                             </div>
@@ -148,13 +150,15 @@
                                             conditions on the supply side.</p>
                                         <div class="slider-group">
                                             <label for="c">c:</label>
-                                            <p class="param-desc">Baseline supply — quantity supplied when price is zero.</p>
+                                            <p class="param-desc">Baseline supply — quantity supplied when price is
+                                                zero.</p>
                                             <input type="range" id="c" min="0" max="100" value="0">
                                             <input type="number" id="cValue" value="0">
                                         </div>
                                         <div class="slider-group">
                                             <label for="d">d: </label>
-                                            <p class="param-desc">Supply responsiveness — how strongly quantity supplied increases as price rises.</p>
+                                            <p class="param-desc">Supply responsiveness — how strongly quantity supplied
+                                                increases as price rises.</p>
                                             <input type="range" id="d" min="0" max="5" step="0.1" value="1">
                                             <input type="number" id="dValue" value="1">
                                         </div>
@@ -183,11 +187,16 @@
             <p>This section shows calculated equilibrium values and economic outcomes based on your settings.</p>
             <div class="general-metrics">
                 <div class="demand-only">Equilibrium Price: <span class="price" id="equilibriumPrice"></span></div>
-                <div class="demand-only">Equilibrium Quantity: <span class="quantity" id="equilibriumQuantity"></span></div>
-                <div class="demand-only">Revenue-Maximizing Price: <span class="price" id="revenueMaximizingPrice"></span></div>
-                <div class="demand-only">Revenue-Maximizing Quantity: <span class="quantity" id="revenueMaximizingQuantity"></span></div>
-                <div class="demand-only">Total Revenue at Equilibrium: <span class="price" id="totalRevenueEquilibrium"></span></div>
-                <div class="demand-only">Total Revenue at Revenue-Maximizing Point: <span class="price" id="totalRevenueMax"></span>
+                <div class="demand-only">Equilibrium Quantity: <span class="quantity" id="equilibriumQuantity"></span>
+                </div>
+                <div class="demand-only">Revenue-Maximizing Price: <span class="price"
+                        id="revenueMaximizingPrice"></span></div>
+                <div class="demand-only">Revenue-Maximizing Quantity: <span class="quantity"
+                        id="revenueMaximizingQuantity"></span></div>
+                <div class="demand-only">Total Revenue at Equilibrium: <span class="price"
+                        id="totalRevenueEquilibrium"></span></div>
+                <div class="demand-only">Total Revenue at Revenue-Maximizing Point: <span class="price"
+                        id="totalRevenueMax"></span>
                 </div>
                 <div class="demand-only">Welfare Loss: <span class="price" id="welfareLoss"></span></div>
                 <div class="supply-only">Price Before Tax: <span class="price" id="priceNoTax"></span></div>

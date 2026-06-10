@@ -746,3 +746,7 @@ body.dark-mode .weather-box {
         margin-bottom: 0;
     }
 }
+
+body.dark-mode .controls-column .controls-panel {
+    margin-top: 0;
+}
