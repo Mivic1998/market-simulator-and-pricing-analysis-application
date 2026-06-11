@@ -1049,6 +1049,10 @@ function applyThemeFromSession() {
 
 This function retrieves the previously selected theme from session storage and applies the corresponding CSS class to the `<body>` element. It also updates the button text so that it reflects the currently available theme option.
 
+A subtle but important implementation detail is that the function uses an `else` statement rather than an `else if` statement. On the first page load of a new session, no theme has yet been stored in `sessionStorage`, meaning `sessionStorage.getItem("theme")` returns `null`. Because the function falls back to an `else` branch, the application automatically applies its default light mode styling whenever no stored theme exists. This ensures that the application behaves correctly when first loaded, before the user has interacted with the dark mode toggle.
+
+This implementation also means that the exact value stored when light mode is selected is not technically required by the logic. The function only checks whether the stored value is equal to `"dark"`; any other value, including `"light"` or `null`, causes the `else` branch to execute and apply the default light mode styling. The value `"light"` is therefore stored primarily for completeness and clarity, making the contents of `sessionStorage` more explicit and easier to understand when debugging.
+
 By calling this function on page load, both the simulator and theory pages automatically restore the user's chosen theme whenever navigation occurs between pages.
 
 Unlike `localStorage`, which persists indefinitely until explicitly cleared, `sessionStorage` only lasts for the lifetime of the browser tab. This means the selected theme is maintained throughout a browsing session but automatically resets when the tab or browser is closed.
