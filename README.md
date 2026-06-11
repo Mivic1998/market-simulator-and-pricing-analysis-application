@@ -57,6 +57,7 @@ The application therefore serves both as a **technical demonstration of advanced
   - [Insight Generation](#insight-generation)
   - [Preset System](#preset-system)
   - [Dark Mode Implementation](#dark-mode-implementation)
+  - [Session Storage for Theme Persistence](#session-storage-for-theme-persistence)
   - [Canvas Theme Handling](#canvas-theme-handling)
   - [Overall Flow](#overall-flow)
 
@@ -961,6 +962,40 @@ darkModeToggle.textContent =
 where isDark is a boolean which checks if the body element currently contains a dark mode class. If it does then the app is in dark mode, the boolean takes a true value which changes the text content on the button to "Light Mode" and vice versa when the app is in its default "Light Mode". 
 
 This implementation separates behaviour from presentation, with JavaScript controlling application state and CSS controlling visual appearance.
+
+### Session Storage for Theme Persistence
+
+The application uses `sessionStorage` to preserve the selected theme when users navigate between the simulator and theory pages.
+
+When the dark mode button is pressed, the current theme is stored using:
+
+```js
+sessionStorage.setItem("theme", isDark ? "dark" : "light");
+```
+
+Both pages then call the `applyThemeFromSession()` function when they load:
+
+```js
+function applyThemeFromSession() {
+    const savedTheme = sessionStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.textContent = "Light Mode";
+    } else {
+        document.body.classList.remove("dark-mode");
+        darkModeToggle.textContent = "Dark Mode";
+    }
+}
+```
+
+This function retrieves the previously selected theme from session storage and applies the corresponding CSS class to the `<body>` element. It also updates the button text so that it reflects the currently available theme option.
+
+By calling this function on page load, both the simulator and theory pages automatically restore the user's chosen theme whenever navigation occurs between pages.
+
+Unlike `localStorage`, which persists indefinitely until explicitly cleared, `sessionStorage` only lasts for the lifetime of the browser tab. This means the selected theme is maintained throughout a browsing session but automatically resets when the tab or browser is closed.
+
+This behaviour was chosen because it provides a consistent user experience across the application while ensuring that each new session begins with the default appearance.
 
 ### Canvas Theme Handling
 
