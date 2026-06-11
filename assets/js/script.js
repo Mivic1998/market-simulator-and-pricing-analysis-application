@@ -82,6 +82,7 @@ const supplySliderC = document.getElementById("c");
 const supplyInputC = document.getElementById("cValue");
 const supplySliderD = document.getElementById("d");
 const supplyInputD = document.getElementById("dValue");
+const resetButtons = document.querySelectorAll(".reset-btn");
 
 document.body.classList.remove("dark-mode");
 
@@ -100,6 +101,82 @@ darkModeToggle.addEventListener("click", () => {
     drawRevenue();
     renderInsights();
 });
+
+for (let button of resetButtons) {
+    button.addEventListener("click", (e) => {
+        const id = e.currentTarget.id;
+
+        if (id === "resetSupply" || id === "resetSimulator") {
+            state.c = supplyDefaults.c;
+            state.d = supplyDefaults.d;
+            state.t = 0;
+        }
+
+        if (id === "resetDemand" || id === "resetSimulator") {
+            if (state.demandType === "linear") {
+                state.a = demandDefaults.linear.a;
+                state.b = demandDefaults.linear.b;
+            }
+            else if (state.demandType === "nonlinear") {
+                state.aNonlinear = demandDefaults.nonlinear.aNonlinear;
+                state.bNonlinear = demandDefaults.nonlinear.bNonlinear;
+            }
+            else if (state.demandType === "income") {
+                state.income = demandDefaults.income.income;
+                state.k = demandDefaults.income.k;
+            }
+        }
+
+        if (id === "resetSimulator") {
+            state.mode = "demand";
+            state.demandType = "linear";
+            previousDemandType = "linear";
+
+            for (let element of supplyOnlyElements) {
+                element.classList.remove("visible");
+            }
+
+            for (let element of demandOnlyElements) {
+                element.classList.add("visible");
+            }
+
+            for (let button of modeButtons) {
+                button.classList.remove("active");
+            }
+
+            modeButtons[0].classList.add("active");
+
+            document.querySelectorAll(".demand-linear, .demand-nonlinear, .demand-income")
+                .forEach(element => element.classList.remove("active"));
+
+            document.querySelectorAll(".demand-linear")
+                .forEach(element => element.classList.add("active"));
+
+            demandType.value = "linear";
+        }
+
+        for (let input of manualInputs) {
+            const key = input.id.replace("Value", "");
+
+            if (key in state) {
+                input.value = state[key];
+            }
+        }
+
+        for (let slider of sliders) {
+            if (slider.id in state) {
+                slider.value = state[slider.id];
+            }
+        }
+
+        displayAndStoreMetricValues();
+        drawCurves();
+        drawRevenue();
+        renderInsights();
+
+        mainSection.scrollIntoView({ behavior: "smooth" });
+    });
+}
 
 for (let button of modeButtons) {
     button.addEventListener("click", (e) => {
@@ -711,7 +788,7 @@ function drawAxes(ctx, axisMarginX = marginX) {
     ctx.fill();
 
     ctx.fillStyle = theme.text;
-    ctx.fillText("0", axisMarginX - 10, canvasHeight - marginBottom + 15);
+    ctx.fillText("0", axisMarginX - 10, canvasHeight - marginBottom + 10);
 }
 
 function drawPointGuides(Q, P, labelP, labelQ, color = "white") {
@@ -739,7 +816,7 @@ function drawPointGuides(Q, P, labelP, labelQ, color = "white") {
     ctxMain.font = "12px Arial";
 
     // Q label
-    ctxMain.fillText(labelQ, x - 10, canvasHeight - marginBottom + 20);
+    ctxMain.fillText(labelQ, x - 10, canvasHeight - marginBottom + 22);
 
     // P label
     ctxMain.fillText(labelP, marginX - 25, y + 5);

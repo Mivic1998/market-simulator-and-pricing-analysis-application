@@ -261,6 +261,49 @@ label[for="d"] {
     color: #475569;
 }
 
+.reset-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.reset-section h3 {
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+.reset-section p {
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+.reset-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.reset-btn {
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #e2e8f0;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.reset-btn:hover {
+    background: #cbd5e1;
+}
+
+.reset-all {
+    font-weight: 600;
+}
+
 /* ===== PRESETS ===== */
 .presets-buttons {
     text-align: center;
@@ -750,3 +793,4 @@ body.dark-mode .weather-box {
 body.dark-mode .controls-column .controls-panel {
     margin-top: 0;
 }
+
