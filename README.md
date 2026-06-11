@@ -445,6 +445,32 @@ state.mode = newMode;
 
 This single value changes the behaviour of the entire application.
 
+A small implementation detail is the use of the `modeButtonClicked` flag. The application is initialised by programmatically triggering:
+
+```js
+modeButtons[0].click();
+```
+
+which simulates a user clicking the default demand mode button when the page loads, which triggers the application's update pipeline.
+
+However, the mode event listener also contains logic to prevent unnecessary work when a user clicks the mode that is already active. Without additional handling, this optimisation would incorrectly prevent the initial simulated click from executing because the application starts with:
+
+```js
+state.mode = "demand";
+```
+
+and the first button also represents demand mode.
+
+The `modeButtonClicked` boolean therefore acts as a guard:
+
+```js
+if (state.mode === newMode && modeButtonClicked) {
+    return;
+}
+```
+
+Initially the flag is `false`, allowing the simulated click to run and perform the setup required to initialise the interface correctly. Once this initialisation has occurred, the flag is set to `true` inside the event listener, meaning future clicks on the already active mode button are ignored to avoid unnecessary recalculation and redrawing of the application.
+
 Demand mode focuses on:
 
 - Equilibrium
