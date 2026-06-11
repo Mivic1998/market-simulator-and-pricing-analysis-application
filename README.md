@@ -56,6 +56,7 @@ The application therefore serves both as a **technical demonstration of advanced
   - [Hover System](#hover-system)
   - [Insight Generation](#insight-generation)
   - [Preset System](#preset-system)
+  - [Reset System](#reset-system)
   - [Dark Mode Implementation](#dark-mode-implementation)
   - [Session Storage for Theme Persistence](#session-storage-for-theme-persistence)
   - [Canvas Theme Handling](#canvas-theme-handling)
@@ -924,6 +925,63 @@ input.value = state[key];
 ```
 
 This ensures the controls always reflect the underlying model configuration after a preset has been applied.
+
+### Reset System
+
+The application includes three reset actions which allow users to quickly return either selected parameters or the entire simulator to their default state:
+
+- Reset Demand
+- Reset Supply
+- Reset All
+
+Rather than manually clearing individual controls, the reset system operates directly on the central `state` object. This ensures that the application's internal data remains the single source of truth.
+
+For example, resetting the supply side restores the default supply parameters:
+
+```js
+state.c = supplyDefaults.c;
+state.d = supplyDefaults.d;
+state.t = 0;
+```
+
+Similarly, resetting demand restores the default values associated with the currently selected demand model. The reset logic therefore conditions on:
+
+```js
+state.demandType
+```
+
+and applies the appropriate defaults for linear, nonlinear, or income-based demand.
+
+After the state has been updated, the application uses the same parameter-mapping system employed by presets to synchronise all sliders and manual inputs with the restored values:
+
+```js
+const key = input.id.replace("Value", "");
+input.value = state[key];
+
+slider.value = state[slider.id];
+```
+
+This avoids the need for parameter-specific update logic and guarantees that every control accurately reflects the current state.
+
+The **Reset All** button extends this behaviour by restoring both the demand and supply parameters while also returning the application to its default configuration:
+
+```js
+state.mode = "demand";
+state.demandType = "linear";
+```
+
+The visibility system is then updated so that only the controls associated with the default mode and demand type remain visible.
+
+Once the reset operation has completed, the standard update pipeline is executed:
+
+```js
+displayAndStoreMetricValues();
+drawCurves();
+drawRevenue();
+renderInsights();
+```
+
+This ensures that all metrics, graphs, and insights are recalculated from the restored state, allowing the simulator to return immediately to a fully synchronised default configuration.
 
 ### Dark Mode Implementation
 
