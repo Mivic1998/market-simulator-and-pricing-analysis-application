@@ -84,17 +84,28 @@ const supplySliderD = document.getElementById("d");
 const supplyInputD = document.getElementById("dValue");
 const resetButtons = document.querySelectorAll(".reset-btn");
 
-document.body.classList.remove("dark-mode");
+function applyThemeFromSession() {
+    const savedTheme = sessionStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.textContent = "Light Mode";
+    } else {
+        document.body.classList.remove("dark-mode");
+        darkModeToggle.textContent = "Dark Mode";
+    }
+}
+
+applyThemeFromSession();
 
 darkModeToggle.addEventListener("click", () => {
-
     document.body.classList.toggle("dark-mode");
 
-    const isDark =
-        document.body.classList.contains("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
 
-    darkModeToggle.textContent =
-        isDark ? "Light Mode" : "Dark Mode";
+    sessionStorage.setItem("theme", isDark ? "dark" : "light");
+
+    darkModeToggle.textContent = isDark ? "Light Mode" : "Dark Mode";
 
     displayAndStoreMetricValues();
     drawCurves();
@@ -3130,5 +3141,3 @@ function loadWeather() {
 }
 
 loadWeather();
-
-
