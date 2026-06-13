@@ -276,7 +276,7 @@ Below is a comprehensive detailing of the features that users can explore while 
 
 ### Main Market Graph
 
-The main graph is the central feature of the application. It dynamically renders supply and demand curves using the HTML5 Canvas API, based on real-time parameter inputs.
+The main graph is the central feature of the application. It dynamically renders supply and demand curves using the HTML5 Canvas API, based on real-time parameter inputs. The image below displays the application in its default demand mode, where users are able to examine how pricing decisions associated with revenue maximisation impact welfare outcomes in the market.
 
 ![Responsive View of the Market Graph](assets/images/readme/main-responsive-view-three-demand-mode.PNG)
 
