@@ -280,9 +280,9 @@ The main graph is the central feature of the application. It dynamically renders
 
 ![Responsive View of the Market Graph](assets/images/readme/main-responsive-view-three-demand-mode.PNG)
 
-Meanwhile, graph itself is not pre-drawn or static. Instead, it is generated through mathematical functions that calculate values and convert them into pixel coordinates. This approach allows the application to support multiple demand models, including linear, nonlinear, and income-based demand, each of which produces a different curve shape and behaviour. 
+The graph itself is not pre-drawn or static. Instead, it is generated through functions that calculate values and convert them into pixel coordinates. This approach allows the application to support multiple demand models, including linear, nonlinear, and income-based demand, each of which produces a different curve shape and behaviour. 
 
-The main graph section includes a control panel, which allows users to adjust parameters, alter the demand type and also features a reset section which allows users to reset demand and supply parameters as well as affording them the ability to return the simulator to its default state. As users adjust parameters such as intercepts, slopes, or taxation levels, the graph is recalculated and redrawn instantly. This ensures that the visual output remains fully synchronised with the underlying economic model, allowing users to observe how changes in inputs directly affect equilibrium, surplus, and overall market outcomes.
+The main graph section includes a control panel, which allows users to adjust parameters, alter the demand type and also features a reset section which allows users to reset demand and supply parameters as well as affording them the ability to return the simulator to its default state. As users adjust parameters such as intercepts, slopes, or taxation levels, the parameters and plot points are recalculated and the graph is redrawn instantly. This ensures that the visual output remains fully synchronised with the underlying economic model, allowing users to observe how changes in inputs directly affect equilibrium, surplus, and overall market outcomes.
 
 In addition to plotting curves, the graph also incorporates visual elements such as shaded surplus areas, equilibrium markers, and guide lines. These features help translate abstract calculations into clear visual representations, making it easier for users to interpret results without relying solely on numerical outputs.
 
@@ -294,13 +294,13 @@ The revenue graph (which is displayed only in demand mode) adds a second layer o
 
 ![Responsive View of the Revenue Graph](assets/images/readme/main-responsive-view-five-demand-mode.PNG)
 
-The revenue graph is generated directly from the active demand curve. For each quantity value, the corresponding price is calculated using the demand model before revenue is computed using TR = P × Q. Under linear demand, the curve follows a parabolic shape, increasing to a maximum before declining. For nonlinear demand, the curve adjusts according to the exponential relationship, while income-based demand produces constant revenue due to unit elasticity. This ensures the graph remains consistent with the underlying economic model.
+The revenue graph is generated directly from the active demand curve. For each quantity value, the corresponding price is calculated using the demand model before revenue is computed using TR = P × Q. Under linear demand, the curve follows a parabolic shape, increasing to a maximum before declining. For nonlinear demand, the curve adjusts according to the exponential relationship, while income-based demand produces constant revenue due to unit elasticity.
 
 The preset system is closely integrated with this graph and allows users to quickly switch between meaningful parameter configurations. Rather than manually adjusting multiple inputs, presets apply predefined values to the central state, instantly updating both the market and revenue graphs.
 
 Presets vary depending on both the **selected demand type** and the **current mode of the application**. In demand mode, presets are designed to highlight differences such as elastic versus inelastic demand, as well as changes in intercepts and curve shapes. In supply mode, presets also include taxation, allowing users to observe how different combinations of demand conditions and tax levels affect revenue outcomes.
 
-Because presets modify multiple variables at once, they are particularly useful for comparing scenarios. For example, users can quickly observe how revenue behaviour differs between elastic and inelastic demand, or how taxation impacts total revenue under different market conditions. This makes the preset system an important tool for structured experimentation rather than just convenience.
+Because presets modify multiple variables at once, they are particularly useful for comparing scenarios. For example, users can quickly observe how revenue and market behaviour differ across elastic and inelastic demand states, or how taxation impacts welfare outcomes with respect to different market conditions. This makes the preset system an important tool for structured experimentation rather than just convenience.
 
 ---
 
