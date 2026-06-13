@@ -4,7 +4,7 @@
 
 The **Market Simulator and Pricing Analysis Application** is a fully interactive, browser-based economic modelling tool developed as part of the Code Institute Full Stack JavaScript module. The project was designed to move beyond static representations of economic concepts and instead create a system in which users can actively manipulate and observe market behaviour in real time.
 
-Traditional supply and demand diagrams are limited by their static nature. They allow the illustration of relationships, but not experimentation. This application addresses that limitation by introducing a dynamic system where users can directly alter parameters such as demand elasticity, income levels, and taxation, and immediately observe how these changes affect equilibrium, revenue, and welfare.
+Traditional supply and demand diagrams are limited by their static nature. They allow the illustration of relationships, but not experimentation. This application addresses that limitation by introducing a dynamic system where users can directly alter demand and supply-side parameters and immediately observe how these changes affect equilibrium, revenue, and welfare.
 
 The application therefore serves both as a **technical demonstration of advanced JavaScript and rendering logic**, and as an **educational tool grounded in economic theory**, enabling the user to transition from passive observation to active exploration.
 
@@ -109,6 +109,7 @@ First-time visitors require immediate clarity and usability. The system is desig
 - As a first-time visitor, I want to immediately understand the purpose of the application, so that I can begin interacting without needing external explanation  
 - As a first-time visitor, I want controls to be clearly labelled and grouped, so that I can quickly identify how to adjust the system  
 - As a first-time visitor, I want to see immediate visual changes, so that I can understand cause-and-effect relationships without delay  
+- As a user, I want my display preferences such as dark mode to be preserved within a single session when switching between the main application page and the theory page, so that I can maintain a consistent and comfortable viewing experience without having to reapply my settings.
 
 ---
 
@@ -118,7 +119,6 @@ Returning users prioritise efficiency and familiarity.
 
 - As a returning user, I want a consistent interface, so that I can interact quickly without relearning controls  
 - As a returning user, I want preset configurations, so that I can test defined economic scenarios without manually setting every parameter  
-- As a returning user, I want my display preferences such as dark mode to be retained, so that usability is improved over time  
 
 ---
 
